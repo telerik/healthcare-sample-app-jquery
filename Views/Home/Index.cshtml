@@ -1,0 +1,199 @@
+﻿@{
+    ViewData["Title"] = "Doctor Workspace — Dr. Carter";
+    ViewData["ActivePage"] = "Home";
+}
+
+    <!-- ═══════════════════════════════════════════
+         PAGE BODY
+    ═══════════════════════════════════════════ -->
+    <div class="page-body">
+
+        <!-- Greeting — full width row -->
+        <div class="greeting home-greeting">
+            <h1>Good morning, Dr. Carter</h1>
+            <p>Today is <span id="today-date"></span></p>
+        </div>
+
+        <!-- LEFT COLUMN -->
+        <div class="col-main">
+
+            <!-- Quick Actions -->
+            <div class="card quick-actions-card">
+                <h2 class="card-title">Quick Actions</h2>
+                <div class="shortcut-grid">
+
+                    <div class="shortcut-card">
+                        <div class="shortcut-top">
+                            <div>
+                                <div class="shortcut-title">Add new clinical note</div>
+                                <div class="shortcut-desc">Clinical text overview</div>
+                            </div>
+                            <svg class="shortcut-icon" width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g opacity="0.4">
+                                <path d="M23.45 3.5H10.5C9.57174 3.5 8.6815 3.86875 8.02513 4.52513C7.36875 5.1815 7 6.07174 7 7V35C7 35.9283 7.36875 36.8185 8.02513 37.4749C8.6815 38.1313 9.57174 38.5 10.5 38.5H31.5C32.4283 38.5 33.3185 38.1313 33.9749 37.4749C34.6313 36.8185 35 35.9283 35 35V22.05" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3.5 10.5H10.5" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3.5 17.5H10.5" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3.5 24.5H10.5" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3.5 31.5H10.5" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M37.4115 9.84527C38.1086 9.14815 38.5002 8.20265 38.5002 7.21677C38.5002 6.23089 38.1086 5.28539 37.4115 4.58827C36.7143 3.89115 35.7688 3.49951 34.783 3.49951C33.7971 3.49951 32.8516 3.89115 32.1545 4.58827L23.387 13.3593C22.9709 13.7751 22.6663 14.2891 22.5015 14.8538L21.0367 19.8763C20.9928 20.0269 20.9902 20.1865 21.0291 20.3384C21.068 20.4904 21.1471 20.6291 21.258 20.74C21.3689 20.8509 21.5076 20.93 21.6595 20.9689C21.8115 21.0078 21.9711 21.0052 22.1217 20.9613L27.1442 19.4965C27.7089 19.3316 28.2229 19.0271 28.6387 18.611L37.4115 9.84527Z" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                </g>
+                            </svg>                        </div>
+                        <button id="btn-new-note" class="shortcut-add-btn" title="Add new clinical note">                           
+                            <span class="btn-label">Add note</span>
+                        </button>
+                    </div>
+
+                    <div class="shortcut-card">
+                        <div class="shortcut-top">
+                            <div>
+                                <div class="shortcut-title">Request lab test</div>
+                                <div class="shortcut-desc">Request information</div>
+                            </div>
+                            <svg class="shortcut-icon" width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g opacity="0.4">
+                                <path d="M24.5 3.5V14C24.4997 14.5871 24.6471 15.1648 24.9287 15.68L34.5712 33.32C34.8629 33.8531 35.0107 34.4529 35.0002 35.0604C34.9898 35.668 34.8213 36.2623 34.5114 36.785C34.2015 37.3077 33.7608 37.7407 33.2328 38.0414C32.7048 38.3421 32.1076 38.5001 31.5 38.5H10.5C9.89232 38.5001 9.29511 38.3421 8.76709 38.0414C8.23907 37.7407 7.79844 37.3077 7.48854 36.785C7.17864 36.2623 7.01016 35.668 6.99967 35.0604C6.98918 34.4529 7.13704 33.8531 7.42871 33.32L17.0712 15.68C17.3528 15.1648 17.5002 14.5871 17.5 14V3.5" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M11.2927 26.25H30.7072" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14.875 3.5H27.125" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <button id="btn-lab-test" class="shortcut-add-btn" title="Request lab test">                            
+                            <span class="btn-label">Request test</span>
+                        </button>
+                    </div>
+
+                    <div class="shortcut-card">
+                        <div class="shortcut-top">
+                            <div>
+                                <div class="shortcut-title">Message nurse</div>
+                                <div class="shortcut-desc">Communication note</div>
+                            </div>
+                            <svg class="shortcut-icon" width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g opacity="0.4">
+<path d="M38.5 29.75C38.5 30.6783 38.1313 31.5685 37.4749 32.2249C36.8185 32.8813 35.9283 33.25 35 33.25H11.949C11.0208 33.2502 10.1307 33.6191 9.4745 34.2755L5.621 38.129C5.44723 38.3027 5.22586 38.421 4.98486 38.469C4.74386 38.5169 4.49405 38.4923 4.26704 38.3983C4.04002 38.3042 3.84598 38.145 3.70945 37.9407C3.57292 37.7364 3.50003 37.4962 3.5 37.2505V8.75C3.5 7.82174 3.86875 6.9315 4.52513 6.27513C5.1815 5.61875 6.07174 5.25 7 5.25H35C35.9283 5.25 36.8185 5.61875 37.4749 6.27513C38.1313 6.9315 38.5 7.82174 38.5 8.75V29.75Z" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>
+
+                        </div>
+                        <button id="btn-nurse-chat" class="shortcut-add-btn" title="Message nurse">                            
+                            <span class="btn-label">Send message</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Today's Appointments -->
+            <div class="card appointments-card">
+                <div class="appointments-header">
+                    <h2 class="card-title">Today's Appointments</h2>
+                    <a asp-controller="Schedule" asp-action="Index" id="btn-view-schedule" class="view-schedule-btn">View Schedule</a>
+                </div>
+                <div id="appointments-grid"></div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-side">
+
+            <!-- Next Patient -->
+            <div class="card next-patient-card">
+                <h2 class="card-title">Next Patient</h2>
+
+                <div class="next-patient-header">
+                    <img class="patient-avatar" src="/content/patient-images/women/aiony-haust-3TLl_97HNJo-unsplash.jpg" alt="Emma Johnson" />
+                    <div class="patient-info">
+                        <div class="patient-name-row">
+                            <span class="patient-name">Emma Johnson</span>
+                            <a href="#" class="view-profile-link" data-patient-id="P-1001">&#128279; View profile</a>
+                        </div>
+                        <div class="patient-meta">45 years, Female</div>
+                    </div>
+                    <div class="appt-time">
+                        <div class="appt-time-label"><span class="k-icon k-svg-icon k-svg-i-clock appt-time-icon"></span>09:30 AM</div>
+                        <div class="appt-time-sub">Appointment time</div>
+                    </div>
+                </div>
+
+                <div class="patient-detail-row">
+                    <img class="detail-icon-image" src="~/content/reason-visit.png" alt="Reason for visit icon" />
+                    <div class="detail-body">
+                        <div class="detail-label">Reason for visit</div>
+                        <div class="detail-value">Acute respiratory failure follow-up</div>
+                    </div>
+                    <a href="#" class="detail-link" id="link-reason-details">Details &rsaquo;</a>
+                </div>
+
+                <div class="patient-detail-row">
+                    <img class="detail-icon-image" src="~/content/allergy-alert.png" alt="Allergy alert icon" />
+                    <div class="detail-body">
+                        <div class="detail-label">Allergy Alert</div>
+                        <div class="detail-value">Penicillin, NSAIDs</div>
+                    </div>
+                    <a href="#" class="detail-link" id="link-allergy-details">Details &rsaquo;</a>
+                </div>
+
+            </div>
+
+            <!-- Daily Alerts -->
+            <div class="card alerts-card">
+                <h2 class="card-title">Daily Alerts</h2>
+                <div id="alerts-list"></div>
+                <button id="ai-float-btn" title="AI Assistant"></button>
+            </div>            
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         DIALOGS (hidden, opened by buttons)
+    ═══════════════════════════════════════════ -->
+
+    <!-- New Note Dialog -->
+    <div id="dialog-new-note">
+        <div class="dialog-field">
+            <label class="dialog-label">Select Patient</label>
+            <input id="note-patient-ddl" />
+        </div>
+        <div class="dialog-field">
+            <label class="dialog-label">Clinical Note</label>
+            <textarea id="note-textarea" class="note-textarea" placeholder="Add clinical notes, observations, treatment plans, etc."></textarea>
+        </div>
+    </div>
+
+    <!-- Lab Test Dialog -->
+    <div id="dialog-lab-test">
+        <div class="dialog-field">
+            <label class="dialog-label">Select Patient</label>
+            <input id="lab-patient-ddl" />
+        </div>
+        <div class="dialog-field">
+            <label class="dialog-label">Select Lab Tests</label>
+            <div class="lab-search-wrap">
+                <input id="lab-test-search" type="text" class="lab-test-search" placeholder="Search Lab Tests" />
+                <button id="lab-search-clear" class="lab-search-clear" title="Clear">&times;</button>
+            </div>
+            <div id="lab-test-list" class="lab-test-list"></div>
+        </div>
+    </div>
+
+    <!-- Nurse Message Dialog -->
+    <div id="dialog-nurse-chat"></div>
+
+    <!-- Alert Review Dialog -->
+    <div id="dialog-alert-review"></div>
+
+    <!-- Reason for Visit Dialog -->
+    <div id="dialog-reason-visit"></div>
+
+    <!-- Allergy Details Dialog -->
+    <div id="dialog-allergy-details"></div>
+
+    <!-- AI Assistant Dialog -->
+    <div id="dialog-ai-assistant">
+        <div id="ai-chat"></div>
+    </div>
+
+@section Scripts {
+    <script src="~/js/app.js" asp-append-version="true"></script>
+}

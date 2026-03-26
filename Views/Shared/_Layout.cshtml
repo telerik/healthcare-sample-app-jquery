@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" />
+    <!-- Kendo UI Default Theme -->
+    <link id="kendo-theme" rel="stylesheet" href="https://kendo.cdn.telerik.com/themes/13.1.1/default/default-main.css" />
+    <!-- Kendo Theme Variable Overrides -->
+    <link rel="stylesheet" href="~/css/kendo-theme-overrides.css" asp-append-version="true" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════
+         APP BAR
+    ═══════════════════════════════════════════ -->
+    <div id="appbar" class="app-appbar">
+        <!-- Logo -->
+        <span class="k-appbar-section appbar-logo">
+            <img src="~/content/logo.png" alt="Logo" class="appbar-logo-img" />
+        </span>
+
+        <!-- Nav -->
+        <span class="k-appbar-section k-appbar-spacer-center appbar-nav">
+            <div id="appbar-nav" data-active-page="@ViewData["ActivePage"]"></div>
+        </span>
+
+        <!-- Right section -->
+        <span class="k-appbar-section appbar-right">
+            <input id="appbar-search" />
+            <button class="icon-btn" id="btn-settings" title="Settings">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <g clip-path="url(#clip0_settings)">
+                        <path d="M5.99992 10.6667C8.57725 10.6667 10.6666 8.57734 10.6666 6.00001C10.6666 3.42268 8.57725 1.33334 5.99992 1.33334C3.42259 1.33334 1.33325 3.42268 1.33325 6.00001C1.33325 8.57734 3.42259 10.6667 5.99992 10.6667Z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9.99992 14.6667C12.5772 14.6667 14.6666 12.5773 14.6666 10C14.6666 7.42268 12.5772 5.33334 9.99992 5.33334C7.42259 5.33334 5.33325 7.42268 5.33325 10C5.33325 12.5773 7.42259 14.6667 9.99992 14.6667Z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                    <defs>
+                        <clipPath id="clip0_settings">
+                            <rect width="16" height="16" fill="white"/>
+                        </clipPath>
+                    </defs>
+                </svg>
+            </button>
+            <button class="icon-btn" id="btn-theme-toggle" title="Toggle Dark Theme">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.33" fill="none"/>
+                    <path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5M3.3 3.3L4.4 4.4M11.6 11.6L12.7 12.7M3.3 12.7L4.4 11.6M11.6 4.4L12.7 3.3" stroke="currentColor" stroke-width="1.33" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <span class="notif-wrap">
+                <button class="icon-btn" id="notif-btn" title="Notifications">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M8 2C5.8 2 4 3.8 4 6v3.5L2.5 11h11L12 9.5V6c0-2.2-1.8-4-4-4z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <path d="M6.5 13c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </button>
+                <span id="notif-badge"></span>
+            </span>
+            <span class="appbar-sep" aria-hidden="true"></span>
+            <img class="avatar" id="profile-trigger" src="/content/patient-images/women/michael-dam-mEZ3PoFGs_k-unsplash.jpg" alt="Dr. Carter" title="Profile &amp; Settings" />
+        </span>
+    </div>
+
+    <div id="page-content" class="page-loading">
+        @RenderBody()
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         SCRIPTS
+    ═══════════════════════════════════════════ -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2026.1.325/js/kendo.all.min.js"></script>
+    <script src="~/js/data.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/profile.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

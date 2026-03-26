@@ -1,0 +1,123 @@
+@{
+    ViewData["Title"] = "Patients — Dr. Carter";
+    ViewData["ActivePage"] = "Patients";
+}
+
+    <!-- ═══════════════════════════════════════════
+         SHARED PAGE HEADER (visible in both views)
+    ═══════════════════════════════════════════ -->
+    <div class="patients-page-header">
+        <div>
+            <h1 class="patients-page-title">Patients</h1>
+            <p class="patients-page-sub">Monitor patient trends, vitals, lab results, and risk levels in one place</p>
+        </div>
+        <div class="patients-header-actions">
+            <button id="btn-ai-assistance">AI Assistance</button>
+            <button id="btn-export">Export</button>
+        </div>
+    </div>
+
+    <!-- Breadcrumb (shown only in detail view) -->
+    <nav id="patients-breadcrumb" class="patients-breadcrumb" style="display:none">
+        <a id="breadcrumb-back" class="breadcrumb-link">
+            <span class="nav-icon">&#128100;</span> Patients
+        </a>
+        <span class="breadcrumb-sep">&#8250;</span>
+        <span class="breadcrumb-current">
+            <span class="breadcrumb-edit-icon">&#9998;</span> Patient Profile
+        </span>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════
+         VIEW A — PATIENT LIST
+    ═══════════════════════════════════════════ -->
+    <div id="patients-list-view">
+
+        <!-- Main body: grid  +  AI panel (panel toggled by button) -->
+        <div id="patients-list-body" class="patients-list-body">
+
+            <!-- Grid column -->
+            <div class="patients-grid-col">
+                <div class="card patients-grid-card">
+                    <div id="patients-grid"></div>
+                </div>
+            </div>
+
+            <!-- AI Assistant panel (hidden until button clicked) -->
+            <div id="list-ai-panel" class="card patients-ai-panel" style="display:none">
+                <div class="list-ai-panel-header">
+                    <span class="list-ai-title">&#10022; AI Assistant</span>
+                </div>
+                <div id="list-ai-date" class="list-ai-date"></div>
+                <div id="list-ai-chat"></div>
+            </div>
+
+            <!-- Patient Preview panel (shown on patient name double-click) -->
+            <div id="patient-preview-panel" class="patient-preview-panel" style="display:none"></div>
+
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         VIEW B — PATIENT DRILLDOWN
+    ═══════════════════════════════════════════ -->
+    <div id="patients-detail-view" style="display:none">
+        <div id="detail-main" class="detail-main-wrap"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         DIALOG CONTAINERS
+    ═══════════════════════════════════════════ -->
+
+    <!-- Change Status dialog (content injected at runtime) -->
+    <div id="change-status-dialog"></div>
+
+    <!-- Add New Patient dialog -->
+    <div id="add-patient-dialog" style="display:none">
+        <div class="dialog-field-row">
+            <div class="dialog-field dialog-field-half">
+                <label class="dialog-label">Full Name</label>
+                <input id="np-name" type="text" class="np-text-input" placeholder="Full name" />
+            </div>
+            <div class="dialog-field dialog-field-half">
+                <label class="dialog-label">Patient ID</label>
+                <input id="np-id" type="text" class="np-text-input" placeholder="P-10xx" />
+            </div>
+        </div>
+        <div class="dialog-field-row">
+            <div class="dialog-field dialog-field-half">
+                <label class="dialog-label">Age</label>
+                <input id="np-age" type="number" style="width:100%" />
+            </div>
+            <div class="dialog-field dialog-field-half">
+                <label class="dialog-label">Gender</label>
+                <select id="np-gender" style="width:100%"></select>
+            </div>
+        </div>
+        <div class="dialog-field">
+            <label class="dialog-label">Ward</label>
+            <select id="np-ward" style="width:100%"></select>
+        </div>
+        <div class="dialog-field">
+            <label class="dialog-label">Primary Diagnosis</label>
+            <input id="np-diagnosis" type="text" class="np-text-input" placeholder="e.g. Hypertension" />
+        </div>
+        <div class="dialog-field-row">
+            <div class="dialog-field dialog-field-half">
+                <label class="dialog-label">Status</label>
+                <select id="np-status" style="width:100%"></select>
+            </div>
+            <div class="dialog-field dialog-field-half">
+                <label class="dialog-label">Assigned Doctor</label>
+                <select id="np-doctor" style="width:100%"></select>
+            </div>
+        </div>
+        <div class="dialog-field">
+            <label class="dialog-label">Phone</label>
+            <input id="np-phone" type="text" class="np-text-input" placeholder="+1 555-0XXX" />
+        </div>
+    </div>
+
+@section Scripts {
+    <script src="~/js/patients.js" asp-append-version="true"></script>
+}

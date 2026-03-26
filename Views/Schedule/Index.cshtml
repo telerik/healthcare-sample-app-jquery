@@ -1,0 +1,95 @@
+@{
+    ViewData["Title"] = "Schedule — Dr. Carter";
+    ViewData["ActivePage"] = "Schedule";
+}
+
+    <!-- ═══════════════════════════════════════════
+         PAGE BODY
+    ═══════════════════════════════════════════ -->
+    <div class="schedule-body">
+
+        <!-- LEFT — SCHEDULER -->
+        <div class="schedule-main">
+            <div class="card sched-card">                
+                <div id="scheduler"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT — SIDE PANEL -->
+        <div class="schedule-side">
+            <!-- Today's Tasks -->
+            <div class="card tasks-card">
+                <div class="tasks-card-header">
+                    <h2 class="tasks-card-title">Daily Tasks</h2>
+                    <div class="tasks-header-actions">
+                        <div class="tasks-search-wrap">
+                            <svg class="tasks-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A5666" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input id="tasks-search" class="tasks-search-input" placeholder="Search daily tasks" />
+                        </div>
+                        <button id="btn-add-task" class="tasks-add-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span class="tasks-add-label">Add Task</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="tasks-filter-row">
+                    <div id="tasks-priority-filter"></div>
+                </div>
+                <div id="tasks-list"></div>
+            </div>            
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         KENDO TEMPLATES
+    ═══════════════════════════════════════════ -->
+
+    <!-- Scheduler event block template -->
+    <script id="event-template" type="text/x-kendo-template">
+        <div class="sched-ev">
+            <div class="sched-ev-title">#= eventType # &ndash; #= patientName #</div>
+            <div class="sched-ev-meta">#= kendo.toString(start, "hh:mm") #&ndash;#= kendo.toString(end, "hh:mm tt") # &middot; #= room #</div>
+        </div>
+    </script>
+
+    <!-- Task list item template -->
+    <script id="task-template" type="text/x-kendo-template">
+        <div class="task-item #= done ? 'task-done' : '' #">
+            <label class="task-cb-wrap">
+                <input type="checkbox" class="task-checkbox" data-id="#= id #" #= done ? 'checked="checked"' : '' # />
+                <span class="task-cb-custom"></span>
+            </label>
+            <span class="task-text">#= task #</span>
+            <span class="k-badge-priority" data-priority="#= priorityTheme(priority) #">#= priority #</span>
+        </div>
+    </script>
+
+    <!-- ═══════════════════════════════════════════
+         DIALOGS
+    ═══════════════════════════════════════════ -->
+
+    <!-- Add Task dialog -->
+    <div id="add-task-dialog">
+        <div class="add-task-form">
+            <div class="atf-field">
+                <span class="atf-label">Task Name</span>
+                <input id="atf-name" name="taskName" required validationMessage="Task name is required." />
+                <span class="k-invalid-msg atf-error" data-for="taskName"></span>
+            </div>
+            <div class="atf-field">
+                <span class="atf-label">Priority</span>
+                <div id="atf-priority-group"></div>
+            </div>
+            <div class="atf-field">
+                <span class="atf-label">Description</span>
+                <textarea id="atf-description"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment detail placeholder (content injected by JS) -->
+    <div id="appointment-dialog"></div>
+
+@section Scripts {
+    <script src="~/js/schedule.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,402 @@
+/* ═══════════════════════════════════════════════════════
+   PROFILE MANAGEMENT WINDOW — shared across all pages
+   Opens from the AppBar avatar (#profile-trigger).
+   Uses kendoWindow with injected content.
+═══════════════════════════════════════════════════════ */
+
+/* ── Doctor data ──────────────────────────────────── */
+var doctorProfile = {
+    fullName: "Emily Carter",
+    email:    "drcarter@email.com",
+    phone:    "+(555) 776-90-84",
+    avatar:   "/content/patient-images/women/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
+};
+
+function applyDoctorProfile(profile) {
+    if (!profile) {
+        return;
+    }
+
+    doctorProfile.fullName = profile.fullName || doctorProfile.fullName;
+    doctorProfile.email    = profile.email || doctorProfile.email;
+    doctorProfile.phone    = profile.phone || doctorProfile.phone;
+    doctorProfile.avatar   = profile.avatar || doctorProfile.avatar;
+
+    $(".avatar, #profile-trigger").attr("src", doctorProfile.avatar);
+    $("#pm-avatar").attr("src", doctorProfile.avatar);
+}
+
+function loadDoctorProfile() {
+    return $.getJSON("/api/profile")
+        .done(function (profile) {
+            applyDoctorProfile(profile);
+            populateProfileForm();
+        });
+}
+
+/* ── Build & inject window HTML ──────────────────── */
+function buildProfileWindow() {
+    if ($("#profile-window").length) return;
+
+    var markup =
+        '<div id="profile-window">' +
+
+            /* Profile Image section */
+            '<div class="pm-section">' +
+                '<label class="pm-label">Profile Image</label>' +
+                '<div class="pm-photo-wrap">' +
+                    '<img id="pm-avatar" class="pm-photo" ' +
+                        'src="' + doctorProfile.avatar + '" alt="Profile" />' +
+                '</div>' +
+                '<input id="pm-file-input" name="photo" type="file" accept="image/*" hidden />' +
+                '<button id="pm-btn-upload" type="button">Upload Image</button>' +
+            '</div>' +
+
+            /* Password Policy callout */
+            '<div class="pm-callout">' +
+                '<strong>Password Policy</strong>' +
+                '<ul><li>Please change your password every two weeks</li></ul>' +
+            '</div>' +
+
+            /* Personal Information */
+            '<div class="pm-section">' +
+                '<div class="pm-section-title">Personal Information</div>' +
+                '<div class="pm-field">' +
+                    '<label for="pm-fullname">Full Name</label>' +
+                    '<input id="pm-fullname" />' +
+                '</div>' +
+                '<div class="pm-field">' +
+                    '<label for="pm-email">Email Address</label>' +
+                    '<input id="pm-email" />' +
+                '</div>' +
+                '<div class="pm-field">' +
+                    '<label for="pm-phone">Phone Number</label>' +
+                    '<input id="pm-phone" />' +
+                '</div>' +
+            '</div>' +
+
+            /* Footer */
+            '<div class="pm-footer">' +
+                '<button id="pm-btn-clear" type="button">Clear</button>' +
+                '<button id="pm-btn-submit" type="button">Submit</button>' +
+            '</div>' +
+
+        '</div>';
+
+    $("body").append(markup);
+}
+
+/* ── Notification widget ─────────────────────────── */
+function initProfileNotification() {
+    if (!$("#pm-notif").length) {
+        $("body").append('<span id="pm-notif"></span>');
+    }
+    $("#pm-notif").kendoNotification({
+        position:      { pinned: true, top: 30, right: 30 },
+        autoHideAfter: 3000,
+        stacking:      "down"
+    });
+}
+
+/* ── Init the window ─────────────────────────────── */
+function initProfileWindow() {
+    $("#profile-window").kendoWindow({
+        title:    "Profile Management",
+        width:    420,
+        modal:    true,
+        visible:  false,
+        actions:  ["Close"],
+        open: function () {
+            populateProfileForm();
+        }
+    });
+}
+
+/* ── Init form widgets ───────────────────────────── */
+function initProfileWidgets() {
+    /* Upload button */
+    $("#pm-btn-upload").kendoButton({
+        icon:       "upload",
+        themeColor: "dark",
+        rounded:    "large",
+        click: function () {
+            $("#pm-file-input").trigger("click");
+        }
+    });
+
+    $(document)
+        .off("change.profileUpload", "#pm-file-input")
+        .on("change.profileUpload", "#pm-file-input", function () {
+            var file = this.files && this.files[0];
+            if (!file) {
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                $.ajax({
+                    url:         "/api/profile/avatar",
+                    type:        "POST",
+                    contentType: "application/json",
+                    data:        JSON.stringify({ avatar: ev.target.result }),
+                    success: function (profile) {
+                        applyDoctorProfile(profile);
+                    },
+                    error: function () {
+                        showProfileNotif("Could not save the profile image. Please try again.", "error");
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
+            this.value = "";
+        });
+
+    /* Text fields */
+    $("#pm-fullname").kendoTextBox({ placeholder: "Full Name" });
+    $("#pm-email").kendoTextBox({ placeholder: "Email Address" });
+    $("#pm-phone").kendoMaskedTextBox({
+        mask: "+(000) 000-00-00"
+    });
+
+    /* Footer buttons */
+    $("#pm-btn-clear").kendoButton({
+        fillMode: "flat",
+        rounded:  "large",
+        click: function () {
+            $("#pm-fullname").data("kendoTextBox").value("");
+            $("#pm-email").data("kendoTextBox").value("");
+            $("#pm-phone").data("kendoMaskedTextBox").value("");
+        }
+    });
+
+    $("#pm-btn-submit").kendoButton({
+        themeColor: "primary",
+        rounded:    "large",
+        click: function () {
+            var name  = $("#pm-fullname").data("kendoTextBox").value().trim();
+            var email = $("#pm-email").data("kendoTextBox").value().trim();
+            var phone = $("#pm-phone").data("kendoMaskedTextBox").value().trim();
+
+            if (!name) {
+                showProfileNotif("Full Name is required.", "error");
+                return;
+            }
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showProfileNotif("Please enter a valid email address.", "error");
+                return;
+            }
+
+            $.ajax({
+                url:         "/api/profile/update",
+                type:        "POST",
+                contentType: "application/json",
+                data:        JSON.stringify({ fullName: name, email: email, phone: phone }),
+                success: function (profile) {
+                    applyDoctorProfile(profile);
+                    showProfileNotif("Profile saved successfully.", "success");
+
+                    var win = $("#profile-window").data("kendoWindow");
+                    if (win) {
+                        win.close();
+                    }
+                },
+                error: function () {
+                    showProfileNotif("Could not save the profile. Please try again.", "error");
+                }
+            });
+        }
+    });
+}
+
+/* ── Populate form from doctorProfile ────────────── */
+function populateProfileForm() {
+    var tb = $("#pm-fullname").data("kendoTextBox");
+    if (tb) tb.value(doctorProfile.fullName);
+
+    var em = $("#pm-email").data("kendoTextBox");
+    if (em) em.value(doctorProfile.email);
+
+    var ph = $("#pm-phone").data("kendoMaskedTextBox");
+    if (ph) ph.value(doctorProfile.phone);
+
+    $("#pm-avatar").attr("src", doctorProfile.avatar);
+}
+
+/* ── Show notification ───────────────────────────── */
+function showProfileNotif(msg, type) {
+    var n = $("#pm-notif").data("kendoNotification");
+    if (n) n.show(msg, type);
+}
+
+/* ── Open trigger ────────────────────────────────── */
+function initProfileTrigger() {
+    $(document).on("click", "#profile-trigger", function () {
+        var win = $("#profile-window").data("kendoWindow");
+        if (win) {
+            win.center().open();
+        }
+    });
+}
+
+/* ═══════════════════════════════════════════════════════
+   NOTIFICATIONS DROPDOWN
+═══════════════════════════════════════════════════════ */
+
+var notificationsData = (function () {
+    var p = sharedPatients;
+    var n0 = p[0] || { name: "Unknown", id: null };
+    var n1 = p[1] || n0;
+    var n2 = p[2] || n0;
+    var n3 = p.length > 4 ? p[4] : n0;
+    var n4 = p.length > 3 ? p[3] : n0;
+    return [
+        { id: 1, read: false,  severity: "critical", icon: "\uD83D\uDD34", title: "Critical Lab Alert",     desc: "CRP elevated \u2013 " + n1.name,                          time: "2 min ago",  action: "View Patient",   patientId: n1.id },
+        { id: 2, read: false,  severity: "warning",  icon: "\uD83D\uDFE0", title: "Vitals Warning",          desc: "Blood pressure abnormal \u2013 " + n2.name,               time: "8 min ago",  action: "View Patient",   patientId: n2.id },
+        { id: 3, read: false,  severity: "critical", icon: "\uD83D\uDD34", title: "ICU Monitoring Alert",    desc: "Oxygen saturation low \u2013 " + n0.name,                 time: "15 min ago", action: "View Patient",   patientId: n0.id },
+        { id: 4, read: false,  severity: "info",     icon: "\uD83D\uDD35", title: "New Lab Results",         desc: "CBC results posted \u2013 " + n1.name,                    time: "22 min ago", action: "View Results",   patientId: n1.id },
+        { id: 5, read: true,   severity: "info",     icon: "\uD83D\uDFE1", title: "Appointment Update",      desc: "Appointment rescheduled \u2013 " + n4.name + " now at 09:30", time: "1 hr ago",  action: "View Schedule", patientId: null },
+        { id: 6, read: true,   severity: "info",     icon: "\uD83D\uDCAC", title: "New Message",             desc: "Nurse Amanda Reed sent an update for " + n3.name,         time: "1 hr ago",   action: "View Message",   patientId: n3.id },
+        { id: 7, read: true,   severity: "system",   icon: "\u2705",       title: "System Info",             desc: "Daily schedule synced successfully",                       time: "2 hr ago",   action: null,             patientId: null }
+    ];
+})();
+
+function getUnreadCount() {
+    return notificationsData.filter(function (n) { return !n.read; }).length;
+}
+
+function updateBadge() {
+    var count = getUnreadCount();
+    var badge = $("#notif-badge").data("kendoBadge");
+    if (badge) {
+        badge.text(count > 0 ? count : "");
+        badge.themeColor(count > 0 ? "error" : "info");
+        if (count === 0) badge.element.hide(); else badge.element.show();
+    }
+}
+
+function renderNotifPanel() {
+    var items = notificationsData;
+    var unread = getUnreadCount();
+
+    var html =
+        '<div class="np-header">' +
+            '<span class="np-title">Notifications</span>' +
+            (unread > 0
+                ? '<button class="np-mark-all" id="np-mark-all">Mark all read</button>'
+                : '<span class="np-all-read">All caught up ✓</span>') +
+        '</div>' +
+        '<div class="np-list">';
+
+    $.each(items, function (_, n) {
+        html +=
+            '<div class="k-card k-card-horizontal np-card' + (n.read ? ' np-card-read' : '') + '" data-id="' + n.id + '">' +
+                '<div class="k-card-image np-card-icon">' +
+                    '<img src="/content/notification-bell.png" alt="" class="np-bell-img" />' +
+                '</div>' +
+                '<div class="k-card-body np-card-body">' +
+                    '<h6 class="k-card-title np-card-title">' + kendo.htmlEncode(n.title) + '</h6>' +
+                    '<p class="k-card-subtitle np-card-subtitle">' + kendo.htmlEncode(n.desc) + '</p>' +
+                '</div>' +
+                '<div class="np-card-time">' + n.time + '</div>' +
+            '</div>';
+    });
+
+    html += '</div>'; /* end np-list */
+    return html;
+}
+
+function openNotifPanel() {
+    var $panel = $("#np-dropdown");
+    if ($panel.hasClass("np-open")) {
+        closeNotifPanel();
+        return;
+    }
+    $panel.html(renderNotifPanel());
+
+    /* Mark all read */
+    $panel.on("click.np", "#np-mark-all", function () {
+        $.each(notificationsData, function (_, n) { n.read = true; });
+        $panel.html(renderNotifPanel());
+        updateBadge();
+    });
+
+    /* Dismiss individual */
+    $panel.on("click.np", ".np-dismiss", function (e) {
+        e.stopPropagation();
+        var id = parseInt($(this).data("id"), 10);
+        notificationsData = notificationsData.filter(function (n) { return n.id !== id; });
+        $panel.html(renderNotifPanel());
+        updateBadge();
+    });
+
+    /* Action link — mark read and navigate */
+    $panel.on("click.np", ".np-action", function (e) {
+        e.preventDefault();
+        var id = parseInt($(this).data("id"), 10);
+        var patientId = $(this).data("patient");
+        $.each(notificationsData, function (_, n) { if (n.id === id) n.read = true; });
+        updateBadge();
+
+        var notif = notificationsData.filter(function (n) { return n.id === id; })[0];
+        if (notif && notif.severity !== "system") {
+            if (patientId) {
+                window.location.href = "/Patients";
+            } else if (notif.title.indexOf("Schedule") >= 0 || notif.title.indexOf("Appointment") >= 0) {
+                window.location.href = "/Schedule";
+            }
+        }
+        closeNotifPanel();
+    });
+
+    $panel.addClass("np-open");
+
+    /* Mark newly-visible unread items as seen on next open toggle */
+    setTimeout(function () {
+        $(document).one("click.np-outside", function (ev) {
+            if (!$(ev.target).closest("#np-dropdown, #notif-btn").length) {
+                closeNotifPanel();
+            }
+        });
+    }, 10);
+}
+
+function closeNotifPanel() {
+    var $panel = $("#np-dropdown");
+    $panel.off("click.np").removeClass("np-open");
+    $(document).off("click.np-outside");
+}
+
+function initNotifDropdown() {
+    /* Inject dropdown container after the notif-wrap */
+    if (!$("#np-dropdown").length) {
+        $(".notif-wrap").append('<div id="np-dropdown" class="np-dropdown"></div>');
+    }
+
+    /* Replace static badge init so we can manage it */
+    var $badge = $("#notif-badge");
+    if (!$badge.data("kendoBadge")) {
+        $badge.kendoBadge({
+            text:       getUnreadCount(),
+            themeColor: "error",
+            shape:      "pill",
+            rounded:    "full"
+        });
+    } else {
+        updateBadge();
+    }
+
+    $(document).on("click.notif", "#notif-btn", function (e) {
+        e.stopPropagation();
+        openNotifPanel();
+    });
+}
+
+$(document).ready(function () {
+    buildProfileWindow();
+    initProfileNotification();
+    initProfileWindow();
+    initProfileWidgets();
+    initProfileTrigger();
+    loadDoctorProfile();
+    initNotifDropdown();
+});

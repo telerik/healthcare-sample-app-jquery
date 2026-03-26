@@ -1,0 +1,106 @@
+@{
+    ViewData["Title"] = "Clinical Analytics — Dr. Carter";
+    ViewData["ActivePage"] = "Analytics";
+}
+
+    <div class="analytics-wrapper">
+
+    <!-- ═══════════════════════════════════════════
+         PAGE HEADER
+    ═══════════════════════════════════════════ -->
+    <div class="analytics-page-header">
+        <div>
+            <h1>Clinical Analytics</h1>
+            <p>Track vitals trends, lab results, risk scores, and alert patterns per patient</p>
+        </div>
+        <div class="analytics-header-controls">
+            <select id="patient-select"></select>
+            <button id="btn-export">Export</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         ANALYTICS BODY
+    ═══════════════════════════════════════════ -->
+    <div id="analytics-body" class="analytics-body">       
+
+        <!-- Row 1: Vitals Over Time (full width) -->
+        <div class="analytics-row">
+            <div class="card analytics-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Vitals Over Time</div>
+                    <div class="chart-subtitle">Multi-series tracking of blood pressure, heart rate, SpO<sub>2</sub>, and temperature</div>
+                </div>
+                <div id="vitals-chart" style="min-height:300px"></div>
+            </div>
+        </div>
+
+        <!-- Row 2: Alerts Over Time (full width) -->
+        <div class="analytics-row">
+            <div class="card analytics-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Alerts Over Time</div>
+                    <div class="chart-subtitle">Alert count trend by severity level</div>
+                </div>
+                <div id="alerts-column-chart" style="min-height:280px"></div>
+            </div>
+        </div>
+
+        <!-- Row 3: Lab Results Range (full width) -->
+        <div class="analytics-row">
+            <div class="card analytics-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Lab Results Range</div>
+                    <div class="chart-subtitle">Multi-metric range chart showing latest lab results against optimal ranges</div>
+                </div>
+                <div id="labs-chart" style="min-height:260px"></div>
+            </div>
+        </div>
+
+        <!-- Row 4: Alerts by Category + Risk Score -->
+        <div class="analytics-row analytics-row-2col-equal">
+
+            <div class="card analytics-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Alerts by Category</div>
+                    <div class="chart-subtitle">Distribution of alerts by clinical category</div>
+                </div>
+                <div id="alerts-donut-chart" style="min-height:340px"></div>
+            </div>
+
+            <div class="card analytics-chart-card analytics-gauge-card">
+                <div class="chart-header" style="width:100%">
+                    <div class="chart-title">Risk Score</div>
+                    <div class="chart-subtitle">Patient health risk assessment</div>
+                </div>
+                <div class="risk-gauge-wrap">
+                    <div id="risk-gauge" style="height:220px;width:100%"></div>
+                </div>
+                <div class="risk-score-legend">
+                    <div class="risk-legend-item">
+                        <span class="rsl-dot rsl-high"></span>
+                        <span class="rsl-label">High Risk</span>
+                        <span class="rsl-range">0–39</span>
+                    </div>
+                    <div class="risk-legend-item">
+                        <span class="rsl-dot rsl-medium"></span>
+                        <span class="rsl-label">Medium Risk</span>
+                        <span class="rsl-range">40–69</span>
+                    </div>
+                    <div class="risk-legend-item">
+                        <span class="rsl-dot rsl-low"></span>
+                        <span class="rsl-label">Low Risk</span>
+                        <span class="rsl-range">70–100</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    </div>
+
+@section Scripts {
+    <script src="~/js/analytics.js" asp-append-version="true"></script>
+}
