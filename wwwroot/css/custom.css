@@ -4,7 +4,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Poppins', sans-serif;
     background: #FFFFFF;
     color: #1a1a2e;
 }
@@ -427,6 +427,10 @@ a { text-decoration: none; color: inherit; }
     height: 32px;
     color: #bbb;
     flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+.shortcut-card:hover .shortcut-icon {
+    transform: scale(1.18);
 }
 
 .shortcut-title {
@@ -1086,20 +1090,20 @@ a { text-decoration: none; color: inherit; }
 /* ── Notifications dropdown ─────────────────────── */
 .notif-wrap { position: relative; }
 
-.np-dropdown {
-    display: none;
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 360px;
-    background: #fff;
+.np-dropdown.k-dialog-wrapper {
+    background: transparent;
+    pointer-events: none;
+}
+.np-dropdown .k-window {
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(61,61,143,.18), 0 2px 8px rgba(0,0,0,.08);
-    z-index: 9999;
     overflow: hidden;
     border: 1px solid #e8e6f4;
+    pointer-events: all;
 }
-.np-dropdown.np-open { display: block; }
+.np-dropdown .k-window-content {
+    padding: 0;
+}
 
 .np-header {
     display: flex;
@@ -1338,7 +1342,6 @@ a { text-decoration: none; color: inherit; }
     border-left: none !important;
     background-color: #F5F6FF;
     padding-left: 16px;
-    position: relative;
     overflow: hidden;
 }
 
@@ -1481,19 +1484,20 @@ a { text-decoration: none; color: inherit; }
     transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.tasks-add-label {
+.tasks-add-label,
+.tasks-add-btn .k-button-text {
     display: none;
-    font-family: 'Poppins', 'Inter', sans-serif;
     font-size: 13px;
     font-weight: 500;
-    color: #fff;
     white-space: nowrap;
 }
 
 .tasks-add-btn:hover { background: #1e2d3d; border-color: #1e2d3d; }
 
 .tasks-add-btn:hover .tasks-add-label,
-.tasks-add-btn:focus-visible .tasks-add-label {
+.tasks-add-btn:hover .k-button-text,
+.tasks-add-btn:focus-visible .tasks-add-label,
+.tasks-add-btn:focus-visible .k-button-text {
     display: inline-block;
 }
 
@@ -1572,36 +1576,29 @@ a { text-decoration: none; color: inherit; }
     opacity: 0.45;
 }
 
-/* Schedule daily tasks badge colors */
-#tasks-list .k-badge-error {
-    background-color: #fcddda;
-    border-color:     #f76f60;
-    color:            #7a0c00;
-}
-#tasks-list .k-badge-warning {
-background: #FFF4D3;
-border: 1px solid #FFD760;
-color: #5E4700;
-}
-#tasks-list .k-badge-success {
-    background-color: #dcf0d3;
-    border-color:     #81d15f;
-    color:            #1c5a00;
-}
-
+/* Schedule daily tasks badge colors */ 
 /* Patients grid badge colors — match tasks-list palette */
+/* Patients grid badge colors — match tasks-list palette */
+#tasks-list .k-badge-error,
+#patient-labs-grid .k-badge-error,
 #patients-grid .k-badge-error,
 #patients-grid .k-badge-error:hover {
     background-color: #fcddda;
-    border-color:     #f76f60;
-    color:            #7a0c00;
+    border-color: #f76f60;
+    color: #7a0c00;
 }
+
+#tasks-list .k-badge-warning,
+#patient-labs-grid .k-badge-warning,
 #patients-grid .k-badge-warning,
 #patients-grid .k-badge-warning:hover {
     background-color: #FFF4D3;
     border-color:     #FFD760;
     color:            #5E4700;
 }
+
+#tasks-list .k-badge-success,
+#patient-labs-grid .k-badge-success,
 #patients-grid .k-badge-success,
 #patients-grid .k-badge-success:hover {
     background-color: #dcf0d3;
@@ -4053,7 +4050,7 @@ color: #5E4700;
 .risk-score-outof { font-size:13px; color:#888; margin-top:4px; }
 
 /* Risk score legend */
-.risk-score-legend { padding:4px 20px 16px; width:100%; }
+.risk-score-legend { padding:4px 20px 16px; width:100%; margin-top: 30px; }
 .risk-legend-item  { display:flex; align-items:center; padding:5px 0; font-size:13px; color:#555; border-bottom:1px solid #f4f4f8; }
 .risk-legend-item:last-child { border-bottom:none; }
 .rsl-dot   { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px; flex-shrink:0; }

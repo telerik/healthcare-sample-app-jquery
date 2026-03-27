@@ -263,37 +263,35 @@ function renderPatientDetail(patient) {
 
     $("#btn-save-patient-note").kendoButton({
         icon:    "save",
-        rounded: "large"
-    });
-
-    // Save note button
-    $("#btn-save-patient-note").on("click", function () {
-        if (notesEditor && currentPatient) {
-            var noteVal = notesEditor.value();
-            currentPatient.notes = noteVal;
-            var $btn = $(this);
-            var saveBtn = $btn.data("kendoButton");
-            $.ajax({
-                url:         "/api/patients/" + currentPatient.id + "/notes",
-                type:        "POST",
-                contentType: "application/json",
-                data:        JSON.stringify({ notes: noteVal }),
-                success: function () {
-                    if (saveBtn) {
-                        saveBtn.setOptions({ icon: "check", text: "Saved" });
-                    }
-                    $btn.addClass("detail-save-btn--saved");
-                    setTimeout(function () {
+        rounded: "large",
+        click: function (e) {
+            if (notesEditor && currentPatient) {
+                var noteVal = notesEditor.value();
+                currentPatient.notes = noteVal;
+                var $btn = $(e.event.currentTarget);
+                var saveBtn = $btn.data("kendoButton");
+                $.ajax({
+                    url:         "/api/patients/" + currentPatient.id + "/notes",
+                    type:        "POST",
+                    contentType: "application/json",
+                    data:        JSON.stringify({ notes: noteVal }),
+                    success: function () {
                         if (saveBtn) {
-                            saveBtn.setOptions({ icon: "save", text: "Save" });
+                            saveBtn.setOptions({ icon: "check", text: "Saved" });
                         }
-                        $btn.removeClass("detail-save-btn--saved");
-                    }, 1500);
-                },
-                error: function () {
-                    alert("Failed to save note. Please try again.");
-                }
-            });
+                        $btn.addClass("detail-save-btn--saved");
+                        setTimeout(function () {
+                            if (saveBtn) {
+                                saveBtn.setOptions({ icon: "save", text: "Save" });
+                            }
+                            $btn.removeClass("detail-save-btn--saved");
+                        }, 1500);
+                    },
+                    error: function () {
+                        alert("Failed to save note. Please try again.");
+                    }
+                });
+            }
         }
     });
 
@@ -406,55 +404,17 @@ function renderPatientDetail(patient) {
 /* ═══════════════════════════════════════════════════════
    PATIENT LABS GRID
 ═══════════════════════════════════════════════════════ */
-var _labMeta = {
-    "CBC":           { ref: "4.5–11.0 ×10³/µL",  notes: { High: "Leukocytosis — monitor for infection", Low: "Leukopenia — monitor closely", Normal: "Complete blood count within normal range" } },
-    "CRP":           { ref: "<5.0 mg/L",           notes: { High: "Significant inflammatory elevation", Normal: "No significant inflammation detected" } },
-    "Lipid Panel":   { ref: "<100 mg/dL (LDL)",   notes: { High: "Above target for cardiac risk patients", Normal: "Lipid levels within target range" } },
-    "HbA1c":         { ref: "<5.7%",               notes: { High: "Above target — review glycaemic management", Normal: "Glycaemic control within target" } },
-    "BNP":           { ref: "<100 pg/mL",          notes: { High: "Elevated — consider cardiac assessment", Normal: "BNP within normal limits" } },
-    "Troponin I":    { ref: "<0.004 ng/mL",        notes: { High: "Borderline — serial monitoring ordered", Normal: "No evidence of myocardial injury" } },
-    "Ferritin":      { ref: "12–300 ng/mL",        notes: { High: "Elevated — check for inflammatory cause", Low: "Iron deficiency — supplement and monitor", Normal: "Iron stores adequate" } },
-    "Vitamin D":     { ref: ">20 ng/mL",           notes: { Low: "Deficiency — supplementation recommended", Normal: "Vitamin D levels adequate" } },
-    "TSH":           { ref: "0.5–4.5 µIU/mL",     notes: { High: "Elevated — consider hypothyroidism workup", Low: "Suppressed — consider hyperthyroidism", Normal: "Thyroid function normal" } },
-    "eGFR":          { ref: ">60 mL/min/1.73m²",  notes: { Low: "Reduced — monitor renal function closely", Normal: "Adequate renal function" } },
-    "Creatinine":    { ref: "0.6–1.2 mg/dL",      notes: { High: "Elevated — assess hydration and kidney function", Normal: "Creatinine within normal range" } },
-    "Potassium":     { ref: "3.5–5.0 mEq/L",      notes: { High: "Hyperkalaemia — review medications and diet", Low: "Hypokalaemia — supplement as indicated", Normal: "Within normal limits" } },
-    "LFT":           { ref: "ALT <40 U/L",         notes: { High: "Liver enzymes elevated — assess hepatic function", Normal: "Liver function within normal range" } },
-    "ESR":           { ref: "<20 mm/hr",           notes: { High: "Elevated — consider inflammation or infection", Normal: "Erythrocyte sedimentation rate normal" } }
-};
-
-function _labStatus(flag) {
-    if (flag === "High" || flag === "Abnormal") return "Critical";
-    if (flag === "Low")  return "Monitoring";
-    return "Stable";
-}
-
-function enrichLabData(labs) {
-    return labs.map(function (l) {
-        var meta  = _labMeta[l.test] || {};
-        var flag  = l.flag || "Normal";
-        var status = _labStatus(flag);
-        var note  = (meta.notes && (meta.notes[flag] || meta.notes["Normal"])) || (flag === "Normal" ? "Within normal limits" : "Requires clinical review");
-        return {
-            test:      l.test,
-            result:    l.result,
-            reference: meta.ref || "See report",
-            status:    status,
-            note:      note
-        };
-    });
-}
-
 function initPatientLabsGrid(patient) {
     var existing = $("#patient-labs-grid").data("kendoGrid");
     if (existing) { existing.destroy(); }
 
-    var labData = enrichLabData(patient.labs);
+    // Labs are already enriched by the server (reference, status, note)
+    var labData = patient.labs || [];
 
     $("#patient-labs-grid").kendoGrid({
         dataSource: new kendo.data.DataSource({
             data: labData,
-            pageSize: 12
+            pageSize: 10
         }),
         sortable:  true,
         pageable: {

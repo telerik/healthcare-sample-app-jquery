@@ -448,8 +448,14 @@ $(document).ready(function () {
         ]
     });
 
-    $("#btn-add-task").on("click", function () {
-        $("#add-task-dialog").data("kendoDialog").open();
+    $("#btn-add-task").kendoButton({
+        icon: "plus",
+        themeColor: "dark",
+        fillMode: "solid",
+        rounded: "full",
+        click: function () {
+            $("#add-task-dialog").data("kendoDialog").open();
+        }
     });
 
     function resetAddTaskForm() {

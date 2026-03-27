@@ -87,9 +87,9 @@ $(document).ready(function () {
         ensurePatientSearchData()
     ).done(function (alertsResp, patients) {
         alertsData   = alertsResp[0];
-        patientsData = Array.isArray(patients) ? patients : (patients[0] || []);
+        patientsData = Array.isArray(patients[0]) ? patients[0] : (Array.isArray(patients) ? patients : []);
         renderAlertsList();
-        _initAiPanel();  // retry now that patientsData is available
+        _initAiPanel();
     });
 
     /* ═══════════════════════════════════════════════
@@ -260,9 +260,11 @@ $(document).ready(function () {
         actions: [{ text: "Close" }]
     });
 
-    $("#link-reason-details").on("click", function (e) {
-        e.preventDefault();
-        $("#dialog-reason-visit").data("kendoDialog").open();
+    $("#link-reason-details").kendoButton({
+        fillMode: "link",
+        click: function () {
+            $("#dialog-reason-visit").data("kendoDialog").open();
+        }
     });
 
     /* ═══════════════════════════════════════════════
@@ -292,9 +294,11 @@ $(document).ready(function () {
         actions: [{ text: "Close" }]
     });
 
-    $("#link-allergy-details").on("click", function (e) {
-        e.preventDefault();
-        $("#dialog-allergy-details").data("kendoDialog").open();
+    $("#link-allergy-details").kendoButton({
+        fillMode: "link",
+        click: function () {
+            $("#dialog-allergy-details").data("kendoDialog").open();
+        }
     });
 
     /* ═══════════════════════════════════════════════
@@ -582,11 +586,13 @@ $(document).ready(function () {
          size: 'large',
     });
 
-    $(".view-profile-link").on("click", function (e) {
-        e.preventDefault();
-        var pid = $(this).data("patient-id") || (_nextPt && _nextPt.id);
-        if (pid) sessionStorage.setItem("openPatientId", pid);
-        window.location.href = "/Patients";
+    $(".view-profile-link").kendoButton({
+        fillMode: "link",
+        click: function (e) {
+            var pid = $(e.event.currentTarget).data("patient-id") || (_nextPt && _nextPt.id);
+            if (pid) sessionStorage.setItem("openPatientId", pid);
+            window.location.href = "/Patients";
+        }
     });
 
     /* ═══════════════════════════════════════════════

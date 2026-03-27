@@ -150,6 +150,7 @@ $(document).ready(function () {
             labels: { rotation: 0 }
         },
         valueAxis: {
+             min: 50,
             labels: { format: "{0}" },
             majorGridLines: { color: "#f0eeff" }
         },
@@ -183,14 +184,14 @@ $(document).ready(function () {
         scale: {
             min: 0,
             max: 100,
-            labels:     { visible: false },
+            labels:     { visible: false  },
             majorTicks: { visible: false },
             minorTicks: { visible: false },
             rangePlaceholderColor: "#e8e8e8",
             rangeSize: 16,
             rangeLineCap: "round"
         },
-        gaugeArea: { background: "transparent" }
+        gaugeArea: { background: "transparent", margin: 30 },
     });
 
     // ── Lab Results Bullet Chart ───────────────────────
@@ -261,7 +262,8 @@ $(document).ready(function () {
             labels: {
                 font: "12px Poppins, sans-serif",
                 color: "#4A5666"
-            }
+            },
+            //item: { visual: legendItemVisual }
         },
         series: [{
             type:          "donut",

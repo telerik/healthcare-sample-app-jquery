@@ -20,6 +20,9 @@ public class LabResult
     public string Result { get; set; } = "";
     public string Flag { get; set; } = "Normal";
     public string Date { get; set; } = "";
+    public string Reference { get; set; } = "";
+    public string Status { get; set; } = "";
+    public string Note { get; set; } = "";
 }
 
 public class PatientMedication
