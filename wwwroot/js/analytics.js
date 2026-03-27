@@ -84,10 +84,10 @@ $(document).ready(function () {
 
     // ── Patient Selection DropDownList ─────────────────
     $.when(
-        $.getJSON("/api/patients"),
+        ensurePatientSearchData(),
         $.getJSON("/api/analytics")
     ).done(function (patientsResp, analyticsResp) {
-        patientsData  = patientsResp[0];
+        patientsData  = Array.isArray(patientsResp) ? patientsResp : (patientsResp[0] || []);
         analyticsData = analyticsResp[0];
 
         $("#patient-select").kendoDropDownList({
@@ -97,6 +97,7 @@ $(document).ready(function () {
             dataValueField: "id",
             rounded:       "large",
             autoWidth:     true,
+            filter: 'contains',
             template: '<span>#: name # (#: id #)</span>',
             valueTemplate: '<span>#: name # (#: id #)</span>',
             change: function () {

@@ -170,8 +170,13 @@ function closePatientDrilldown() {
     $("#patients-detail-view").hide();
     $("#patients-breadcrumb").hide();
     $("#patients-list-view").show();
-    // Refresh grid to reflect any status changes
-    if (grid) { grid.dataSource.read(); }
+    // Refresh grid only if a status was changed
+    if (grid && grid._statusDirty) {
+        grid._statusDirty = false;
+        // Invalidate the shared cache so the grid re-fetches fresh data
+        sharedPatients = [];
+        grid.dataSource.read();
+    }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -448,23 +453,12 @@ function initPatientLabsGrid(patient) {
 
     $("#patient-labs-grid").kendoGrid({
         dataSource: new kendo.data.DataSource({
-            transport: {
-                read: function (options) {
-                    // Re-fetch the latest patient record so labs are always current
-                    $.getJSON("/api/patients", function (patients) {
-                        var p = patients.find(function (x) { return x.id === patient.id; });
-                        var rows = p ? enrichLabData(p.labs) : enrichLabData(patient.labs);
-                        options.success(rows);
-                    }).fail(function () {
-                        options.success(labData); // fall back to already-loaded data
-                    });
-                }
-            },
-            pageSize: 10
+            data: labData,
+            pageSize: 12
         }),
         sortable:  true,
         pageable: {
-            pageSizes:    [5, 10, 20],
+            pageSizes:    [5, 12, 20],
             buttonCount:  5,
             messages:     { itemsPerPage: "Items per page", display: "{0} - {1} of {2} items" }
         },
@@ -486,7 +480,6 @@ function initPatientLabsGrid(patient) {
         }
     });
 }
-
 /* ═══════════════════════════════════════════════════════
    PATIENT PREVIEW PANEL
 ═══════════════════════════════════════════════════════ */
@@ -677,7 +670,7 @@ function openChangeStatusDialog(patient) {
                             data:        JSON.stringify({ status: val }),
                             success: function (r) {
                                 _statusPatient.status = r.status;
-                                if (grid) { grid.dataSource.read(); }
+                                if (grid) { grid._statusDirty = true; }
                             }
                         });
                     }
@@ -709,9 +702,15 @@ function initGrid() {
         dataSource: new kendo.data.DataSource({
             pageSize: 10,
             transport: {
-                read: {
-                    url:      "/api/patients",
-                    dataType: "json"
+                read: function (options) {
+                    // Reuse the shared patient data already fetched by ensurePatientSearchData()
+                    // to avoid a duplicate /api/patients round-trip on page load.
+                    ensurePatientSearchData().done(function (patients) {
+                        var data = Array.isArray(patients) ? patients : (patients[0] || []);
+                        options.success(data);
+                    }).fail(function () {
+                        options.error({});
+                    });
                 }
             },
             schema: {
