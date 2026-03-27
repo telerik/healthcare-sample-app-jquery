@@ -79,7 +79,9 @@ var _listAiResponses = {
 function _replyToListAiMsg(text) {
     if (!listAiChat) return;
     var reply = _listAiResponses[text] || "I\u2019m sorry, I don\u2019t have information on that right now.";
+    listAiChat.loading(true);
     setTimeout(function () {
+        listAiChat.loading(false);
         listAiChat.postMessage({
             authorId:   _aiAssistant.id,
             authorName: _aiAssistant.name,
@@ -99,7 +101,19 @@ function initListAiChat() {
             name:    _aiUser.name,
             iconUrl: _aiUser.iconUrl
         },
+        headerItems: [
+            {
+                type: "contentItem",
+                template: function () { return kendo.ui.icon({ icon: "sparkles", size: "medium" }); }
+            },
+            {
+                type: "contentItem",
+                template: function () { return "<strong>AI Assistant</strong>"; }
+            },
+            { type: "spacer" }
+        ],
         messages: { placeholder: "Ask AI about patients\u2026" },
+        suggestionsBehavior: "insert",
         suggestions: [
             { text: "What are today\u2019s critical care priorities?" },
             { text: "What are common patient risk factors?" },
@@ -394,9 +408,10 @@ function renderPatientDetail(patient) {
                 notesEditor.exec("insertHtml", { value: "<p>" + kendo.htmlEncode(text) + "</p>" });
                 $("#notes-ai-prompt-container").hide();
             }
-        },
+        },    
         promptTextArea: {
-            rows: 3
+            rows: 3,
+            placeholder: "Ask AI to summarize recent vitals...",
         }
     }).data("kendoAIPrompt");
 }
@@ -476,13 +491,13 @@ function buildPatientPreviewHtml(patient) {
 
     var rrVal = vi.rr || 16;
 
-    return '<div class="pp-header">' +
-            '<span class="pp-title">Patient Preview</span>' +
+    return '<div class="k-card-header pp-header">' +
+            '<h2 class="k-card-title pp-title">Patient Preview</h2>' +
             '<button class="pp-close-btn" id="btn-close-preview" aria-label="Close">' +
                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#232A36" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
             '</button>' +
         '</div>' +
-        '<div class="pp-body">' +
+        '<div class="k-card-body pp-body">' +
             '<div class="pp-avatar-row">' +
                 '<img src="' + patient.avatar + '" class="pp-avatar" onerror="this.src=\'/content/patient-images/women/aiony-haust-3TLl_97HNJo-unsplash.jpg\'" />' +
                 '<div class="pp-name-block">' +
@@ -497,27 +512,33 @@ function buildPatientPreviewHtml(patient) {
                 '</div>' +
             '</div>' +
             allergyHtml +
-            '<div class="pp-info-card">' +
-                '<span class="pp-card-title">Basic Information</span>' +
-                ppRow('Age / Gender', patient.age + ' / ' + (patient.gender === 'Male' ? 'M' : 'F'), false) +
-                ppRow('Ward',       kendo.htmlEncode(patient.ward),      false) +
-                ppRow('Diagnosis',  kendo.htmlEncode(patient.diagnosis), false) +
-                ppRow('Last Visit', kendo.htmlEncode(patient.lastVisit), false) +
+            '<div class="k-card pp-info-card">' +
+                '<div class="k-card-header"><h3 class="k-card-title">Basic Information</h3></div>' +
+                '<div class="k-card-body">' +
+                    ppRow('Age / Gender', patient.age + ' / ' + (patient.gender === 'Male' ? 'M' : 'F'), false) +
+                    ppRow('Ward',       kendo.htmlEncode(patient.ward),      false) +
+                    ppRow('Diagnosis',  kendo.htmlEncode(patient.diagnosis), false) +
+                    ppRow('Last Visit', kendo.htmlEncode(patient.lastVisit), false) +
+                '</div>' +
             '</div>' +
-            '<div class="pp-info-card">' +
-                '<span class="pp-card-title">Recent Vitals</span>' +
-                ppRow('Heart Rate',     vi.hr + ' bpm',               vi.hr > 100 || vi.hr < 60) +
-                ppRow('Blood Pressure', vi.bp.replace(' mmHg', ''),   vi.systolic > 140) +
-                ppRow('Temperature',    vi.temp + '\u00B0F',           vi.temp > 99.5) +
-                ppRow('O2 Saturation',  vi.spo2 + '%',                vi.spo2 < 94) +
+            '<div class="k-card pp-info-card">' +
+                '<div class="k-card-header"><h3 class="k-card-title">Recent Vitals</h3></div>' +
+                '<div class="k-card-body">' +
+                    ppRow('Heart Rate',     vi.hr + ' bpm',               vi.hr > 100 || vi.hr < 60) +
+                    ppRow('Blood Pressure', vi.bp.replace(' mmHg', ''),   vi.systolic > 140) +
+                    ppRow('Temperature',    vi.temp + '\u00B0F',           vi.temp > 99.5) +
+                    ppRow('O2 Saturation',  vi.spo2 + '%',                vi.spo2 < 94) +
+                '</div>' +
             '</div>' +
-            '<div class="pp-info-card">' +
-                '<span class="pp-card-title">Admission Details</span>' +
-                ppRow('Department',     kendo.htmlEncode(adm.department    || patient.ward),      false) +
-                ppRow('Ward',           kendo.htmlEncode(adm.wardUnit      || patient.ward),      false) +
-                ppRow('Room',           kendo.htmlEncode(adm.room ? String(adm.room) : '\u2014'), false) +
-                ppRow('Admission Date', kendo.htmlEncode(adm.admissionDate || patient.lastVisit), false) +
-                ppRow('Assigned Nurse', kendo.htmlEncode(adm.assignedNurse || '\u2014'),          false) +
+            '<div class="k-card pp-info-card">' +
+                '<div class="k-card-header"><h3 class="k-card-title">Admission Details</h3></div>' +
+                '<div class="k-card-body">' +
+                    ppRow('Department',     kendo.htmlEncode(adm.department    || patient.ward),      false) +
+                    ppRow('Ward',           kendo.htmlEncode(adm.wardUnit      || patient.ward),      false) +
+                    ppRow('Room',           kendo.htmlEncode(adm.room ? String(adm.room) : '\u2014'), false) +
+                    ppRow('Admission Date', kendo.htmlEncode(adm.admissionDate || patient.lastVisit), false) +
+                    ppRow('Assigned Nurse', kendo.htmlEncode(adm.assignedNurse || '\u2014'),          false) +
+                '</div>' +
             '</div>' +
         '</div>';
 }
@@ -790,6 +811,9 @@ $(document).ready(function () {
     // Grid
     initGrid();
 
+    // Initialize AI Chat once (hidden until toggled)
+    initListAiChat();
+
     // Breadcrumb back navigation
     $(document).on("click", "#breadcrumb-back", function () {
         closePatientDrilldown();
@@ -821,8 +845,6 @@ $(document).ready(function () {
 
             if (aiPanelOpen) {
                 closePatientPreview();
-                initListAiChat();
-                $("#list-ai-date").text(kendo.toString(new Date(), "dddd, MMMM dd, yyyy"));
                 $("#list-ai-panel").show();
                 $("#patients-list-body").addClass("ai-panel-open");
                 syncPatientsSidePanelHeights();

@@ -308,9 +308,9 @@ function renderNotifPanel() {
 }
 
 function _refreshNotifDialogContent() {
-    var dlg = $("#np-dropdown").data("kendoDialog");
-    if (dlg) {
-        dlg.content(renderNotifPanel());
+    var win = $("#np-dropdown").data("kendoWindow");
+    if (win) {
+        win.content(renderNotifPanel());
         _bindNotifDialogEvents();
     }
 }
@@ -352,28 +352,28 @@ function _bindNotifDialogEvents() {
                 window.location.href = "/Schedule";
             }
         }
-        var dlg = $("#np-dropdown").data("kendoDialog");
+        var dlg = $("#np-dropdown").data("kendoWindow");
         if (dlg) dlg.close();
     });
 }
 
 function openNotifPanel() {
-    var dlg = $("#np-dropdown").data("kendoDialog");
-    if (!dlg) return;
+    var win = $("#np-dropdown").data("kendoWindow");
+    if (!win) return;
 
-    if (dlg.wrapper && dlg.wrapper.is(":visible")) {
-        dlg.close();
+    if (win.wrapper && win.wrapper.is(":visible")) {
+        win.close();
         return;
     }
 
-    dlg.content(renderNotifPanel());
-    dlg.open();
+    win.content(renderNotifPanel());
+    win.open();
     _bindNotifDialogEvents();
 }
 
 function closeNotifPanel() {
-    var dlg = $("#np-dropdown").data("kendoDialog");
-    if (dlg) dlg.close();
+    var win = $("#np-dropdown").data("kendoWindow");
+    if (win) win.close();
 }
 
 function initNotifDropdown() {
@@ -382,28 +382,25 @@ function initNotifDropdown() {
         $(".notif-wrap").append('<div id="np-dropdown"></div>');
     }
 
-    /* Initialize as Kendo Dialog */
-    $("#np-dropdown").kendoDialog({
+    /* Initialize as Kendo Window (non-modal positioned panel) */
+    $("#np-dropdown").kendoWindow({
         title: false,
         width: 380,
         modal: false,
         visible: false,
-        closable: true,
-        actions: [],
+        draggable: false,
+        resizable: false,
+        actions: ["Close"],
+        appendTo: ".notif-wrap",
         animation: { open: { duration: 150 }, close: { duration: 100 } },
         open: function () {
             this.wrapper.addClass("np-dropdown");
-            /* Position near the notification button */
-            var $btn = $("#notif-btn");
-            if ($btn.length) {
-                var off = $btn.offset();
-                var w = this.wrapper.outerWidth();
-                this.wrapper.css({
-                    position: "absolute",
-                    top: off.top + $btn.outerHeight() + 10,
-                    left: off.left + $btn.outerWidth() - w
-                });
-            }
+            this.wrapper.css({
+                position: "absolute",
+                top: "calc(100% + 8px)",
+                right: 0,
+                left: "auto"
+            });
         },
         close: function () {
             $("#np-dropdown").off("click.np");
