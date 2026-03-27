@@ -210,4 +210,22 @@
     background-color: #6366c1;
 }
 
-
+/* ── Dialog / Window — all inner form components use 8px radius ── */
+.k-dialog .k-input,
+.k-dialog .k-picker,
+.k-window .k-input,
+.k-window .k-picker {
+    border-radius: 8px !important;
+}
+/* Wrap (outer shell) of pickers / dropdowns */
+.k-dialog .k-input.k-input-solid,
+.k-dialog .k-picker.k-picker-solid,
+.k-window .k-input.k-input-solid,
+.k-window .k-picker.k-picker-solid {
+    border-radius: 8px !important;
+}
+/* Popup list attached to pickers inside dialogs */
+.k-animation-container > .k-popup.k-list-container {
+    border-radius: 8px !important;
+    overflow: hidden;
+}

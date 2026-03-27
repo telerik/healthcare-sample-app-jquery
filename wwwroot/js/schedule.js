@@ -78,7 +78,7 @@ $(document).ready(function () {
         height:    890,
         views: [
             { type: "day", selected: true, dateHeaderTemplate: kendo.template("<strong>#=kendo.toString(date, 'D')#</strong>"), },
-            { type: "week", dateHeaderTemplate: kendo.template("<strong>#=kendo.toString(date, 'ddd, M/yy')#</strong>"), },
+            { type: "week", dateHeaderTemplate: kendo.template("<strong>#=kendo.toString(date, 'ddd, dd/MM')#</strong>"), },
             {
               type: "month",
               eventHeight: 90
@@ -428,7 +428,15 @@ $(document).ready(function () {
                         type:        "POST",
                         contentType: "application/json",
                         data:        JSON.stringify({ task: name, priority: priority, done: false }),
-                        success: function () { tasksDS.read(); },
+                        success: function () {
+                            // Reset filter to "All" so the new task is visible,
+                            // then re-read the DataSource to refresh the ListView.
+                            activePriorityFilter = null;
+                            var bg = $("#tasks-priority-filter").data("kendoButtonGroup");
+                            if (bg) { bg.select(0); }
+                            tasksDS.filter({});
+                            tasksDS.read();
+                        },
                         error: function (xhr) {
                             showTaskNameError(xhr.responseText || "Task name is required.");
                         }
@@ -471,8 +479,8 @@ $(document).ready(function () {
     /* ═══════════════════════════════════════════════
        PATIENTS FETCH — populates dialog dropdowns
     ═══════════════════════════════════════════════ */
-    $.getJSON("/api/patients", function (patients) {
-        patientsData = patients;
+    ensurePatientSearchData().done(function (patients) {
+        patientsData = Array.isArray(patients) ? patients : (patients[0] || []);
         $("#page-content").removeClass("page-loading").addClass("page-ready");
     });
 

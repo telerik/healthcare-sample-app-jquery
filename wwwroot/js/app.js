@@ -84,10 +84,10 @@ $(document).ready(function () {
 
     $.when(
         $.getJSON("/api/alerts"),
-        $.getJSON("/api/patients")
-    ).done(function (alertsResp, patientsResp) {
+        ensurePatientSearchData()
+    ).done(function (alertsResp, patients) {
         alertsData   = alertsResp[0];
-        patientsData = patientsResp[0];
+        patientsData = Array.isArray(patients) ? patients : (patients[0] || []);
         renderAlertsList();
         _initAiPanel();  // retry now that patientsData is available
     });

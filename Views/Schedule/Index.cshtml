@@ -46,7 +46,7 @@
 
     <!-- Scheduler event block template -->
     <script id="event-template" type="text/x-kendo-template">
-        <div class="sched-ev">
+        <div class="sched-ev #= eventType === 'Follow-up' ? 'sched-ev-followup' : '' #">
             <div class="sched-ev-title">#= eventType # &ndash; #= patientName #</div>
             <div class="sched-ev-meta">#= kendo.toString(start, "hh:mm") #&ndash;#= kendo.toString(end, "hh:mm tt") # &middot; #= room #</div>
         </div>
