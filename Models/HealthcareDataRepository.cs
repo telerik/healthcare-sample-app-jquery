@@ -168,69 +168,191 @@ public static class HealthcareDataRepository
     private static readonly string[] VitalDates = ["Jan", "Feb", "Mar", "Apr", "May"];
     private static readonly string[] WeekDays = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"];
 
-    private static readonly (string Test, string Result, string Flag)[][] PatientLabSets =
+    // ── Lab metadata: reference ranges, status derivation, and clinical notes ──
+
+    private static readonly (string Test, string Reference, double NormLo, double NormHi,
+        string Unit, string HighNote, string LowNote, string NormalNote)[] LabPool =
     [
-        // P-1001 Emma Johnson — Critical, Respiratory failure
-        [("CBC", "WBC 12.5 ×10³/µL", "High"), ("CBC", "Hemoglobin 8.2 g/dL", "Low"), ("Renal Function", "Creatinine 2.1 mg/dL", "High")],
-        // P-1002 Lucas Brown — Post-op pain
-        [("CBC", "WBC 7.2 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 13.1 g/dL", "Normal"), ("CBC", "Platelets 250 ×10³/µL", "Normal")],
-        // P-1003 Olivia Davis — Cardiac surgery
-        [("Cardiac", "Troponin I 0.8 ng/mL", "High"), ("Cardiac", "BNP 450 pg/mL", "High"), ("Coagulation", "D-Dimer 2.1 µg/mL", "High")],
-        // P-1004 James Wilson — Minor surgery
-        [("CBC", "WBC 6.8 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 14.2 g/dL", "Normal"), ("Metabolic", "Glucose 95 mg/dL", "Normal")],
-        // P-1005 Sophia Martinez — Septic shock
-        [("Metabolic", "Lactate 4.2 mmol/L", "High"), ("Cardiac", "Procalcitonin 8.5 ng/mL", "High"), ("CBC", "WBC 18.9 ×10³/µL", "High")],
-        // P-1006 Michael Anderson — A-fib
-        [("Coagulation", "INR 2.3", "High"), ("Cardiac", "BNP 220 pg/mL", "High"), ("Renal Function", "Creatinine 1.2 mg/dL", "Normal")],
-        // P-1007 Isabella Thompson — Fractured radius
-        [("CBC", "WBC 5.9 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 13.8 g/dL", "Normal"), ("Electrolytes", "Calcium 9.4 mg/dL", "Normal")],
-        // P-1008 Daniel Garcia — Severe sepsis
-        [("Metabolic", "Lactate 5.1 mmol/L", "High"), ("CBC", "WBC 19.2 ×10³/µL", "High"), ("Renal Function", "Creatinine 2.8 mg/dL", "High")],
-        // P-1009 Mia Rodriguez — ACL
-        [("CBC", "WBC 6.4 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 12.7 g/dL", "Normal"), ("CRP", "CRP 3.2 mg/L", "Normal")],
-        // P-1010 Ethan Williams — Stroke
-        [("Coagulation", "INR 2.1", "High"), ("Cardiac", "BNP 310 pg/mL", "High"), ("Renal Function", "Creatinine 1.5 mg/dL", "High")],
-        // P-1011 Charlotte Miller — COPD
-        [("CBC", "WBC 8.1 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 11.9 g/dL", "Low"), ("Pulmonary", "O2 Saturation 89%", "Low")],
-        // P-1012 Alexander Davis — Appendectomy
-        [("CBC", "WBC 6.0 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 14.0 g/dL", "Normal"), ("CRP", "CRP 2.0 mg/L", "Normal")],
-        // P-1013 Layla Nguyen — Heart failure
-        [("Cardiac", "BNP 480 pg/mL", "High"), ("Renal Function", "Creatinine 1.8 mg/dL", "High"), ("Electrolytes", "Potassium 4.8 mEq/L", "Normal")],
-        // P-1014 Noah Kim — Aortic aneurysm
-        [("Coagulation", "INR 1.9", "High"), ("CBC", "Hemoglobin 12.2 g/dL", "Low"), ("Renal Function", "Creatinine 1.4 mg/dL", "High")],
-        // P-1015 Ava Thompson — Shoulder arthroscopy
-        [("CBC", "WBC 6.3 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 13.5 g/dL", "Normal"), ("Electrolytes", "Calcium 9.2 mg/dL", "Normal")],
-        // P-1016 Liam Patel — Parkinson's
-        [("CBC", "WBC 7.0 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 12.8 g/dL", "Normal"), ("Renal Function", "Creatinine 1.3 mg/dL", "High")],
-        // P-1017 Zoe Carter — Pneumonia
-        [("CBC", "WBC 15.2 ×10³/µL", "High"), ("CBC", "Hemoglobin 10.5 g/dL", "Low"), ("Pulmonary", "O2 Saturation 84%", "Low")],
-        // P-1018 Henry Parker — Kidney stones
-        [("CBC", "WBC 7.5 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 13.2 g/dL", "Normal"), ("Renal Function", "Creatinine 1.1 mg/dL", "Normal")],
-        // P-1019 Amelia Brooks — Cholecystectomy
-        [("CBC", "WBC 6.1 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 13.9 g/dL", "Normal"), ("CRP", "CRP 1.8 mg/L", "Normal")],
-        // P-1020 Owen Rivera — MI recovery
-        [("Cardiac", "BNP 390 pg/mL", "High"), ("Renal Function", "Creatinine 1.6 mg/dL", "High"), ("Cardiac", "Troponin I 0.7 ng/mL", "High")],
-        // P-1021 Nora Ahmed — Asthma
-        [("CBC", "WBC 9.0 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 13.6 g/dL", "Normal"), ("Pulmonary", "O2 Saturation 92%", "Low")],
-        // P-1022 Leo Conti — PE
-        [("Coagulation", "D-Dimer 3.5 µg/mL", "High"), ("CBC", "WBC 14.8 ×10³/µL", "High"), ("Renal Function", "Creatinine 1.9 mg/dL", "High")],
-        // P-1023 Iris Petrov — Epilepsy
-        [("CBC", "WBC 7.8 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 12.5 g/dL", "Normal"), ("Renal Function", "Creatinine 1.0 mg/dL", "Normal")],
-        // P-1024 Marco Silva — Dementia
-        [("CBC", "WBC 8.4 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 11.8 g/dL", "Low"), ("Pulmonary", "O2 Saturation 88%", "Low")],
-        // P-1025 Yuki Tanaka — Elective surgery
-        [("CBC", "WBC 5.7 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 14.1 g/dL", "Normal"), ("CRP", "CRP 1.0 mg/L", "Normal")],
-        // P-1026 Rosa Delgado — Valvular heart disease
-        [("Cardiac", "BNP 420 pg/mL", "High"), ("Renal Function", "Creatinine 1.7 mg/dL", "High"), ("Cardiac", "Troponin I 0.6 ng/mL", "High")],
-        // P-1027 Kai Müller — Hip replacement
-        [("CBC", "WBC 6.6 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 13.3 g/dL", "Normal"), ("Electrolytes", "Calcium 9.5 mg/dL", "Normal")],
-        // P-1028 Maya Cohen — Oncological resection
-        [("CBC", "WBC 8.9 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 11.6 g/dL", "Low"), ("CRP", "CRP 4.5 mg/L", "High")],
-        // P-1029 Jonas Weber — Head trauma
-        [("CBC", "WBC 6.2 ×10³/µL", "Normal"), ("CBC", "Hemoglobin 14.3 g/dL", "Normal"), ("Metabolic", "Glucose 90 mg/dL", "Normal")],
-        // P-1030 Paula Rossi — CKD
-        [("Renal Function", "Creatinine 2.3 mg/dL", "High"), ("Electrolytes", "Potassium 5.1 mEq/L", "High"), ("CBC", "Hemoglobin 11.2 g/dL", "Low")],
+        ("CBC",           "4.5–11.0 ×10³/µL",    4.5,  11.0, "×10³/µL",     "Leukocytosis — monitor for infection",       "Leukopenia — monitor closely",                  "Complete blood count within normal range"),
+        ("Hemoglobin",    "12.0–17.5 g/dL",      12.0,  17.5, "g/dL",        "Polycythaemia — investigate cause",          "Anaemia — consider supplementation",             "Hemoglobin within normal range"),
+        ("Platelets",     "150–400 ×10³/µL",    150.0, 400.0, "×10³/µL",     "Thrombocytosis — evaluate etiology",         "Thrombocytopenia — bleeding risk increased",     "Platelet count within normal range"),
+        ("CRP",           "<5.0 mg/L",            0.0,   5.0, "mg/L",        "Significant inflammatory elevation",          "",                                                "No significant inflammation detected"),
+        ("Lipid Panel",   "<100 mg/dL (LDL)",     0.0, 100.0, "mg/dL",       "Above target for cardiac risk patients",      "",                                                "Lipid levels within target range"),
+        ("HbA1c",         "<5.7%",                0.0,   5.7, "%",           "Above target — review glycaemic management",  "",                                                "Glycaemic control within target"),
+        ("BNP",           "<100 pg/mL",           0.0, 100.0, "pg/mL",       "Elevated — consider cardiac assessment",      "",                                                "BNP within normal limits"),
+        ("Troponin I",    "<0.04 ng/mL",          0.0,  0.04, "ng/mL",       "Elevated — serial monitoring ordered",        "",                                                "No evidence of myocardial injury"),
+        ("Ferritin",      "12–300 ng/mL",        12.0, 300.0, "ng/mL",       "Elevated — check for inflammatory cause",    "Iron deficiency — supplement and monitor",        "Iron stores adequate"),
+        ("Vitamin D",     ">20 ng/mL",           20.0, 100.0, "ng/mL",       "",                                            "Deficiency — supplementation recommended",        "Vitamin D levels adequate"),
+        ("TSH",           "0.5–4.5 µIU/mL",      0.5,   4.5, "µIU/mL",     "Elevated — consider hypothyroidism workup",   "Suppressed — consider hyperthyroidism",           "Thyroid function normal"),
+        ("eGFR",          ">60 mL/min/1.73m²",  60.0, 120.0, "mL/min",      "",                                            "Reduced — monitor renal function closely",        "Adequate renal function"),
+        ("Creatinine",    "0.6–1.2 mg/dL",       0.6,   1.2, "mg/dL",       "Elevated — assess hydration and kidney function", "",                                            "Creatinine within normal range"),
+        ("Potassium",     "3.5–5.0 mEq/L",       3.5,   5.0, "mEq/L",      "Hyperkalaemia — review medications and diet", "Hypokalaemia — supplement as indicated",          "Within normal limits"),
+        ("LFT (ALT)",     "<40 U/L",              0.0,  40.0, "U/L",         "Liver enzymes elevated — assess hepatic function", "",                                            "Liver function within normal range"),
+        ("ESR",           "<20 mm/hr",            0.0,  20.0, "mm/hr",       "Elevated — consider inflammation or infection", "",                                               "Erythrocyte sedimentation rate normal"),
+        ("Sodium",        "136–145 mEq/L",      136.0, 145.0, "mEq/L",      "Hypernatraemia — assess hydration status",    "Hyponatraemia — evaluate fluid balance",          "Sodium within normal range"),
+        ("Glucose",       "70–100 mg/dL",        70.0, 100.0, "mg/dL",       "Hyperglycaemia — review glycaemic control",   "Hypoglycaemia — assess nutritional intake",       "Glucose within normal range"),
+        ("Lactate",       "<2.0 mmol/L",          0.0,   2.0, "mmol/L",      "Tissue hypoperfusion — urgent assessment",    "",                                                "Lactate within normal range"),
+        ("INR",           "0.8–1.2",              0.8,   1.2, "",            "Supratherapeutic — bleeding risk elevated",   "Sub-therapeutic — thrombosis risk increased",     "Coagulation within normal range"),
+        ("D-Dimer",       "<0.5 µg/mL",           0.0,   0.5, "µg/mL",      "Elevated — consider thromboembolic event",    "",                                                "D-Dimer within normal range"),
+        ("Procalcitonin", "<0.1 ng/mL",           0.0,   0.1, "ng/mL",      "Elevated — systemic bacterial infection likely","",                                               "No evidence of significant bacterial infection"),
+        ("Albumin",       "3.5–5.5 g/dL",         3.5,   5.5, "g/dL",       "",                                            "Hypoalbuminaemia — assess nutrition and liver",   "Albumin within normal range"),
+        ("Phosphate",     "2.5–4.5 mg/dL",        2.5,   4.5, "mg/dL",      "Hyperphosphataemia — review renal function",  "Hypophosphataemia — supplement as needed",        "Phosphate within normal range"),
+        ("Magnesium",     "1.7–2.2 mg/dL",        1.7,   2.2, "mg/dL",      "Hypermagnesaemia — check renal clearance",    "Hypomagnesaemia — risk of arrhythmia",            "Magnesium within normal range"),
+        ("Uric Acid",     "3.0–7.0 mg/dL",        3.0,   7.0, "mg/dL",      "Hyperuricaemia — gout risk increased",        "",                                                "Uric acid within normal range"),
     ];
+
+    // Which lab indices from LabPool to use per patient based on clinical profile
+    private static readonly int[][] PatientLabProfiles =
+    [
+        // P-1001 Critical respiratory — CBC, Hgb, CRP, Creatinine, Lactate, Procalcitonin, Potassium, Sodium, Glucose, BNP, ESR, Albumin
+        [0, 1, 3, 12, 18, 21, 13, 16, 17, 6, 15, 22],
+        // P-1002 Post-op pain — CBC, Hgb, Platelets, CRP, Glucose, LFT, Creatinine, Sodium, Potassium, Albumin
+        [0, 1, 2, 3, 17, 14, 12, 16, 13, 22],
+        // P-1003 Cardiac surgery — BNP, Troponin, D-Dimer, INR, CBC, Hgb, Creatinine, Potassium, CRP, Sodium, LFT, Glucose
+        [6, 7, 20, 19, 0, 1, 12, 13, 3, 16, 14, 17],
+        // P-1004 Minor surgery — CBC, Hgb, Platelets, CRP, Glucose, LFT, Creatinine, Sodium, Potassium, Albumin
+        [0, 1, 2, 3, 17, 14, 12, 16, 13, 22],
+        // P-1005 Septic shock — Lactate, Procalcitonin, CBC, Hgb, CRP, Creatinine, Potassium, Sodium, Glucose, BNP, INR, ESR
+        [18, 21, 0, 1, 3, 12, 13, 16, 17, 6, 19, 15],
+        // P-1006 A-fib — INR, BNP, Troponin, CBC, Hgb, Creatinine, Potassium, TSH, Sodium, Magnesium, LFT
+        [19, 6, 7, 0, 1, 12, 13, 10, 16, 24, 14],
+        // P-1007 Fractured radius — CBC, Hgb, Platelets, CRP, Glucose, Creatinine, Sodium, Potassium, Phosphate, Vitamin D
+        [0, 1, 2, 3, 17, 12, 16, 13, 23, 9],
+        // P-1008 Severe sepsis — Lactate, Procalcitonin, CBC, Hgb, Creatinine, CRP, Potassium, Sodium, Glucose, INR, BNP, ESR
+        [18, 21, 0, 1, 12, 3, 13, 16, 17, 19, 6, 15],
+        // P-1009 ACL recovery — CBC, Hgb, CRP, Creatinine, Glucose, LFT, Potassium, Sodium, Platelets, Ferritin
+        [0, 1, 3, 12, 17, 14, 13, 16, 2, 8],
+        // P-1010 Stroke — INR, BNP, Troponin, CBC, Hgb, Creatinine, Lipid Panel, HbA1c, Glucose, Sodium, D-Dimer
+        [19, 6, 7, 0, 1, 12, 4, 5, 17, 16, 20],
+        // P-1011 COPD — CBC, Hgb, CRP, eGFR, TSH, Sodium, Potassium, Glucose, Albumin, Ferritin, ESR
+        [0, 1, 3, 11, 10, 16, 13, 17, 22, 8, 15],
+        // P-1012 Appendectomy — CBC, Hgb, Platelets, CRP, LFT, Creatinine, Sodium, Potassium, Glucose, Albumin
+        [0, 1, 2, 3, 14, 12, 16, 13, 17, 22],
+        // P-1013 Heart failure — BNP, Troponin, Creatinine, eGFR, Potassium, Sodium, CBC, Hgb, HbA1c, LFT, Magnesium, Uric Acid
+        [6, 7, 12, 11, 13, 16, 0, 1, 5, 14, 24, 25],
+        // P-1014 Aortic aneurysm — INR, CBC, Hgb, Creatinine, CRP, D-Dimer, Sodium, Potassium, LFT, Glucose, Platelets
+        [19, 0, 1, 12, 3, 20, 16, 13, 14, 17, 2],
+        // P-1015 Shoulder arthroscopy — CBC, Hgb, CRP, Glucose, Creatinine, Sodium, Potassium, LFT, Albumin, Vitamin D
+        [0, 1, 3, 17, 12, 16, 13, 14, 22, 9],
+        // P-1016 Parkinson's — CBC, Hgb, Creatinine, Vitamin D, TSH, Sodium, Potassium, LFT, Glucose, Ferritin, Albumin
+        [0, 1, 12, 9, 10, 16, 13, 14, 17, 8, 22],
+        // P-1017 Pneumonia — CBC, Hgb, CRP, Procalcitonin, Lactate, Creatinine, Sodium, Potassium, Glucose, ESR, BNP, Albumin
+        [0, 1, 3, 21, 18, 12, 16, 13, 17, 15, 6, 22],
+        // P-1018 Kidney stones — CBC, Hgb, Creatinine, eGFR, Sodium, Potassium, Phosphate, Uric Acid, Glucose, CRP
+        [0, 1, 12, 11, 16, 13, 23, 25, 17, 3],
+        // P-1019 Cholecystectomy — CBC, Hgb, CRP, LFT, Creatinine, Sodium, Potassium, Glucose, Platelets, Albumin
+        [0, 1, 3, 14, 12, 16, 13, 17, 2, 22],
+        // P-1020 MI recovery — Troponin, BNP, Creatinine, INR, Lipid Panel, HbA1c, CBC, Hgb, Potassium, Sodium, CRP, Glucose
+        [7, 6, 12, 19, 4, 5, 0, 1, 13, 16, 3, 17],
+        // P-1021 Asthma — CBC, Hgb, CRP, Sodium, Potassium, Glucose, TSH, Ferritin, eGFR, ESR
+        [0, 1, 3, 16, 13, 17, 10, 8, 11, 15],
+        // P-1022 PE — D-Dimer, INR, CBC, Hgb, BNP, Troponin, Creatinine, Lactate, Sodium, Potassium, CRP, Procalcitonin
+        [20, 19, 0, 1, 6, 7, 12, 18, 16, 13, 3, 21],
+        // P-1023 Epilepsy — CBC, Hgb, Creatinine, Sodium, Potassium, LFT, Magnesium, Glucose, Albumin, TSH
+        [0, 1, 12, 16, 13, 14, 24, 17, 22, 10],
+        // P-1024 Dementia — CBC, Hgb, CRP, Creatinine, Sodium, Potassium, TSH, Vitamin D, Glucose, Ferritin, Albumin
+        [0, 1, 3, 12, 16, 13, 10, 9, 17, 8, 22],
+        // P-1025 Elective surgery — CBC, Hgb, Platelets, CRP, Glucose, LFT, Creatinine, Sodium, Potassium, Albumin
+        [0, 1, 2, 3, 17, 14, 12, 16, 13, 22],
+        // P-1026 Valvular heart disease — BNP, Troponin, INR, CBC, Hgb, Creatinine, eGFR, Potassium, Sodium, CRP, Magnesium, HbA1c
+        [6, 7, 19, 0, 1, 12, 11, 13, 16, 3, 24, 5],
+        // P-1027 Hip replacement — CBC, Hgb, Platelets, CRP, Creatinine, Sodium, Potassium, Phosphate, Vitamin D, Ferritin
+        [0, 1, 2, 3, 12, 16, 13, 23, 9, 8],
+        // P-1028 Oncological resection — CBC, Hgb, Platelets, CRP, LFT, Creatinine, Albumin, Sodium, Potassium, Glucose, ESR, Ferritin
+        [0, 1, 2, 3, 14, 12, 22, 16, 13, 17, 15, 8],
+        // P-1029 Head trauma — CBC, Hgb, Platelets, CRP, Glucose, Creatinine, Sodium, Potassium, INR, LFT
+        [0, 1, 2, 3, 17, 12, 16, 13, 19, 14],
+        // P-1030 CKD — Creatinine, eGFR, Potassium, Sodium, Phosphate, CBC, Hgb, HbA1c, Albumin, Uric Acid, Ferritin, CRP
+        [12, 11, 13, 16, 23, 0, 1, 5, 22, 25, 8, 3],
+    ];
+
+    private static string LabStatus(string flag) => flag switch
+    {
+        "High" or "Abnormal" => "Critical",
+        "Low"                => "Monitoring",
+        _                    => "Stable"
+    };
+
+    private static List<LabResult> GeneratePatientLabs(int patientIndex, string status, Random rng)
+    {
+        bool isCritical   = status == "Critical";
+        bool isMonitoring = status == "Monitoring";
+
+        var profile  = PatientLabProfiles[patientIndex];
+        var labs     = new List<LabResult>(profile.Length);
+        var baseDate = new DateTime(2026, 3, 14);
+
+        foreach (var labIdx in profile)
+        {
+            var meta = LabPool[labIdx];
+            double range = meta.NormHi - meta.NormLo;
+
+            // Generate a value — critical patients more likely to be out of range
+            double value;
+            string flag;
+
+            // Use a weighted random to decide normal vs abnormal
+            double roll = rng.NextDouble();
+            double abnormalChance = isCritical ? 0.55 : isMonitoring ? 0.30 : 0.10;
+
+            if (roll < abnormalChance)
+            {
+                // Abnormal — decide high vs low
+                bool goHigh = rng.NextDouble() > 0.35;
+                if (goHigh && !string.IsNullOrEmpty(meta.HighNote))
+                {
+                    value = meta.NormHi + range * (0.1 + rng.NextDouble() * 0.8);
+                    flag = "High";
+                }
+                else if (!string.IsNullOrEmpty(meta.LowNote) && meta.NormLo > 0)
+                {
+                    value = meta.NormLo * (0.5 + rng.NextDouble() * 0.35);
+                    flag = "Low";
+                }
+                else
+                {
+                    value = meta.NormHi + range * (0.15 + rng.NextDouble() * 0.6);
+                    flag = "High";
+                }
+            }
+            else
+            {
+                // Normal
+                value = meta.NormLo + range * (0.15 + rng.NextDouble() * 0.7);
+                flag = "Normal";
+            }
+
+            value = Math.Round(value, meta.Unit is "×10³/µL" or "g/dL" or "mg/dL" or "mg/L" or "mEq/L" ? 1 : 2);
+
+            string result = meta.Unit.Length > 0
+                ? $"{value} {meta.Unit}"
+                : $"{value}";
+
+            string note = flag switch
+            {
+                "High" => meta.HighNote,
+                "Low"  => meta.LowNote,
+                _      => meta.NormalNote
+            };
+            if (string.IsNullOrEmpty(note))
+                note = flag == "Normal" ? "Within normal limits" : "Requires clinical review";
+
+            var labDate = baseDate.AddDays(-rng.Next(0, 21)).ToString("MMM dd, yyyy");
+
+            labs.Add(new LabResult
+            {
+                Test      = meta.Test,
+                Result    = result,
+                Flag      = flag,
+                Date      = labDate,
+                Reference = meta.Reference,
+                Status    = LabStatus(flag),
+                Note      = note
+            });
+        }
+
+        return labs;
+    }
 
     // ── Public API ────────────────────────────────────────────────────────
 
@@ -282,13 +404,45 @@ public static class HealthcareDataRepository
             bool isCritical   = b.Status == "Critical";
             bool isMonitoring = b.Status == "Monitoring";
 
-            int systolic  = isCritical ? rng.Next(145, 176) : isMonitoring ? rng.Next(125, 146) : rng.Next(105, 129);
-            int diastolic = (int)(systolic * (0.58 + rng.NextDouble() * 0.08));
-            int hr        = isCritical ? rng.Next(85, 106) : rng.Next(60, 91);
-            double temp   = Math.Round(isCritical ? 98.0 + rng.NextDouble() * 2.5 : 97.6 + rng.NextDouble() * 1.2, 1);
-            int spo2      = isCritical ? rng.Next(88, 96) : rng.Next(96, 101);
-            int weight    = rng.Next(110, 231);
-            int rr        = isCritical ? rng.Next(20, 29) : rng.Next(12, 22);
+            // ── Vitals with greater variety per patient ──────────────────
+            // Base ranges differ by ward/diagnosis for more realistic spread
+            int systolicBase, hrBase, spo2Base, rrBase;
+            double tempBase;
+
+            if (isCritical)
+            {
+                systolicBase = 140 + rng.Next(0, 40);   // 140–179
+                hrBase       = 80 + rng.Next(0, 45);     // 80–124
+                tempBase     = 98.0 + rng.NextDouble() * 3.5;  // 98.0–101.5
+                spo2Base     = 82 + rng.Next(0, 14);     // 82–95
+                rrBase       = 18 + rng.Next(0, 14);      // 18–31
+            }
+            else if (isMonitoring)
+            {
+                systolicBase = 120 + rng.Next(0, 30);   // 120–149
+                hrBase       = 65 + rng.Next(0, 35);     // 65–99
+                tempBase     = 97.8 + rng.NextDouble() * 2.0;  // 97.8–99.8
+                spo2Base     = 91 + rng.Next(0, 8);      // 91–98
+                rrBase       = 14 + rng.Next(0, 10);      // 14–23
+            }
+            else
+            {
+                systolicBase = 105 + rng.Next(0, 25);   // 105–129
+                hrBase       = 58 + rng.Next(0, 25);     // 58–82
+                tempBase     = 97.4 + rng.NextDouble() * 1.2;  // 97.4–98.6
+                spo2Base     = 96 + rng.Next(0, 5);      // 96–100
+                rrBase       = 12 + rng.Next(0, 8);       // 12–19
+            }
+
+            // Per-patient jitter based on age and individual physiology
+            int ageJitter = (b.Age > 60 ? rng.Next(-5, 10) : rng.Next(-8, 5));
+            int systolic  = Math.Clamp(systolicBase + ageJitter, 90, 200);
+            int diastolic = (int)(systolic * (0.55 + rng.NextDouble() * 0.12));
+            int hr        = Math.Clamp(hrBase + rng.Next(-5, 6), 45, 140);
+            double temp   = Math.Round(Math.Clamp(tempBase + (rng.NextDouble() * 0.6 - 0.3), 96.5, 104.0), 1);
+            int spo2      = Math.Clamp(spo2Base + rng.Next(-2, 3), 78, 100);
+            int weight    = 100 + rng.Next(0, 160);   // 100–259 lbs
+            int rr        = Math.Clamp(rrBase + rng.Next(-2, 3), 10, 35);
 
             // Last visit: 5-55 days ago
             var lastVisitDt = new DateTime(2026, 3, 19).AddDays(-rng.Next(5, 56));
@@ -328,16 +482,8 @@ public static class HealthcareDataRepository
             var admDt = new DateTime(2024, 7, 1).AddDays(rng.Next(0, 300));
             string admDate = admDt.ToString("MMM dd, yyyy");
 
-            // Labs with date
-            var labSet = PatientLabSets[i];
-            var labDate = new DateTime(2026, 3, 14).AddDays(-rng.Next(0, 14)).ToString("MMM dd, yyyy");
-            var labs = labSet.Select(l => new LabResult
-            {
-                Test   = l.Test,
-                Result = l.Result,
-                Flag   = l.Flag,
-                Date   = labDate
-            }).ToList();
+            // Labs — generated server-side with enrichment
+            var labs = GeneratePatientLabs(i, b.Status, rng);
 
             // Medications — pick from pool using patient's med count based on risk score
             int medCount = Math.Max(1, Math.Min(b.RiskScore / 10, MedPool.Length));
@@ -432,12 +578,12 @@ public static class HealthcareDataRepository
                 history.Add(new VitalDataPoint
                 {
                     Date        = date,
-                    Systolic    = p.Vitals.Systolic  + rng.Next(-8, 9),
-                    Diastolic   = p.Vitals.Diastolic + rng.Next(-5, 6),
-                    HeartRate   = p.Vitals.Hr        + rng.Next(-6, 7),
-                    Spo2        = Math.Min(100, p.Vitals.Spo2 + rng.Next(-2, 3)),
+                    Systolic    = p.Vitals.Systolic  + rng.Next(-18, 29),
+                    Diastolic   = p.Vitals.Diastolic + rng.Next(-15, 26),
+                    HeartRate   = p.Vitals.Hr        + rng.Next(-16, 27),
+                    Spo2        = Math.Min(100, p.Vitals.Spo2 + rng.Next(-12, 23)),
                     Temperature = Math.Round(p.Vitals.Temp + (rng.NextDouble() * 0.8 - 0.4), 1),
-                    Pulse       = Math.Max(50, p.Vitals.Hr + rng.Next(-10, 11))
+                    Pulse       = Math.Max(50, p.Vitals.Hr + rng.Next(-20, 31))
                 });
             }
 
@@ -560,66 +706,66 @@ public static class HealthcareDataRepository
         var slots = new (int Week, int Day, int H1, int M1, int H2, int M2, string Reason, string EventType)[]
         {
             // ── Week 0 (current week) ────────────────────────────────────
-            (0, 1, 8,  0,  8,  30, "Follow-up visit",               "Follow-up"),
-            (0, 1, 9,  0,  9,  45, "Consultation appointment",      "Consultation"),
-            (0, 1, 11, 0,  11, 30, "Emergency visit",               "Emergency"),
-            (0, 2, 8,  30, 9,  15, "Diagnostics review",            "Diagnostics"),
-            (0, 2, 10, 0,  10, 30, "Lab results review",            "Lab Review"),
-            (0, 2, 13, 0,  13, 30, "Blood pressure follow-up",      "Follow-up"),
-            (0, 3, 9,  0,  9,  45, "Annual physical exam",          "Consultation"),
-            (0, 3, 11, 0,  11, 45, "Imaging follow-up",             "Diagnostics"),
-            (0, 3, 14, 0,  14, 30, "Lab panel results review",      "Lab Review"),
-            (0, 4, 8,  0,  8,  30, "CRP follow-up results",         "Lab Review"),
-            (0, 4, 10, 0,  10, 45, "Treatment plan discussion",     "Consultation"),
-            (0, 4, 13, 30, 14, 0,  "Post-visit follow-up",          "Follow-up"),
-            (0, 5, 9,  0,  9,  30, "Post-procedure assessment",     "Follow-up"),
-            (0, 5, 11, 0,  11, 45, "Treatment plan consultation",   "Consultation"),
-            (0, 5, 14, 0,  14, 30, "Urgent evaluation",             "Emergency"),
+            (0, 1, 8,  0,  9,  0,  "Follow-up visit",               "Follow-up"),
+            (0, 1, 9,  0,  10, 30, "Consultation appointment",      "Consultation"),
+            (0, 1, 11, 0,  12, 0,  "Emergency visit",               "Emergency"),
+            (0, 2, 8,  30, 9,  30, "Diagnostics review",            "Diagnostics"),
+            (0, 2, 10, 0,  11, 0,  "Lab results review",            "Lab Review"),
+            (0, 2, 13, 0,  14, 30, "Blood pressure follow-up",      "Follow-up"),
+            (0, 3, 9,  0,  10, 15, "Annual physical exam",          "Consultation"),
+            (0, 3, 11, 0,  12, 30, "Imaging follow-up",             "Diagnostics"),
+            (0, 3, 14, 0,  15, 0,  "Lab panel results review",      "Lab Review"),
+            (0, 4, 8,  0,  9,  0,  "CRP follow-up results",         "Lab Review"),
+            (0, 4, 10, 0,  11, 30, "Treatment plan discussion",     "Consultation"),
+            (0, 4, 13, 30, 14, 30, "Post-visit follow-up",          "Follow-up"),
+            (0, 5, 9,  0,  10, 0,  "Post-procedure assessment",     "Follow-up"),
+            (0, 5, 11, 0,  12, 15, "Treatment plan consultation",   "Consultation"),
+            (0, 5, 14, 0,  15, 0,  "Urgent evaluation",             "Emergency"),
             // ── Week 1 ──────────────────────────────────────────────────
-            (1, 1, 9,  0,  9,  30, "Cardiology follow-up",          "Follow-up"),
-            (1, 1, 10, 30, 11, 15, "Annual wellness check",          "Consultation"),
-            (1, 1, 14, 0,  14, 45, "CT scan review",                 "Diagnostics"),
-            (1, 2, 8,  0,  8,  30, "Lipid panel review",             "Lab Review"),
-            (1, 2, 11, 0,  11, 15, "Chest pain evaluation",          "Emergency"),
-            (1, 2, 13, 0,  13, 30, "Heart rate monitoring",          "Follow-up"),
-            (1, 3, 9,  0,  9,  45, "Thyroid function review",        "Lab Review"),
-            (1, 3, 11, 30, 12, 0,  "X-ray follow-up",                "Diagnostics"),
-            (1, 3, 15, 0,  15, 30, "Glucose tolerance check",        "Lab Review"),
-            (1, 4, 8,  30, 9,  15, "Cognitive evaluation",           "Consultation"),
-            (1, 4, 10, 0,  10, 45, "Wound inspection",               "Follow-up"),
-            (1, 4, 14, 30, 15, 0,  "Allergy skin test review",       "Diagnostics"),
-            (1, 5, 9,  0,  9,  30, "CBC results review",             "Lab Review"),
-            (1, 5, 11, 0,  11, 30, "Vitamin D deficiency follow-up", "Follow-up"),
+            (1, 1, 9,  0,  10, 0,  "Cardiology follow-up",          "Follow-up"),
+            (1, 1, 10, 30, 12, 0,  "Annual wellness check",          "Consultation"),
+            (1, 1, 14, 0,  15, 15, "CT scan review",                 "Diagnostics"),
+            (1, 2, 8,  0,  9,  0,  "Lipid panel review",             "Lab Review"),
+            (1, 2, 11, 0,  12, 0,  "Chest pain evaluation",          "Emergency"),
+            (1, 2, 13, 0,  14, 0,  "Heart rate monitoring",          "Follow-up"),
+            (1, 3, 9,  0,  10, 15, "Thyroid function review",        "Lab Review"),
+            (1, 3, 11, 30, 12, 30, "X-ray follow-up",                "Diagnostics"),
+            (1, 3, 15, 0,  16, 0,  "Glucose tolerance check",        "Lab Review"),
+            (1, 4, 8,  30, 9,  30, "Cognitive evaluation",           "Consultation"),
+            (1, 4, 10, 0,  11, 30, "Wound inspection",               "Follow-up"),
+            (1, 4, 14, 30, 15, 30, "Allergy skin test review",       "Diagnostics"),
+            (1, 5, 9,  0,  10, 0,  "CBC results review",             "Lab Review"),
+            (1, 5, 11, 0,  12, 0,  "Vitamin D deficiency follow-up", "Follow-up"),
             // ── Week 2 ──────────────────────────────────────────────────
-            (2, 1, 8,  0,  8,  45, "Bone density follow-up",         "Diagnostics"),
-            (2, 1, 10, 30, 11, 15, "Stress test consultation",        "Consultation"),
-            (2, 1, 13, 0,  13, 30, "Echocardiogram review",           "Diagnostics"),
-            (2, 2, 9,  0,  9,  30, "Iron deficiency follow-up",       "Lab Review"),
-            (2, 2, 11, 0,  11, 45, "Asthma evaluation",               "Consultation"),
-            (2, 2, 14, 0,  14, 15, "Urgent GI complaint",             "Emergency"),
-            (2, 3, 8,  30, 9,  0,  "Kidney function check",           "Lab Review"),
-            (2, 3, 10, 0,  10, 45, "Respiratory therapy review",      "Follow-up"),
-            (2, 3, 13, 30, 14, 0,  "Post-op wound check",             "Follow-up"),
-            (2, 4, 9,  0,  9,  45, "Nutrition counseling",            "Consultation"),
-            (2, 4, 11, 30, 12, 0,  "Ultrasound results review",       "Diagnostics"),
-            (2, 5, 8,  0,  8,  45, "Hemoglobin A1c review",           "Lab Review"),
-            (2, 5, 10, 0,  10, 45, "Medication adjustment",           "Consultation"),
-            (2, 5, 14, 0,  14, 30, "Vaccine assessment",              "Follow-up"),
+            (2, 1, 8,  0,  9,  15, "Bone density follow-up",         "Diagnostics"),
+            (2, 1, 10, 30, 12, 0,  "Stress test consultation",        "Consultation"),
+            (2, 1, 13, 0,  14, 0,  "Echocardiogram review",           "Diagnostics"),
+            (2, 2, 9,  0,  10, 0,  "Iron deficiency follow-up",       "Lab Review"),
+            (2, 2, 11, 0,  12, 15, "Asthma evaluation",               "Consultation"),
+            (2, 2, 14, 0,  15, 0,  "Urgent GI complaint",             "Emergency"),
+            (2, 3, 8,  30, 9,  30, "Kidney function check",           "Lab Review"),
+            (2, 3, 10, 0,  11, 30, "Respiratory therapy review",      "Follow-up"),
+            (2, 3, 13, 30, 14, 30, "Post-op wound check",             "Follow-up"),
+            (2, 4, 9,  0,  10, 15, "Nutrition counseling",            "Consultation"),
+            (2, 4, 11, 30, 12, 30, "Ultrasound results review",       "Diagnostics"),
+            (2, 5, 8,  0,  9,  15, "Hemoglobin A1c review",           "Lab Review"),
+            (2, 5, 10, 0,  11, 30, "Medication adjustment",           "Consultation"),
+            (2, 5, 14, 0,  15, 0,  "Vaccine assessment",              "Follow-up"),
             // ── Week 3 ──────────────────────────────────────────────────
-            (3, 1, 9,  0,  9,  15, "Stroke risk evaluation",          "Emergency"),
-            (3, 1, 10, 30, 11, 15, "Dermatology consultation",         "Consultation"),
-            (3, 1, 14, 0,  14, 30, "Blood culture results",            "Lab Review"),
-            (3, 2, 8,  0,  8,  30, "Comprehensive metabolic panel",    "Lab Review"),
-            (3, 2, 10, 0,  10, 45, "Migraine follow-up",               "Follow-up"),
-            (3, 2, 13, 0,  13, 45, "Neurological assessment",          "Consultation"),
-            (3, 3, 9,  0,  9,  30, "MRI results review",               "Diagnostics"),
-            (3, 3, 11, 0,  11, 30, "Cardiac rehab check",              "Follow-up"),
-            (3, 3, 15, 0,  15, 15, "Urgent allergic reaction",         "Emergency"),
-            (3, 4, 8,  30, 9,  15, "Back pain evaluation",             "Consultation"),
-            (3, 4, 11, 0,  11, 45, "Pulmonary function test",          "Diagnostics"),
-            (3, 4, 13, 30, 14, 0,  "Rheumatology follow-up",           "Follow-up"),
-            (3, 5, 9,  30, 10, 0,  "Endocrine panel review",           "Lab Review"),
-            (3, 5, 11, 0,  11, 45, "Physical therapy check-in",        "Follow-up"),
+            (3, 1, 9,  0,  10, 0,  "Stroke risk evaluation",          "Emergency"),
+            (3, 1, 10, 30, 12, 0,  "Dermatology consultation",         "Consultation"),
+            (3, 1, 14, 0,  15, 0,  "Blood culture results",            "Lab Review"),
+            (3, 2, 8,  0,  9,  0,  "Comprehensive metabolic panel",    "Lab Review"),
+            (3, 2, 10, 0,  11, 15, "Migraine follow-up",               "Follow-up"),
+            (3, 2, 13, 0,  14, 30, "Neurological assessment",          "Consultation"),
+            (3, 3, 9,  0,  10, 0,  "MRI results review",               "Diagnostics"),
+            (3, 3, 11, 0,  12, 0,  "Cardiac rehab check",              "Follow-up"),
+            (3, 3, 15, 0,  16, 0,  "Urgent allergic reaction",         "Emergency"),
+            (3, 4, 8,  30, 9,  30, "Back pain evaluation",             "Consultation"),
+            (3, 4, 11, 0,  12, 30, "Pulmonary function test",          "Diagnostics"),
+            (3, 4, 13, 30, 14, 30, "Rheumatology follow-up",           "Follow-up"),
+            (3, 5, 9,  30, 10, 30, "Endocrine panel review",           "Lab Review"),
+            (3, 5, 11, 0,  12, 15, "Physical therapy check-in",        "Follow-up"),
         };
 
         var list  = new List<ScheduleAppointment>();

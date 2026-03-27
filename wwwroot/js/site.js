@@ -125,21 +125,13 @@ function _urlToPage(url) {
 /* ═══════════════════════════════════════════════════════
    THEME TOGGLE
 ═══════════════════════════════════════════════════════ */
-$(document).ready(function () {
-    var LIGHT = "https://kendo.cdn.telerik.com/themes/13.0.0/default/default-main.css";
-    var DARK  = "https://kendo.cdn.telerik.com/themes/13.0.0/default/default-main-dark.css";
-
-    $("#btn-theme-toggle").on("click", function () {
-        var $link  = $("#kendo-theme");
-        var isDark = $link.attr("href") === DARK;
-        $link.attr("href", isDark ? LIGHT : DARK);
-        $("body").toggleClass("theme-dark", !isDark);
-        $(this).attr("title", isDark ? "Toggle Dark Theme" : "Toggle Light Theme");
-    });
+$(document).ready(function () {   
 
     /* Settings button — toggle page dimming */
-    $("#btn-settings").on("click", function () {
-        $("#page-content").toggleClass("page-dimmed");
+    $("#btn-settings").kendoButton({
+        click: function () {
+            $("#page-content").toggleClass("page-dimmed");
+        }
     });
 
     /* ═══════════════════════════════════════════════

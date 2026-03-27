@@ -230,10 +230,12 @@ function showProfileNotif(msg, type) {
 
 /* ── Open trigger ────────────────────────────────── */
 function initProfileTrigger() {
-    $(document).on("click", "#profile-trigger", function () {
-        var win = $("#profile-window").data("kendoWindow");
-        if (win) {
-            win.center().open();
+    $("#profile-trigger").kendoButton({
+        click: function () {
+            var win = $("#profile-window").data("kendoWindow");
+            if (win) {
+                win.center().open();
+            }
         }
     });
 }
@@ -305,32 +307,37 @@ function renderNotifPanel() {
     return html;
 }
 
-function openNotifPanel() {
-    var $panel = $("#np-dropdown");
-    if ($panel.hasClass("np-open")) {
-        closeNotifPanel();
-        return;
+function _refreshNotifDialogContent() {
+    var dlg = $("#np-dropdown").data("kendoDialog");
+    if (dlg) {
+        dlg.content(renderNotifPanel());
+        _bindNotifDialogEvents();
     }
-    $panel.html(renderNotifPanel());
+}
+
+function _bindNotifDialogEvents() {
+    var $el = $("#np-dropdown");
+
+    $el.off("click.np");
 
     /* Mark all read */
-    $panel.on("click.np", "#np-mark-all", function () {
+    $el.on("click.np", "#np-mark-all", function () {
         $.each(notificationsData, function (_, n) { n.read = true; });
-        $panel.html(renderNotifPanel());
+        _refreshNotifDialogContent();
         updateBadge();
     });
 
     /* Dismiss individual */
-    $panel.on("click.np", ".np-dismiss", function (e) {
+    $el.on("click.np", ".np-dismiss", function (e) {
         e.stopPropagation();
         var id = parseInt($(this).data("id"), 10);
         notificationsData = notificationsData.filter(function (n) { return n.id !== id; });
-        $panel.html(renderNotifPanel());
+        _refreshNotifDialogContent();
         updateBadge();
     });
 
     /* Action link — mark read and navigate */
-    $panel.on("click.np", ".np-action", function (e) {
+    $el.on("click.np", ".np-action", function (e) {
         e.preventDefault();
         var id = parseInt($(this).data("id"), 10);
         var patientId = $(this).data("patient");
@@ -345,32 +352,63 @@ function openNotifPanel() {
                 window.location.href = "/Schedule";
             }
         }
-        closeNotifPanel();
+        var dlg = $("#np-dropdown").data("kendoDialog");
+        if (dlg) dlg.close();
     });
+}
 
-    $panel.addClass("np-open");
+function openNotifPanel() {
+    var dlg = $("#np-dropdown").data("kendoDialog");
+    if (!dlg) return;
 
-    /* Mark newly-visible unread items as seen on next open toggle */
-    setTimeout(function () {
-        $(document).one("click.np-outside", function (ev) {
-            if (!$(ev.target).closest("#np-dropdown, #notif-btn").length) {
-                closeNotifPanel();
-            }
-        });
-    }, 10);
+    if (dlg.wrapper && dlg.wrapper.is(":visible")) {
+        dlg.close();
+        return;
+    }
+
+    dlg.content(renderNotifPanel());
+    dlg.open();
+    _bindNotifDialogEvents();
 }
 
 function closeNotifPanel() {
-    var $panel = $("#np-dropdown");
-    $panel.off("click.np").removeClass("np-open");
-    $(document).off("click.np-outside");
+    var dlg = $("#np-dropdown").data("kendoDialog");
+    if (dlg) dlg.close();
 }
 
 function initNotifDropdown() {
     /* Inject dropdown container after the notif-wrap */
     if (!$("#np-dropdown").length) {
-        $(".notif-wrap").append('<div id="np-dropdown" class="np-dropdown"></div>');
+        $(".notif-wrap").append('<div id="np-dropdown"></div>');
     }
+
+    /* Initialize as Kendo Dialog */
+    $("#np-dropdown").kendoDialog({
+        title: false,
+        width: 380,
+        modal: false,
+        visible: false,
+        closable: true,
+        actions: [],
+        animation: { open: { duration: 150 }, close: { duration: 100 } },
+        open: function () {
+            this.wrapper.addClass("np-dropdown");
+            /* Position near the notification button */
+            var $btn = $("#notif-btn");
+            if ($btn.length) {
+                var off = $btn.offset();
+                var w = this.wrapper.outerWidth();
+                this.wrapper.css({
+                    position: "absolute",
+                    top: off.top + $btn.outerHeight() + 10,
+                    left: off.left + $btn.outerWidth() - w
+                });
+            }
+        },
+        close: function () {
+            $("#np-dropdown").off("click.np");
+        }
+    });
 
     /* Replace static badge init so we can manage it */
     var $badge = $("#notif-badge");
@@ -385,9 +423,10 @@ function initNotifDropdown() {
         updateBadge();
     }
 
-    $(document).on("click.notif", "#notif-btn", function (e) {
-        e.stopPropagation();
-        openNotifPanel();
+    $("#notif-btn").kendoButton({
+        click: function (e) {
+            openNotifPanel();
+        }
     });
 }
 

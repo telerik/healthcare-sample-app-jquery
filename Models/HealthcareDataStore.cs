@@ -170,7 +170,7 @@ public class HealthcareDataStore
             Hr = p.Vitals.Hr, Temp = p.Vitals.Temp, Spo2 = p.Vitals.Spo2,
             Weight = p.Vitals.Weight, Rr = p.Vitals.Rr
         },
-        Labs        = p.Labs.Select(l        => new LabResult       { Test = l.Test, Result = l.Result, Flag = l.Flag, Date = l.Date }).ToList(),
+        Labs        = p.Labs.Select(l        => new LabResult       { Test = l.Test, Result = l.Result, Flag = l.Flag, Date = l.Date, Reference = l.Reference, Status = l.Status, Note = l.Note }).ToList(),
         Medications = p.Medications.Select(m => new PatientMedication{ Drug = m.Drug, Dose = m.Dose, Frequency = m.Frequency, Duration = m.Duration }).ToList(),
         Visits      = p.Visits.Select(v      => new PatientVisit    { Date = v.Date, Reason = v.Reason }).ToList(),
         AdmissionDetails = new AdmissionInfo
