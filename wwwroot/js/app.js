@@ -13,6 +13,8 @@ $(document).ready(function () {
        GREETING DATE
     ═══════════════════════════════════════════════ */
     $("#today-date").text(kendo.toString(new Date(), "dddd, MMMM dd, yyyy"));
+    kendo.ui.icon($(".open-link"), { icon: 'hyperlink-open-sm' });
+    kendo.ui.icon($(".appt-time-icon"), { icon: 'clock' });
     
 
     $("#appointments-grid").kendoGrid({
@@ -340,6 +342,12 @@ $(document).ready(function () {
                         type:        "POST",
                         contentType: "application/json",
                         data:        JSON.stringify({ text: text }),
+                        success: function () {
+                            var cached = getPatientById(patientId);
+                            if (cached) {
+                                cached.notes = !cached.notes ? text : text + "\n" + cached.notes;
+                            }
+                        },
                         error: function () {
                             alert("Could not save the note. Please try again.");
                         }
@@ -642,27 +650,31 @@ $(document).ready(function () {
         var chat = $("#ai-chat").data("kendoChat");
         if (!chat) return;     
 
+        chat.loading(true);
+
         if (text === "Summary for next patient" && _nextPt) {
             setTimeout(function () {
+                chat.loading(false);
                 chat.postMessage({
                     authorId:   _aiAssistant.id,
                     authorName: _aiAssistant.name,
                     text:       "@@PATIENT_SUMMARY@@",
                     timestamp:  new Date()
                 });
-            }, 1000);
+            }, 500);
             return;
         }
 
         var reply = _aiResponses[text] || "I\u2019m sorry, I don\u2019t have information on that right now.";
         setTimeout(function () {
+            chat.loading(false);
             chat.postMessage({
                 authorId:   _aiAssistant.id,
                 authorName: _aiAssistant.name,
                 type:       "text",
                 text:       reply
             });
-        }, 1000);
+        }, 500);
     }
 
     function _initAiChatIfNeeded() {
@@ -670,7 +682,7 @@ $(document).ready(function () {
         _aiChatReady = true;
 
         var aiChat = $("#ai-chat").kendoChat({
-            height: 500,
+            height: 600,
             authorId: _aiUser.id,
             suggestions: [
                 { text: "Summary for next patient" },
@@ -695,6 +707,7 @@ $(document).ready(function () {
                 },
             ],
             user: _aiUser,
+            suggestionsBehavior: "insert",
             messageTemplate: function (message) {
                 if (message.text === "@@PATIENT_SUMMARY@@" && _nextPt) {
                     var pt   = _nextPt;
@@ -770,7 +783,7 @@ $(document).ready(function () {
     // Initialize Kendo FloatingActionButton — dialog toggled via its click event
     _fab = $("#ai-float-btn").kendoFloatingActionButton({
         align: "bottom end",
-        alignOffset: { x: -28, y: 16 },
+        alignOffset: { x: -28, y: 10 },
         positionMode: "absolute",
         icon: "comment",
         size: "large",
@@ -781,7 +794,7 @@ $(document).ready(function () {
                 var dlg = $("#dialog-ai-assistant").kendoDialog({
                     title:    false,
                     width:    390,
-                    height:   500,
+                    height:   600,
                     modal:    false,
                     visible:  false,
                     resizable: true,

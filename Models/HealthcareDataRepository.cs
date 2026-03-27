@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace HealthcareApp.Models;
 
 public static class HealthcareDataRepository
@@ -337,7 +339,7 @@ public static class HealthcareDataRepository
             if (string.IsNullOrEmpty(note))
                 note = flag == "Normal" ? "Within normal limits" : "Requires clinical review";
 
-            var labDate = baseDate.AddDays(-rng.Next(0, 21)).ToString("MMM dd, yyyy");
+            var labDate = baseDate.AddDays(-rng.Next(0, 21)).ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
 
             labs.Add(new LabResult
             {
@@ -446,7 +448,7 @@ public static class HealthcareDataRepository
 
             // Last visit: 5-55 days ago
             var lastVisitDt = new DateTime(2026, 3, 19).AddDays(-rng.Next(5, 56));
-            string lastVisit = lastVisitDt.ToString("MMM dd, yyyy");
+            string lastVisit = lastVisitDt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
 
             // Avatar — use local images from /content/patient-images/
             string[] menImages = [
@@ -480,7 +482,7 @@ public static class HealthcareDataRepository
 
             // Admission date
             var admDt = new DateTime(2024, 7, 1).AddDays(rng.Next(0, 300));
-            string admDate = admDt.ToString("MMM dd, yyyy");
+            string admDate = admDt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
 
             // Labs — generated server-side with enrichment
             var labs = GeneratePatientLabs(i, b.Status, rng);
@@ -507,7 +509,7 @@ public static class HealthcareDataRepository
                 var vDt = lastVisitDt.AddDays(-(v * rng.Next(20, 60)));
                 visits.Add(new PatientVisit
                 {
-                    Date   = vDt.ToString("MMM dd, yyyy"),
+                    Date   = vDt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture),
                     Reason = VisitReasons[rng.Next(VisitReasons.Length)]
                 });
             }

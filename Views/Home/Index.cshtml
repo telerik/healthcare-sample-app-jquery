@@ -97,49 +97,54 @@
         <!-- RIGHT COLUMN -->
         <div class="col-side">
 
-            <!-- Next Patient -->
-            <div class="card next-patient-card">
-                <h2 class="card-title">Next Patient</h2>
-
-                <div class="next-patient-header">
-                    <img class="patient-avatar" src="/content/patient-images/women/aiony-haust-3TLl_97HNJo-unsplash.jpg" alt="Emma Johnson" />
-                    <div class="patient-info">
-                        <div class="patient-name-row">
-                            <span class="patient-name">Emma Johnson</span>
-                            <a href="#" class="view-profile-link" data-patient-id="P-1001">&#128279; View profile</a>
+            <!-- Next Patient + Daily Alerts (single card) -->
+            <div class="k-card next-patient-card">
+                <div class="k-card-header">
+                    <h2 class="k-card-title">Next Patient</h2>
+                </div>
+                <div class="k-card-body">
+                    <div class="next-patient-header">
+                        <img class="patient-avatar" src="/content/patient-images/women/aiony-haust-3TLl_97HNJo-unsplash.jpg" alt="Emma Johnson" />
+                        <div class="patient-info">
+                            <div class="patient-name-row">
+                                <span class="patient-name">Emma Johnson</span>
+                                <a href="#" class="view-profile-link" data-patient-id="P-1001"><span class="open-link"></span>View profile</a>
+                            </div>
+                            <div class="patient-meta">45 years, Female</div>
                         </div>
-                        <div class="patient-meta">45 years, Female</div>
+                        <div class="appt-time">
+                            <div class="appt-time-label"><span class="k-icon k-svg-icon k-svg-i-clock appt-time-icon"></span>09:30 AM</div>
+                            <div class="appt-time-sub">Appointment time</div>
+                        </div>
                     </div>
-                    <div class="appt-time">
-                        <div class="appt-time-label"><span class="k-icon k-svg-icon k-svg-i-clock appt-time-icon"></span>09:30 AM</div>
-                        <div class="appt-time-sub">Appointment time</div>
+
+                    <div class="patient-detail-row">
+                        <img class="detail-icon-image" src="~/content/reason-visit.png" alt="Reason for visit icon" />
+                        <div class="detail-body">
+                            <div class="detail-label">Reason for visit</div>
+                            <div class="detail-value">Acute respiratory failure follow-up</div>
+                        </div>
+                        <a href="#" class="detail-link" id="link-reason-details">Details &rsaquo;</a>
+                    </div>
+
+                    <div class="patient-detail-row">
+                        <img class="detail-icon-image" src="~/content/allergy-alert.png" alt="Allergy alert icon" />
+                        <div class="detail-body">
+                            <div class="detail-label">Allergy Alert</div>
+                            <div class="detail-value">Penicillin, NSAIDs</div>
+                        </div>
+                        <a href="#" class="detail-link" id="link-allergy-details">Details &rsaquo;</a>
                     </div>
                 </div>
 
-                <div class="patient-detail-row">
-                    <img class="detail-icon-image" src="~/content/reason-visit.png" alt="Reason for visit icon" />
-                    <div class="detail-body">
-                        <div class="detail-label">Reason for visit</div>
-                        <div class="detail-value">Acute respiratory failure follow-up</div>
-                    </div>
-                    <a href="#" class="detail-link" id="link-reason-details">Details &rsaquo;</a>
+                <hr class="k-card-separator" />
+
+                <div class="k-card-header">
+                    <h2 class="k-card-title">Daily Alerts</h2>
                 </div>
-
-                <div class="patient-detail-row">
-                    <img class="detail-icon-image" src="~/content/allergy-alert.png" alt="Allergy alert icon" />
-                    <div class="detail-body">
-                        <div class="detail-label">Allergy Alert</div>
-                        <div class="detail-value">Penicillin, NSAIDs</div>
-                    </div>
-                    <a href="#" class="detail-link" id="link-allergy-details">Details &rsaquo;</a>
+                <div class="k-card-body np-alerts-body">
+                    <div id="alerts-list"></div>
                 </div>
-
-            </div>
-
-            <!-- Daily Alerts -->
-            <div class="card alerts-card">
-                <h2 class="card-title">Daily Alerts</h2>
-                <div id="alerts-list"></div>
                 <button id="ai-float-btn" title="AI Assistant"></button>
             </div>            
         </div>

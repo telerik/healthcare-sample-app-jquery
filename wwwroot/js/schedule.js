@@ -72,7 +72,7 @@ $(document).ready(function () {
     var endTime   = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 19, 0, 0);
 
     var scheduler = $("#scheduler").kendoScheduler({
-        date:      today,
+        date:      new Date(2026, 2, 23),
         startTime: startTime,
         endTime:   endTime,
         height:    890,

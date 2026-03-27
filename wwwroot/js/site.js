@@ -220,9 +220,19 @@ function initContextualSearch() {
     if (!$input.length) return;
     if ($input.data("kendoAutoComplete")) return;
 
-    /* Use an explicit DataSource instance so we keep a reference and can
-       populate it once the patient list arrives without recreating the widget. */
     var searchDataSource = new kendo.data.DataSource({ data: [] });
+    var _searchDataLoading = false;
+
+    function buildSearchItems(patients) {
+        return patients.map(function (p) {
+            return {
+                text:      p.name + " " + p.id + " " + p.phone,
+                name:      p.name,
+                sub:       p.id + " · " + p.phone,
+                patientId: p.id
+            };
+        });
+    }
 
     $input.kendoAutoComplete({
         dataSource:    searchDataSource,
@@ -232,10 +242,33 @@ function initContextualSearch() {
         rounded:       "full",
         placeholder:   "Search patients by name, ID or phone…",
         prefixOptions: { icon: "search", separator: false },
-        template:      '<div class="search-result-item">' +
-                       '<span class="search-result-name">#: name #</span>' +
-                       '<span class="search-result-sub">#: sub #</span>' +
-                       '</div>',
+        template: function (dataItem) {
+            return '<div class="search-result-item">' +
+                   '<span class="search-result-name">' + kendo.htmlEncode(dataItem.name) + '</span>' +
+                   '<span class="search-result-sub">' + kendo.htmlEncode(dataItem.sub) + '</span>' +
+                   '</div>';
+        },
+        filtering: function (e) {
+            /* If the DataSource has no data yet (XHR still in-flight or
+               previous attempt failed), hold the filter and retry once data
+               arrives.  This eliminates the race condition where the user
+               types before patient data has loaded. */
+            if (searchDataSource.data().length === 0) {
+                e.preventDefault();
+                if (!_searchDataLoading) {
+                    _searchDataLoading = true;
+                    var ac = this;
+                    ensurePatientSearchData().done(function (patients) {
+                        searchDataSource.data(buildSearchItems(patients));
+                        if (ac.value().length >= 1) {
+                            ac.search(ac.value());
+                        }
+                    }).always(function () {
+                        _searchDataLoading = false;
+                    });
+                }
+            }
+        },
         select: function (e) {
             e.preventDefault();
             var item = e.dataItem;
@@ -247,36 +280,10 @@ function initContextualSearch() {
         }
     });
 
-    //$input.off("keydown.patient-search").on("keydown.patient-search", function (e) {
-    //    var patient;
-    //    if (e.key !== "Enter") return;
-//
-    //    patient = findPatient($(this).val().trim());
-    //    if (!patient) {
-    //        $(this).addClass("search-no-match");
-    //        return;
-    //    }
-//
-    //    $(this).val("").removeClass("search-no-match");
-    //    navigateToPatientProfile(patient);
-    //});
-//
-    //$input.off("input.patient-search").on("input.patient-search", function () {
-    //    $(this).removeClass("search-no-match");
-    //});
-
-    /* Populate the DataSource once the patient list is available.
-       ensurePatientSearchData() was called eagerly at file load, so by the
-       time DOM-ready fires the XHR is usually already resolved. */
+    /* Populate the DataSource eagerly — ensurePatientSearchData() was called
+       at file load, so by DOM-ready the XHR is usually already resolved. */
     ensurePatientSearchData().done(function (patients) {
-        searchDataSource.data(patients.map(function (p) {
-            return {
-                text:      p.name + " " + p.id + " " + p.phone,
-                name:      p.name,
-                sub:       p.id + " · " + p.phone,
-                patientId: p.id
-            };
-        }));
+        searchDataSource.data(buildSearchItems(patients));
     });
 }
 
