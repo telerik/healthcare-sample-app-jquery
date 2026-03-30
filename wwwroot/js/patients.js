@@ -185,12 +185,12 @@ function closePatientDrilldown() {
     $("#patients-breadcrumb").hide();
     $("#patients-list-view").show();
     // Refresh grid only if a status was changed
-    if (grid && grid._statusDirty) {
-        grid._statusDirty = false;
-        // Invalidate the shared cache so the grid re-fetches fresh data
-        sharedPatients = [];
-        grid.dataSource.read();
-    }
+    //if (grid && grid._statusDirty) {
+    //    grid._statusDirty = false;
+    //    // Invalidate the shared cache so the grid re-fetches fresh data
+    //    sharedPatients = [];
+    //    grid.dataSource.read();
+    //}
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -547,32 +547,33 @@ function openPatientPreview(patient) {
     previewPatient = patient;
     $("#patient-preview-panel").html(buildPatientPreviewHtml(patient)).css("display", "flex");
     $("#patients-list-body").addClass("preview-panel-open");
-    syncPatientsSidePanelHeights();
-    if (grid) { kendo.resize($("#patients-grid")); }
+    updateGridHeightVar();
+    deferGridResize();
 }
 
 function closePatientPreview() {
     previewPatient = null;
     $("#patient-preview-panel").css("display", "none").empty();
     $("#patients-list-body").removeClass("preview-panel-open");
-    clearPatientsSidePanelHeights();
-    if (grid) { kendo.resize($("#patients-grid")); }
+    deferGridResize();
 }
 
-function syncPatientsSidePanelHeights() {
-    window.requestAnimationFrame(function () {
-        var gridHeight = $(".patients-grid-card:visible").outerHeight();
+/* Reads the grid card height once and sets a CSS custom property so
+   side panels can size themselves without repeated JS measurement. */
+function updateGridHeightVar() {
+    var h = $(".patients-grid-card:visible").outerHeight();
+    if (h) {
+        $("#patients-list-body")[0].style.setProperty("--patients-grid-height", h + "px");
+    }
+}
 
-        if (!gridHeight) {
-            return;
-        }
-
-        $("#list-ai-panel:visible, #patient-preview-panel:visible").css("height", gridHeight + "px");
+/* Defers kendo.resize so it doesn't block the current frame. */
+var _resizeTimer = 0;
+function deferGridResize() {
+    cancelAnimationFrame(_resizeTimer);
+    _resizeTimer = requestAnimationFrame(function () {
+        if (grid) { kendo.resize($("#patients-grid")); }
     });
-}
-
-function clearPatientsSidePanelHeights() {
-    $("#list-ai-panel, #patient-preview-panel").css("height", "");
 }
 
 function openAllergyDetailsDialog(patient) {
@@ -714,8 +715,6 @@ function initGrid() {
                 if (e.type === "read" && e.response) {
                     patientsData = e.response;
 
-                    $("#page-content").removeClass("page-loading").addClass("page-ready");
-
                     // Handle cross-page navigation — e.g. arriving from Home page
                     var pendingId = sessionStorage.getItem("openPatientId");
                     if (pendingId) {
@@ -776,47 +775,58 @@ function initGrid() {
 function onGridDataBound() {
     var widget = this;
     initKendoStatusBadges(widget.tbody);
-    // Init View Profile buttons
+    // Init View Profile buttons with Kendo Button click event
     widget.tbody.find(".btn-view-patient:not(.k-button)").each(function () {
         $(this).kendoButton({
             icon:     "eye",
             text:     "View Profile",
             fillMode: "flat",
             rounded:  "large",
-            size:     "small"
+            size:     "small",
+            click: function (e) {
+                e.event.stopPropagation();
+                var id      = $(e.event.currentTarget).data("id");
+                var patient = getFullPatient(id);
+                if (patient) { openPatientDrilldown(patient); }
+            }
         });
     });
-    // Remove any previous row-level double-click
-    widget.tbody.find("tr[role='row']").off("dblclick.drill");
-    // Double-click the patient name cell → open preview panel
-    widget.tbody.find(".patient-name-cell").off("dblclick.preview").on("dblclick.preview", function (e) {
-        e.stopPropagation();
-        var row     = $(this).closest("tr");
-        var dataItem = widget.dataItem(row);
-        var patient  = getFullPatient(dataItem.id || dataItem.get("id"));
-        if (patient) {
-            $("#list-ai-panel").hide();
-            $("#patients-list-body").removeClass("ai-panel-open");
-            openPatientPreview(patient);
-        }
-    });
 
-    syncPatientsSidePanelHeights();
+    // Bind double-click once on tbody via delegation (survives re-renders)
+    if (!widget._dblClickBound) {
+        widget._dblClickBound = true;
+        widget.tbody.on("dblclick", ".patient-name-cell", function (e) {
+            e.stopPropagation();
+            var row      = $(this).closest("tr");
+            var dataItem = widget.dataItem(row);
+            var patient  = getFullPatient(dataItem.id || dataItem.get("id"));
+            if (patient) {
+                $("#list-ai-panel").hide();
+                $("#patients-list-body").removeClass("ai-panel-open");
+                openPatientPreview(patient);
+            }
+        });
+    }
+
+    updateGridHeightVar();
+
+    // Reveal page now that all widgets (grid buttons, badges) are styled
+    $("#page-content").removeClass("page-loading").addClass("page-ready");
 }
 /* ═══════════════════════════════════════════════════════
    DOCUMENT READY
 ═══════════════════════════════════════════════════════ */
 $(document).ready(function () {
 
-    // Grid
-    initGrid();
-
-    // Initialize AI Chat once (hidden until toggled)
-    initListAiChat();
+    // Initialize header buttons FIRST so they are Kendo-styled before the
+    // page becomes visible (page-ready is applied after grid dataBound).
 
     // Breadcrumb back navigation
-    $(document).on("click", "#breadcrumb-back", function () {
-        closePatientDrilldown();
+    $("#breadcrumb-back").kendoButton({
+        fillMode: "flat",
+        click: function () {
+            closePatientDrilldown();
+        }
     });
 
     // Export
@@ -847,33 +857,39 @@ $(document).ready(function () {
                 closePatientPreview();
                 $("#list-ai-panel").show();
                 $("#patients-list-body").addClass("ai-panel-open");
-                syncPatientsSidePanelHeights();
-                if (grid) { kendo.resize($("#patients-grid")); }
+                updateGridHeightVar();
+                deferGridResize();
             } else {
                 $("#list-ai-panel").hide();
                 $("#patients-list-body").removeClass("ai-panel-open");
-                clearPatientsSidePanelHeights();
-                if (grid) { kendo.resize($("#patients-grid")); }
+                deferGridResize();
             }
         }
     });
 
-    $(window).on("resize.patientsPanels", syncPatientsSidePanelHeights);
+    // Grid (data fetch + render happens async; dataBound applies page-ready)
+    initGrid();
 
-    // Close patient preview panel
+    // Initialize AI Chat once (hidden until toggled)
+    initListAiChat();
+
+    $(window).on("resize.patientsPanels", function () {
+        updateGridHeightVar();
+    });
+
+    // Close preview & allergy details — delegated since content is dynamic
     $(document).on("click", "#btn-close-preview", function () {
         closePatientPreview();
     });
 
-    // Allergy details link in patient preview panel
     $(document).on("click", ".pp-details-link", function (e) {
         e.preventDefault();
         if (!previewPatient) return;
         openAllergyDetailsDialog(previewPatient);
     });
 
-    // View Profile link in grid (delegated)
-    $(document).on("click", ".btn-view-patient", function (e) {
+    // View Profile in preview panel — delegated for the dynamically rendered link
+    $(document).on("click", ".pp-view-profile-link.btn-view-patient", function (e) {
         e.stopPropagation();
         var id      = $(this).data("id");
         var patient = getFullPatient(id);

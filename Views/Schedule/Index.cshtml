@@ -52,10 +52,7 @@
     <!-- Task list item template -->
     <script id="task-template" type="text/x-kendo-template">
         <div class="task-item #= done ? 'task-done' : '' #">
-            <label class="task-cb-wrap">
-                <input type="checkbox" class="task-checkbox" data-id="#= id #" #= done ? 'checked="checked"' : '' # />
-                <span class="task-cb-custom"></span>
-            </label>
+            <input type="checkbox" class="task-checkbox" data-id="#= id #" #= done ? 'checked="checked"' : '' # />
             <span class="task-text">#= task #</span>
             <span class="k-badge-priority" data-priority="#= priorityTheme(priority) #">#= priority #</span>
         </div>

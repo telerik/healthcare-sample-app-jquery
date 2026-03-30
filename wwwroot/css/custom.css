@@ -7,7 +7,10 @@ body {
     font-family: 'Poppins', sans-serif;
     background: #FFFFFF;
     color: #1a1a2e;
+    transition: background 0.3s ease;
 }
+
+
 
 a { text-decoration: none; color: inherit; }
 
@@ -238,8 +241,6 @@ a { text-decoration: none; color: inherit; }
    PAGE BODY — TWO COLUMN LAYOUT
 ═══════════════════════════════════════════════════════ */
 .page-body {
-    position: relative;
-    z-index: 1;
     display: grid;
     grid-template-columns: 1fr 600px;
     grid-template-rows: auto 1fr;
@@ -350,7 +351,6 @@ a { text-decoration: none; color: inherit; }
 #page-content.page-loading {
     opacity: 0;
     pointer-events: none;
-    animation: page-fade-in 0.15s ease forwards;
 }
 
 @keyframes page-fade-in {
@@ -358,27 +358,150 @@ a { text-decoration: none; color: inherit; }
 }
 
 #page-content.page-ready {
-    opacity: 1;
-    animation: none;
+    animation: page-fade-in 0.15s ease forwards;
 }
 
-/* Settings toggle — dim specific UI chrome */
+#page-content.page-dimmed {
+    background: #FFFFFF;
+}
+
+#page-content.page-dimmed::before {
+    opacity: 0.48;
+}
+
+/* AppBar — translucent background when dimmed */
+.app-appbar.page-dimmed {
+    background: linear-gradient(179.48deg, rgba(255, 255, 255, 0.2) 0.02%, rgba(255, 255, 255, 0.5) 99.11%);
+    transition: background 0.3s ease;
+}
+
+/* Settings toggle — dim grid chrome (scheduler handled in the schedule-page
+   section below, after base .sched-card rules, so specificity wins) */
 .page-dimmed .k-grid-header,
 .page-dimmed .k-grid-footer,
-.page-dimmed .k-grid-pager,
-.page-dimmed .k-scheduler-toolbar,
-.page-dimmed .k-scheduler-footer,
-.page-dimmed .k-scheduler-header,
-.page-dimmed .k-chart,
-.page-dimmed .k-gauge,
-.page-dimmed .card,
-.page-dimmed .sched-card,
-.page-dimmed .analytics-chart-card,
-.page-dimmed .analytics-gauge-card,
-.page-dimmed .patients-grid-card,
-.page-dimmed .k-listview {
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
+.page-dimmed .k-grid-pager {
+    background-color: rgba(239, 232, 239, 0.72);
+    transition: background-color 0.3s ease;
+}
+
+/* schedule-body — transparent so the page background (blur orb) shows through */
+.page-dimmed .schedule-body {
+    background: transparent;
+}
+
+/* appointments-card — tint the card and its header, but keep grid content rows clear */
+.page-dimmed .appointments-card {
+    position: relative;
+    isolation: isolate;
+}
+
+.page-dimmed .appointments-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(239, 232, 239, 0.66);
+    pointer-events: none;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+.page-dimmed .appointments-card .k-grid-content,
+.page-dimmed .appointments-card .k-grid-content td,
+.page-dimmed #btn-view-schedule,
+.page-dimmed img {
+    position: relative;
+    z-index: 2;
+}
+
+/* Card dimming uses transparent overlays so selected nested content can stay
+   fully visible while the surrounding surface picks up the blush tint. */
+.page-dimmed .quick-actions-card,
+.page-dimmed .next-patient-card,
+.page-dimmed .next-patient-card > .k-card-header,
+.page-dimmed .next-patient-card > .k-card-body,
+.page-dimmed .next-patient-card > .k-card-footer,
+.page-dimmed .next-patient-card > .k-card-separator,
+.page-dimmed .tasks-card,
+.page-dimmed .tasks-card-header,
+.page-dimmed .tasks-filter-row,
+.page-dimmed .patient-detail-row,
+.page-dimmed #tasks-list{
+    isolation: isolate;
+}
+
+/* Quick actions — tint the card surface but keep shortcut cards clear. */
+.page-dimmed .quick-actions-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(239, 232, 239, 0.66);
+    pointer-events: none;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+.page-dimmed .quick-actions-card .shortcut-card, .page-dimmed .alert-card {
+    position: relative;
+    z-index: 2;
+}
+
+/* Next patient — contain each ::after within its own element so the overlay
+   does not spill onto the card-body (and the detail rows). */
+.page-dimmed .next-patient-card > .k-card-header,
+.page-dimmed .next-patient-card > .k-card-footer,
+.page-dimmed .next-patient-card > .k-card-separator {
+    position: relative;
+}
+
+.page-dimmed .next-patient-card > .k-card-header::after,
+.page-dimmed .next-patient-card > .k-card-footer::after,
+.page-dimmed .next-patient-card > .k-card-separator::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(239, 232, 239, 0.66);
+    pointer-events: none;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+/* Card body uses background-color directly so .patient-detail-row elements
+   (which have their own solid white background) naturally appear undimmed —
+   no z-index stacking required. Both scrollable and non-scrollable body
+   sections use this same approach for consistency. */
+.page-dimmed .next-patient-card > .k-card-body:not(.np-alerts-body),
+.page-dimmed .next-patient-card > .np-alerts-body {
+    background-color: rgba(239, 232, 239, 0.66);
+    transition: background-color 0.3s ease;
+}
+
+/* Tasks card — tint the header and list container surfaces, but keep task
+   items clear. */
+.page-dimmed .tasks-card-header::after,
+.page-dimmed .tasks-filter-row::after,
+.page-dimmed #tasks-list::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(239, 232, 239, 0.66);
+    pointer-events: none;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+.page-dimmed .tasks-card .k-listview-item {
+    position: relative;
+    z-index: 2;
+}
+
+/* Tasks card header — keep title, search, and add button above the overlay */
+.page-dimmed .tasks-card-header > * {
+    position: relative;
+    z-index: 2;
 }
 
 .home-greeting {
@@ -687,6 +810,7 @@ a { text-decoration: none; color: inherit; }
     align-items: center;
     gap: 16px;
     padding: 16px;
+    background-color: #FFFFFF;
     border: 1px solid rgba(23, 56, 99, 0.08);
     border-radius: 12px;
 }
@@ -1253,8 +1377,7 @@ a { text-decoration: none; color: inherit; }
     padding: 0;
     border-radius: 16px;
     border: 1px solid rgba(23, 56, 99, 0.08);
-    box-shadow: 0px 2px 6px -1px rgba(0, 0, 0, 0.06);
-    filter: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.04));
+    box-shadow: 0px 2px 6px -1px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.04);
     overflow: hidden;
 }
 .sched-card-header {
@@ -1322,14 +1445,14 @@ a { text-decoration: none; color: inherit; }
     font-size: 14px !important;
     color: #232A36 !important;
     border-color: rgba(23, 56, 99, 0.08) !important;
-    background: #FFFFFF;
+    background: #FFFFFF !important;
 }
 
 /* ── All scheduler cell borders & backgrounds ── */
 .sched-card .k-scheduler-table td,
 .sched-card .k-scheduler-table th {
     border-color: rgba(23, 56, 99, 0.08) !important;
-    background: #FFFFFF;
+    background: #FFFFFF !important;
 }
 
 /* ── Time label column ── */
@@ -1439,6 +1562,51 @@ a { text-decoration: none; color: inherit; }
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCHEDULE PAGE — DIM MODE OVERRIDES
+   Uses the same ::after overlay that works on the home page.
+   .k-scheduler-layout is elevated above the overlay so the
+   calendar content stays fully visible while the card chrome
+   (toolbar / header / footer) is covered by the tint.
+═══════════════════════════════════════════════════════ */
+
+.page-dimmed .sched-card {
+    position: relative;
+    isolation: isolate;
+}
+
+.page-dimmed .sched-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(239, 232, 239, 0.66);
+    pointer-events: none;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+.page-dimmed .k-scheduler-toolbar::before,
+.page-dimmed .k-scheduler-toolbar {
+    z-index: 1;
+    background-color: unset !important;
+}
+
+
+/* Keep the scheduler layout (content area) above the overlay */
+/* Keep the scheduler toolbar visible above the overlay */
+.page-dimmed .sched-card .k-scheduler-layout,
+.page-dimmed .tasks-card-header {
+    position: relative;
+    z-index: 2;
+}
+
+/* Tasks card on the schedule page — same overlay pattern */
+.page-dimmed .schedule-body .tasks-card {
+    position: relative;
+    isolation: isolate;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1571,43 +1739,16 @@ a { text-decoration: none; color: inherit; }
     flex-shrink: 0;
 }
 
-/* Custom circular checkbox */
-.task-cb-wrap {
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    padding: 4px 0;
-    flex-shrink: 0;
-    cursor: pointer;
-}
-
-.task-cb-wrap input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.task-cb-custom {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
+/* Task checkbox — Kendo CheckBox overrides for circular style */
+.task-item .k-checkbox {
     border-radius: 9999px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    background: #fff;
+    border-color: rgba(0, 0, 0, 0.08);
     flex-shrink: 0;
-    transition: background 0.15s, border-color 0.15s;
 }
 
-.task-cb-wrap input[type="checkbox"]:checked + .task-cb-custom {
-    background: #334155;
+.task-item .k-checkbox:checked {
+    background-color: #334155;
     border-color: #334155;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolyline points='1.5,6 4.5,9 10.5,3' fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 10px 10px;
 }
 
 .task-text {
@@ -2367,7 +2508,13 @@ a { text-decoration: none; color: inherit; }
     display: grid;
     grid-template-columns: minmax(0, 1fr) 400px;
     gap: 32px;
-    align-items: stretch;
+    align-items: start;
+}
+
+.patients-list-body.ai-panel-open > .patients-ai-panel {
+    max-height: var(--patients-grid-height, 80vh);
+    position: sticky;
+    top: 100px;
 }
 
 @media (max-width: 1400px) {
@@ -2429,7 +2576,62 @@ a { text-decoration: none; color: inherit; }
     display: grid;
     grid-template-columns: minmax(0, 1fr) 400px;
     gap: 32px;
-    align-items: stretch;
+    align-items: start;
+}
+
+.patients-list-body.preview-panel-open > .patient-preview-panel {
+    max-height: var(--patients-grid-height, 80vh);
+    position: sticky;
+    top: 100px;
+    overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PATIENTS PAGE — DIM MODE OVERRIDES
+   Same ::after overlay approach used on Home & Schedule pages.
+   The card surface is tinted while grid content rows stay clear.
+═══════════════════════════════════════════════════════ */
+
+.page-dimmed .patients-grid-card {
+    position: relative;
+    isolation: isolate;
+}
+
+.page-dimmed .patients-grid-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(239, 232, 239, 0.66);
+    pointer-events: none;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+/* Keep grid content rows and filter row visible above the overlay */
+.page-dimmed .patients-grid-card .k-grid-content,
+.page-dimmed .patients-grid-card .k-filter-row {
+    position: relative;
+    z-index: 2;
+}
+
+/* AI panel & preview panel — same overlay when visible */
+.page-dimmed .patients-ai-panel,
+.page-dimmed .patient-preview-panel {
+    position: relative;
+    isolation: isolate;
+}
+
+.page-dimmed .patients-ai-panel::after,
+.page-dimmed .patient-preview-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(239, 232, 239, 0.66);
+    pointer-events: none;
+    z-index: 1;
+    transition: background-color 0.3s ease;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -4123,6 +4325,42 @@ a { text-decoration: none; color: inherit; }
 .rsl-dot.rsl-low    { background:#1a874a; }
 .rsl-label { flex:1; }
 .rsl-range { color:#aaa; font-size:12px; }
+
+/* ═══════════════════════════════════════════════════════
+   ANALYTICS PAGE — DIM MODE OVERRIDES
+   Same ::after overlay approach used on Home, Schedule &
+   Patients pages. Each chart card gets tinted; chart
+   content stays clear above it.
+═══════════════════════════════════════════════════════ */
+
+.page-dimmed .analytics-chart-card,
+.page-dimmed .kpi-card {
+    position: relative;
+    isolation: isolate;
+}
+
+.page-dimmed .analytics-chart-card::after,
+.page-dimmed .kpi-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(239, 232, 239, 0.66);
+    pointer-events: none;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+/* Keep chart content visible above the overlay */
+.page-dimmed .analytics-chart-card .k-chart,
+.page-dimmed .analytics-chart-card .chart-header,
+.page-dimmed .analytics-gauge-card .risk-gauge-wrap,
+.page-dimmed .analytics-gauge-card .risk-score-legend,
+.page-dimmed .analytics-gauge-card .chart-header,
+.page-dimmed .kpi-card > * {
+    position: relative;
+    z-index: 2;
+}
 
 /* ═══════════════════════════════════════════════════════
    PROFILE MANAGEMENT WINDOW

@@ -310,6 +310,23 @@ $(document).ready(function () {
         dataBound: function () {
             var el = this.element;
             setTimeout(function () {
+                el.find(".task-checkbox").each(function () {
+                    if (!$(this).data("kendoCheckBox")) {
+                        $(this).kendoCheckBox({
+                            rounded: "full",
+                            size:    "medium",
+                            change:  function (e) {
+                                var id      = parseInt(e.sender.element.data("id"), 10);
+                                var checked = e.checked;
+                                var item    = tasksDS.get(id);
+                                if (item) {
+                                    item.set("done", checked);
+                                    tasksDS.sync();
+                                }
+                            }
+                        });
+                    }
+                });
                 el.find(".k-badge-priority").each(function () {
                     var p = $(this).attr("data-priority");
                     if (!$(this).data("kendoBadge")) {
@@ -322,16 +339,6 @@ $(document).ready(function () {
                     }
                 });
             }, 0);
-        }
-    });
-
-    $("#tasks-list").on("change", ".task-checkbox", function () {
-        var id      = parseInt($(this).data("id"), 10);
-        var checked = $(this).is(":checked");
-        var item    = tasksDS.get(id);
-        if (item) {
-            item.set("done", checked);
-            tasksDS.sync();
         }
     });
 

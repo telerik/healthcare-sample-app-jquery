@@ -48,7 +48,7 @@ function buildProfileWindow() {
                     '<img id="pm-avatar" class="pm-photo" ' +
                         'src="' + doctorProfile.avatar + '" alt="Profile" />' +
                 '</div>' +
-                '<input id="pm-file-input" name="photo" type="file" accept="image/*" hidden />' +
+                '<input id="pm-file-input" name="photo" type="file" />' +
                 '<button id="pm-btn-upload" type="button">Upload Image</button>' +
             '</div>' +
 
@@ -114,21 +114,16 @@ function initProfileWindow() {
 
 /* ── Init form widgets ───────────────────────────── */
 function initProfileWidgets() {
-    /* Upload button */
-    $("#pm-btn-upload").kendoButton({
-        icon:       "upload",
-        themeColor: "dark",
-        rounded:    "large",
-        click: function () {
-            $("#pm-file-input").trigger("click");
-        }
-    });
-
-    $(document)
-        .off("change.profileUpload", "#pm-file-input")
-        .on("change.profileUpload", "#pm-file-input", function () {
-            var file = this.files && this.files[0];
-            if (!file) {
+    /* Kendo Upload — avatar selector (hidden UI, triggered by the styled button) */
+    $("#pm-file-input").kendoUpload({
+        multiple: false,
+        showFileList: false,
+        validation: {
+            allowedExtensions: [".jpg", ".jpeg", ".png", ".gif", ".webp"]
+        },
+        select: function (e) {
+            var file = e.files && e.files[0];
+            if (!file || !file.rawFile) {
                 return;
             }
 
@@ -147,9 +142,24 @@ function initProfileWidgets() {
                     }
                 });
             };
-            reader.readAsDataURL(file);
-            this.value = "";
-        });
+            reader.readAsDataURL(file.rawFile);
+
+            e.preventDefault();
+        }
+    });
+
+    /* Hide the Kendo Upload default UI — we use our own styled button */
+    $("#pm-file-input").closest(".k-upload").hide();
+
+    /* Upload button */
+    $("#pm-btn-upload").kendoButton({
+        icon:       "upload",
+        themeColor: "dark",
+        rounded:    "large",
+        click: function () {
+            $("#pm-file-input").closest(".k-upload").find("input[type=file]").trigger("click");
+        }
+    });
 
     /* Text fields */
     $("#pm-fullname").kendoTextBox({ placeholder: "Full Name" });
