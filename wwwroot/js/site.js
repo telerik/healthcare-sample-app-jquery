@@ -49,6 +49,12 @@ function pjaxNavigate(url, pushState) {
             }
         });
 
+        /* Close any open AIPrompt / AI Dialog popups before tearing down
+           the page so they don't linger after navigation. */
+        $("#notes-ai-prompt-container").hide();
+        var aiDlg = $("#dialog-ai-assistant").data("kendoDialog");
+        if (aiDlg && aiDlg.wrapper && aiDlg.wrapper.is(":visible")) { aiDlg.close(); }
+
         /* Destroy all Kendo widgets in the old content to free memory.
            kendo.destroy walks the tree and calls destroy on each widget. */
         kendo.destroy($content);
@@ -131,6 +137,7 @@ $(document).ready(function () {
     $("#btn-settings").kendoButton({
         click: function () {
             $("#page-content").toggleClass("page-dimmed");
+            $("#appbar").toggleClass("page-dimmed");
         }
     });
 
@@ -248,11 +255,7 @@ function initContextualSearch() {
                    '<span class="search-result-sub">' + kendo.htmlEncode(dataItem.sub) + '</span>' +
                    '</div>';
         },
-        filtering: function (e) {
-            /* If the DataSource has no data yet (XHR still in-flight or
-               previous attempt failed), hold the filter and retry once data
-               arrives.  This eliminates the race condition where the user
-               types before patient data has loaded. */
+        filtering: function (e) {           
             if (searchDataSource.data().length === 0) {
                 e.preventDefault();
                 if (!_searchDataLoading) {
