@@ -3497,6 +3497,22 @@ a { text-decoration: none; color: inherit; }
 /* Note card */
 .profile-note-card { margin-bottom: 20px; padding: 20px 24px; }
 
+/* AI loader overlay inside the Editor */
+#notes-editor-loader-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.65);
+    pointer-events: none;
+}
+#notes-editor-loader-overlay .k-loader {
+    position: absolute;
+    top: 54%;
+    left: 35%;
+    transform: translate(-50%, -50%);
+}
+
 /* Ask AI editor toolbar button */
 .k-button-ask-ai,
 .k-editor .k-toolbar .k-button-ask-ai {

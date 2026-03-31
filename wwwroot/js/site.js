@@ -249,12 +249,7 @@ function initContextualSearch() {
         rounded:       "full",
         placeholder:   "Search patients by name, ID or phone…",
         prefixOptions: { icon: "search", separator: false },
-        template: function (dataItem) {
-            return '<div class="search-result-item">' +
-                   '<span class="search-result-name">' + kendo.htmlEncode(dataItem.name) + '</span>' +
-                   '<span class="search-result-sub">' + kendo.htmlEncode(dataItem.sub) + '</span>' +
-                   '</div>';
-        },
+        template: ({ name, sub }) => `<div class="search-result-item"><span class="search-result-name">${kendo.htmlEncode(name)}</span><span class="search-result-sub">${kendo.htmlEncode(sub)}</span></div>`,
         filtering: function (e) {           
             if (searchDataSource.data().length === 0) {
                 e.preventDefault();

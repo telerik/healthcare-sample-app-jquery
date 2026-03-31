@@ -98,8 +98,8 @@ $(document).ready(function () {
             rounded:       "large",
             autoWidth:     true,
             filter: 'contains',
-            template: '<span>#: name # (#: id #)</span>',
-            valueTemplate: '<span>#: name # (#: id #)</span>',
+            template: ({ name, id }) => `<span>${kendo.htmlEncode(name)} (${kendo.htmlEncode(id)})</span>`,
+            valueTemplate: ({ name, id }) => `<span>${kendo.htmlEncode(name)} (${kendo.htmlEncode(id)})</span>`,
             change: function () {
                 updateAllCharts(this.value());
             }
@@ -165,7 +165,7 @@ $(document).ready(function () {
     // ── Arc Risk Gauge ──────────────────────────────
     $("#risk-gauge").kendoArcGauge({
         value: 0,
-        centerTemplate: '<div class="risk-gauge-center"><span class="risk-score-pct" style="color: #: color #;">#: value #%</span><span class="risk-score-outof">Out of 100</span></div>',
+        centerTemplate: ({ color, value }) => `<div class="risk-gauge-center"><span class="risk-score-pct" style="color: ${color};">${value}%</span><span class="risk-score-outof">Out of 100</span></div>`,
         colors: [{
             to: 25,
             color: '#0058e9'
@@ -223,7 +223,7 @@ $(document).ready(function () {
         },
         tooltip: {
             visible:  true,
-            template: "#= category #<br/>Max: #= dataItem.normalMax # #= dataItem.unit #<br/>Ave: <strong>#= value.current #</strong> #= dataItem.unit #"
+            template: ({ category, dataItem, value }) => `${category}<br/>Max: ${dataItem.normalMax} ${dataItem.unit}<br/>Ave: <strong>${value.current}</strong> ${dataItem.unit}`
         },
         chartArea:  { background: "transparent" },
         dataSource: { data: [] }
