@@ -50,9 +50,7 @@ $(document).ready(function () {
             { field: "reason",      title: "Reason" },
             {
                 field: "status", title: "Status", width: 130,
-                template: function (dataItem) {
-                    return '<span class="k-badge-status" data-status="' + kendo.htmlEncode(dataItem.status) + '"></span>';
-                }
+                template: ({ status }) => `<span class="k-badge-status" data-status="${kendo.htmlEncode(status)}"></span>`
             },
             { field: "room",  title: "Room", width: 125 }
         ],

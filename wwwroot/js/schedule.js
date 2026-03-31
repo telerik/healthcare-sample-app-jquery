@@ -77,8 +77,8 @@ $(document).ready(function () {
         endTime:   endTime,
         height:    890,
         views: [
-            { type: "day", selected: true, dateHeaderTemplate: kendo.template("<strong>#=kendo.toString(date, 'D')#</strong>"), },
-            { type: "week", dateHeaderTemplate: kendo.template("<strong>#=kendo.toString(date, 'ddd, dd/MM')#</strong>"), },
+            { type: "day", selected: true, dateHeaderTemplate: ({ date }) => `<strong>${kendo.toString(date, 'D')}</strong>`, },
+            { type: "week", dateHeaderTemplate: ({ date }) => `<strong>${kendo.toString(date, 'ddd, dd/MM')}</strong>`, },
             {
               type: "month",
               eventHeight: 90
@@ -108,7 +108,11 @@ $(document).ready(function () {
                 setTimeout(function () { highlightSchedulerEvent(uid); }, 100);
             }
         },
-        eventTemplate: kendo.template($("#event-template").html()),
+        eventTemplate: ({ eventType, patientName, start, end, room }) =>
+            `<div class="sched-ev ${eventType === 'Follow-up' ? 'sched-ev-followup' : ''}">`+
+            `<div class="sched-ev-title">${kendo.htmlEncode(eventType)} &ndash; ${kendo.htmlEncode(patientName)}</div>`+
+            `<div class="sched-ev-meta">${kendo.toString(start, "hh:mm")}&ndash;${kendo.toString(end, "hh:mm tt")} &middot; ${kendo.htmlEncode(room)}</div>`+
+            `</div>`,
         edit: function (e) {
             e.preventDefault();
             openAppointmentDialog(e.event);
@@ -305,7 +309,12 @@ $(document).ready(function () {
 
     $("#tasks-list").kendoListView({
         dataSource: tasksDS,
-        template:   kendo.template($("#task-template").html()),
+        template: ({ done, id, task, priority }) =>
+            `<div class="task-item ${done ? 'task-done' : ''}">`+
+            `<input type="checkbox" class="task-checkbox" data-id="${kendo.htmlEncode(id)}" ${done ? 'checked="checked"' : ''} />`+
+            `<span class="task-text">${kendo.htmlEncode(task)}</span>`+
+            `<span class="k-badge-priority" data-priority="${priorityTheme(priority)}">${kendo.htmlEncode(priority)}</span>`+
+            `</div>`,
         selectable: false,
         dataBound: function () {
             var el = this.element;

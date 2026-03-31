@@ -341,6 +341,17 @@ function renderPatientDetail(patient) {
         value: patient.notes || ""
     }).data("kendoEditor");
 
+    // ── Loader overlay inside the Editor ──────────────────────────
+    $("#notes-editor-loader-overlay").remove();
+    notesEditor.wrapper.append(
+        '<div id="notes-editor-loader-overlay"><span id="notes-editor-loader"></span></div>'
+    );
+    var notesEditorLoader = $("#notes-editor-loader").kendoLoader({
+        visible:    false,
+        size:       "large",
+        themeColor: "primary"
+    }).data("kendoLoader");
+
     // ── Standalone AIPrompt anchored below the Ask AI toolbar button ──
     if ($("#notes-ai-prompt-container").length === 0) {
         $("body").append(
@@ -378,6 +389,11 @@ function renderPatientDetail(patient) {
                 "\nCurrent Notes: " + (notesEditor ? notesEditor.value() : "") +
                 "\n---END PATIENT CONTEXT---";
 
+            if (notesEditorLoader) {
+                $("#notes-editor-loader-overlay").show();
+                notesEditorLoader.show();
+            }
+
             $.ajax({
                 url: "https://demos.telerik.com/service/v2/ai/completion",
                 method: "POST",
@@ -389,15 +405,25 @@ function renderPatientDetail(patient) {
                     }]
                 ),
                 success: function (response) {
+                    if (notesEditorLoader) {
+                        notesEditorLoader.hide();
+                        $("#notes-editor-loader-overlay").hide();
+                    }
                     var text = response.messages[0].contents[0].text || "";
                     if (text && notesEditor) {
                         notesEditor.exec("insertHtml", { value: "<p>" + kendo.htmlEncode(text) + "</p>" });
                         $("#notes-ai-prompt-container").hide();
+                    } else if (!text) {
+                        kendo.alert("The AI service returned an empty response. Please try again. \n </br><i> Sample prompt: Summarize the note</i>");
                     } else {
                         e.sender.addPromptOutput({ output: text, prompt: e.prompt });
                     }
                 },
                 error: function () {
+                    if (notesEditorLoader) {
+                        notesEditorLoader.hide();
+                        $("#notes-editor-loader-overlay").hide();
+                    }
                     e.sender.addPromptOutput({ output: "AI service unavailable.", prompt: e.prompt });
                 }
             });
@@ -444,9 +470,7 @@ function initPatientLabsGrid(patient) {
             { field: "reference", title: "Reference", width: 150 },
             {
                 field: "status", title: "Status", width: 140,
-                template: function (d) {
-                    return '<span class="k-badge-status" data-status="' + kendo.htmlEncode(d.status) + '"></span>';
-                }
+                template: ({ status }) => `<span class="k-badge-status" data-status="${kendo.htmlEncode(status)}"></span>`
             },
             { field: "note",  title: "Note", width: 300 }
         ],
@@ -729,9 +753,7 @@ function initGrid() {
             {
                 field: "name",
                 title: "Patient Name",
-                template: '<div class="patient-name-cell">' +
-                    '<img src="#: avatar #" loading="lazy" class="patient-avatar-sm" onerror="this.src=\'/content/patient-images/women/aiony-haust-3TLl_97HNJo-unsplash.jpg\'" />' +
-                    '<div><strong>#: name #</strong></div></div>',
+                template: ({ avatar, name }) => `<div class="patient-name-cell"><img src="${kendo.htmlEncode(avatar)}" loading="lazy" class="patient-avatar-sm" onerror="this.src='/content/patient-images/women/aiony-haust-3TLl_97HNJo-unsplash.jpg'" /><div><strong>${kendo.htmlEncode(name)}</strong></div></div>`,
                 width: 185
             },
             { field: "age",       title: "Age",        width: 110 },
@@ -739,7 +761,7 @@ function initGrid() {
                 field: "status",
                 title: "Status",
                 width: 130,
-                template: '<span class="k-badge-status" data-status="#: status #"></span>'
+                template: ({ status }) => `<span class="k-badge-status" data-status="${kendo.htmlEncode(status)}"></span>`
             },
             { field: "gender",    title: "Gender",     width: 90 },
             { field: "bloodType", title: "Blood Type", width: 105 },
@@ -751,7 +773,7 @@ function initGrid() {
                 filterable: false,
                 sortable:   false,
                 groupable:  false,
-                template:   '<button class="btn-view-patient" data-id="#: id #">View Profile</button>'
+                template:   ({ id }) => `<button class="btn-view-patient" data-id="${kendo.htmlEncode(id)}">View Profile</button>`
             }
         ],
         sortable:    true,
