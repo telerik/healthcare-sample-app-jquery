@@ -34,6 +34,81 @@ function legendItemVisual(e) {
 }
 
 /* ═══════════════════════════════════════════════════════
+   LAB RESULTS — one bullet chart per metric
+═══════════════════════════════════════════════════════ */
+function buildLabCharts(labResults) {
+    var $container = $("#labs-charts-container");
+
+    // Destroy any existing per-metric charts
+    $container.find("[id^='klab-']").each(function () {
+        var w = $(this).data("kendoChart");
+        if (w) { w.destroy(); }
+    });
+    $container.empty();
+
+    $.each(labResults, function (i, d) {
+        var isBelow  = d.value < d.normalMin;
+        var isAbove  = d.value > d.normalMax;
+        var barColor = isBelow ? "#e8735a" : (isAbove ? "#f5c842" : "#4ade80");
+        var tVal     = isBelow ? d.normalMin : d.normalMax;
+
+        // Compute the upper bound: gives the lightest band visible room
+        var axisMax = Math.max(d.value * 1.15, d.normalMax + 0.8 * (d.normalMax - d.normalMin));
+
+        var chartId = "klab-" + i;
+
+        // Flex row: fixed-width label  +  chart (no category-axis label)
+        // All charts start at exactly the same x position.
+        $container.append(
+            '<div class="klab-row">' +
+                '<span class="klab-label">' + kendo.htmlEncode(d.name) + '</span>' +
+                '<div id="' + chartId + '" class="klab-chart"></div>' +
+            '</div>'
+        );
+
+        $("#" + chartId).kendoChart({
+            legend: { visible: false },
+            seriesDefaults: { type: "bullet", gap: 0.45, spacing: 0 },
+            series: [{
+                color: barColor,
+                target: {
+                    color: "#1e293b",
+                    line:  { width: 3 }
+                },
+                data: [[d.value, tVal]]
+            }],
+            categoryAxis: {
+                categories: [d.name],
+                majorGridLines: { visible: false },
+                labels: { visible: false}
+            },
+            valueAxis: {
+                name: "v",
+                min: 0,
+                max: axisMax,
+                plotBands: [
+                    { from: 0,           to: d.normalMin, color: "#b8b8b8" },
+                    { from: d.normalMin, to: d.normalMax, color: "#d4d4d4" },
+                    { from: d.normalMax, to: axisMax,     color: "#ececec" }
+                ],
+                majorGridLines: { color: "#f0eeff" },
+                labels: { format: "{0}"}
+            },
+            tooltip: {
+                visible: true,
+                template: (function (capturedD) {
+                    return function (e) {
+                        return "Min: " + capturedD.normalMin + "  Max: " + capturedD.normalMax + " " + capturedD.unit +
+                               "<br/>Result: <strong>" + e.value.current + "</strong> " + capturedD.unit;
+                    };
+                })(d)
+            },
+            chartArea: { background: "transparent", height: 75 }
+        });
+    });
+}
+
+/* ═══════════════════════════════════════════════════════
    CHART DATA REFRESH
 ═══════════════════════════════════════════════════════ */
 function updateAllCharts(id) {
@@ -47,12 +122,8 @@ function updateAllCharts(id) {
         vitalsChart.refresh();
     }
 
-    // Labs bullet chart
-    var labsChart = $("#labs-chart").data("kendoChart");
-    if (labsChart) {
-        labsChart.dataSource.data(data.labResults);
-        labsChart.refresh();
-    }
+    // Labs bullet charts (per metric)
+    buildLabCharts(data.labResults);
 
     // Risk gauge
     var gauge = $("#risk-gauge").data("kendoArcGauge");
@@ -90,45 +161,53 @@ $(document).ready(function () {
         patientsData  = Array.isArray(patientsResp) ? patientsResp : (patientsResp[0] || []);
         analyticsData = analyticsResp[0];
 
-        $("#patient-select").kendoDropDownList({
-            dataSource:    patientsData,
-            width: 300,
-            dataTextField: "name",
-            dataValueField: "id",
-            rounded:       "large",
-            autoWidth:     true,
-            filter: 'contains',
-            template: ({ name, id }) => `<span>${kendo.htmlEncode(name)} (${kendo.htmlEncode(id)})</span>`,
-            valueTemplate: ({ name, id }) => `<span>${kendo.htmlEncode(name)} (${kendo.htmlEncode(id)})</span>`,
-            change: function () {
-                updateAllCharts(this.value());
-            }
-        });
+        var existingDDL = $("#patient-select").data("kendoDropDownList");
+        if (existingDDL) {
+            existingDDL.setDataSource(new kendo.data.DataSource({ data: patientsData }));
+        } else {
+            $("#patient-select").kendoDropDownList({
+                dataSource:    patientsData,
+                width: 300,
+                dataTextField: "name",
+                dataValueField: "id",
+                rounded:       "large",
+                autoWidth:     true,
+                filter: 'contains',
+                template: ({ name, id }) => `<span>${kendo.htmlEncode(name)} (${kendo.htmlEncode(id)})</span>`,
+                valueTemplate: ({ name, id }) => `<span>${kendo.htmlEncode(name)} (${kendo.htmlEncode(id)})</span>`,
+                change: function () {
+                    updateAllCharts(this.value());
+                }
+            });
+        }
 
         if (patientsData.length > 0) {
             updateAllCharts(patientsData[0].id);
         }
 
         $("#page-content").removeClass("page-loading").addClass("page-ready");
+        $(".analytics-header-controls").addClass("is-ready");
     });
 
     // ── Export Button ──────────────────────────────────
-    $("#btn-export").kendoButton({
-        icon:    "download",
-        rounded: "large",
-        click: function () {  
-            kendo.drawing.drawDOM($("#analytics-body"), {
-                paperSize: "auto"
-            }).then(function (group) {
-                return kendo.drawing.exportPDF(group, { multiPage: true });
-            }).done(function (data) {
-                kendo.saveAs({
-                    dataURI:  data,
-                    fileName: "analytics-report.pdf"
+    if (!$("#btn-export-analytics").data("kendoButton")) {
+        $("#btn-export-analytics").kendoButton({
+            icon:    "download",
+            rounded: "large",
+            click: function () {  
+                kendo.drawing.drawDOM($("#analytics-body"), {
+                    paperSize: "auto"
+                }).then(function (group) {
+                    return kendo.drawing.exportPDF(group, { multiPage: true });
+                }).done(function (data) {
+                    kendo.saveAs({
+                        dataURI:  data,
+                        fileName: "analytics-report.pdf"
+                    });
                 });
-            });
-        }
-    });
+            }
+        });
+    }
 
     // ── Vitals Line Chart ──────────────────────────────
     $("#vitals-chart").kendoChart({
@@ -192,41 +271,6 @@ $(document).ready(function () {
             rangeLineCap: "round"
         },
         gaugeArea: { background: "transparent", margin: 30 },
-    });
-
-    // ── Lab Results Bullet Chart ───────────────────────
-    $("#labs-chart").kendoChart({
-        legend: { visible: false },
-        seriesDefaults: { type: "bullet", gap: 0.6, spacing: 0.25 },
-        series: [{
-            color: function (e) {
-                var d = e.dataItem;
-                if (!d) return "#1a874a";
-                if (d.value > d.warningMax) return "#c0345a";
-                if (d.value > d.normalMax)  return "#b8860b";
-                return "#1a874a";
-            },
-            target: {
-                color: "#444",
-                line:  { width: 3 }
-            },
-            currentField: "value",
-            targetField:  "normalMax"
-        }],
-        categoryAxis: {
-            field: "name",
-            majorGridLines: { visible: false }
-        },
-        valueAxis: {
-            majorGridLines: { color: "#f0eeff" },
-            labels: { format: "{0}" }
-        },
-        tooltip: {
-            visible:  true,
-            template: ({ category, dataItem, value }) => `${category}<br/>Max: ${dataItem.normalMax} ${dataItem.unit}<br/>Ave: <strong>${value.current}</strong> ${dataItem.unit}`
-        },
-        chartArea:  { background: "transparent" },
-        dataSource: { data: [] }
     });
 
     // ── Alerts Stacked Column Chart ────────────────────

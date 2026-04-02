@@ -132,7 +132,8 @@ public class HealthcareDataStore
         var idx  = list.FindIndex(t => t.Id == updated.Id);
         if (idx < 0) return false;
 
-        list[idx].Task     = updated.Task;
+        list[idx].Task        = updated.Task;
+        list[idx].Description = updated.Description;
         list[idx].Priority = updated.Priority;
         list[idx].Done     = updated.Done;
         return true;
@@ -196,9 +197,10 @@ public class HealthcareDataStore
 
 public class DailyTask
 {
-    public int    Id       { get; set; }
-    public string Task     { get; set; } = "";
-    public string Priority { get; set; } = "Medium";
-    public bool   Done     { get; set; }
+    public int    Id          { get; set; }
+    public string Task        { get; set; } = "";
+    public string Priority    { get; set; } = "Medium";
+    public bool   Done        { get; set; }
+    public string Description { get; set; } = "";
 }
 

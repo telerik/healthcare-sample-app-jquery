@@ -3,20 +3,6 @@
     ViewData["ActivePage"] = "Patients";
 }
 
-    <!-- ═══════════════════════════════════════════
-         SHARED PAGE HEADER (visible in both views)
-    ═══════════════════════════════════════════ -->
-    <div class="patients-page-header">
-        <div>
-            <h1 class="patients-page-title">Patients</h1>
-            <p class="patients-page-sub">Monitor patient trends, vitals, lab results, and risk levels in one place</p>
-        </div>
-        <div class="patients-header-actions">
-            <button id="btn-ai-assistance">AI Assistance</button>
-            <button id="btn-export">Export</button>
-        </div>
-    </div>
-
     <!-- Breadcrumb (shown only in detail view) -->
     <nav id="patients-breadcrumb" class="patients-breadcrumb" style="display:none">
         <a id="breadcrumb-back" class="breadcrumb-link">
@@ -38,13 +24,13 @@
 
             <!-- Grid column -->
             <div class="patients-grid-col">
-                <div class="card patients-grid-card">
+                <div class="k-card patients-grid-card">
                     <div id="patients-grid"></div>
                 </div>
             </div>
 
             <!-- AI Assistant panel (hidden until button clicked) -->
-            <div id="list-ai-panel" class="card patients-ai-panel" style="display:none">
+            <div id="list-ai-panel" class="k-card patients-ai-panel" style="display:none">
                 <div id="list-ai-chat"></div>
             </div>
 

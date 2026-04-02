@@ -226,7 +226,7 @@ $(document).ready(function () {
         var patientId = $(this).data("patient-id");
         if (patientId) {
             sessionStorage.setItem("openPatientId", patientId);
-            window.location.href = "/Patients";
+            window.location.href = "/patients";
         }
     });
 
@@ -597,7 +597,7 @@ $(document).ready(function () {
         click: function (e) {
             var pid = $(e.event.currentTarget).data("patient-id") || (_nextPt && _nextPt.id);
             if (pid) sessionStorage.setItem("openPatientId", pid);
-            window.location.href = "/Patients";
+            window.location.href = "/patients";
         }
     });
 
@@ -613,7 +613,7 @@ $(document).ready(function () {
     var _aiUser         = {
         id: "dr-carter",
         name: "Dr. Carter",
-        iconUrl: "/content/patient-images/women/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
+        iconUrl: "/content/patient-images/women/thumb/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
     };
     var _aiAssistant    = {
         id: "ai-assistant",

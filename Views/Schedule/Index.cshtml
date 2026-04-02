@@ -10,7 +10,7 @@
 
         <!-- LEFT — SCHEDULER -->
         <div class="schedule-main">
-            <div class="card sched-card">                
+            <div class="k-card sched-card">                
                 <div id="scheduler"></div>
             </div>
         </div>
@@ -18,7 +18,7 @@
         <!-- RIGHT — SIDE PANEL -->
         <div class="schedule-side">
             <!-- Today's Tasks -->
-            <div class="card tasks-card">
+            <div class="k-card tasks-card">
                 <div class="tasks-card-header">
                     <h2 class="tasks-card-title">Daily Tasks</h2>
                     <div class="tasks-header-actions">
@@ -56,6 +56,24 @@
             <div class="atf-field">
                 <span class="atf-label">Description</span>
                 <textarea id="atf-description"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Task dialog -->
+    <div id="view-task-dialog">
+        <div class="add-task-form">
+            <div class="atf-field">
+                <span class="atf-label">Task</span>
+                <div id="vtf-name" class="vtf-value"></div>
+            </div>
+            <div class="atf-field">
+                <span class="atf-label">Priority</span>
+                <span id="vtf-priority-badge"></span>
+            </div>
+            <div class="atf-field">
+                <span class="atf-label">Description</span>
+                <div id="vtf-description" class="vtf-description"></div>
             </div>
         </div>
     </div>

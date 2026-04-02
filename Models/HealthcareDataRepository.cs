@@ -478,7 +478,8 @@ public static class HealthcareDataRepository
                 "vladislav-nikonov-mRelDTGo3HY-unsplash.jpg"
             ];
             string[] pool = b.Gender == "Male" ? menImages : womenImages;
-            string avatar = $"/content/patient-images/{(b.Gender == "Male" ? "men" : "women")}/{pool[i % pool.Length]}";
+            string genderFolder = b.Gender == "Male" ? "men" : "women";
+            string avatar = $"/content/patient-images/{genderFolder}/thumb/{pool[i % pool.Length]}";
 
             // Admission date
             var admDt = new DateTime(2024, 7, 1).AddDays(rng.Next(0, 300));
@@ -589,22 +590,35 @@ public static class HealthcareDataRepository
                 });
             }
 
-            // Lab chart results (5 items)
-            var labChartNames = new[] { "CBC", "CRP", "Lipid Panel", "HbA1c", "eGFR" };
-            var labUnits      = new[] { "×10³/µL", "mg/L", "mg/dL", "%", "mL/min" };
-            var labBaseValues = new[] { 7.0, 5.0, 130.0, 6.0, 75.0 };
+            // Lab chart results — 10 metrics with real clinical reference ranges.
+            // The value is sampled independently of the range so it can fall below (red),
+            // within (green), or above (yellow) the reference band.
+            var labDefs = new (string name, string unit, double nMin, double nMax)[] {
+                ("WBC",        "×10³/µL",  3.5,  10.5),
+                ("Hemoglobin", "g/dL",    12.0,  17.5),
+                ("Glucose",    "mg/dL",   70.0,  99.0),
+                ("Creatinine", "mg/dL",    0.6,   1.2),
+                ("HDL",        "mg/dL",   40.0,  60.0),
+            };
             var labCharts = new List<LabChartResult>();
-            for (int i = 0; i < labChartNames.Length; i++)
+            foreach (var lab in labDefs)
             {
-                double baseVal   = labBaseValues[i] * (isCritical ? 1.4 + rng.NextDouble() * 0.4 : 0.9 + rng.NextDouble() * 0.3);
-                double normalMax = Math.Round(baseVal * (0.7 + rng.NextDouble() * 0.4), 1);
+                double span        = lab.nMax - lab.nMin;
+                // Extend the sampling window below nMin and above nMax.
+                // Critical patients are biased low (more red); normal patients lean mid-high.
+                double belowBuffer = span * (isCritical ? 0.60 : (isModerate ? 0.30 : 0.15));
+                double aboveBuffer = span * (isCritical ? 0.30 : (isModerate ? 0.50 : 0.65));
+                double windowLow   = Math.Max(0, lab.nMin - belowBuffer);
+                double windowHigh  = lab.nMax + aboveBuffer;
+                double value       = Math.Round(windowLow + rng.NextDouble() * (windowHigh - windowLow), 1);
                 labCharts.Add(new LabChartResult
                 {
-                    Name       = labChartNames[i],
-                    Value      = Math.Round(baseVal, 1),
-                    NormalMax  = normalMax,
-                    WarningMax = Math.Round(normalMax * (1.2 + rng.NextDouble() * 0.4), 1),
-                    Unit       = labUnits[i]
+                    Name       = lab.name,
+                    Value      = value,
+                    NormalMin  = lab.nMin,
+                    NormalMax  = lab.nMax,
+                    WarningMax = Math.Round(lab.nMax * 1.30, 1),
+                    Unit       = lab.unit
                 });
             }
 
@@ -799,29 +813,29 @@ public static class HealthcareDataRepository
 
     public static IList<DailyTask> BuildInitialDailyTasks(IList<PatientRecord> patients)
     {
-        var templates = new (string Tpl, string Priority)[]
+        var templates = new (string Tpl, string Priority, string Desc)[]
         {
-            ("Review {name} lab results",                          "High"),
-            ("Update treatment notes \u2014 {name}",               "Low"),
-            ("Call pharmacy re: {name} allergy",                   "High"),
-            ("Order follow-up MRI \u2014 {name}",                  "Medium"),
-            ("Sign discharge summary \u2014 Room 204",             "Medium"),
-            ("Prepare Friday case review presentation",            "Medium"),
-            ("Schedule echocardiogram \u2014 {name}",              "High"),
-            ("Follow up on blood culture results \u2014 {name}",   "High"),
-            ("Adjust insulin dosage \u2014 {name}",                "High"),
-            ("Notify family of discharge \u2014 {name}",           "Medium"),
-            ("Review medication allergies \u2014 {name}",          "Medium"),
-            ("Update care plan \u2014 {name}",                     "Low"),
-            ("Consult cardiology for {name}",                      "High"),
-            ("Process insurance authorisation \u2014 {name}",      "Low"),
-            ("Arrange physical therapy session \u2014 {name}",     "Medium"),
-            ("Reorder IV fluids \u2014 Room 318",                  "Low"),
-            ("Check morning vitals \u2014 Ward B",                 "High"),
-            ("Submit end-of-shift report",                         "Medium"),
-            ("Review imaging results \u2014 {name}",               "High"),
-            ("Coordinate discharge transport \u2014 {name}",       "Medium"),
-            ("Update allergy panel \u2014 {name}",                 "Low"),
+            ("Review {name} lab results",                          "High",   "Check latest CBC, CMP, and lipid panel results. Flag any values outside reference range and update the care plan accordingly."),
+            ("Update treatment notes \u2014 {name}",               "Low",    "Add progress notes from today\u2019s rounds. Include medication response, symptom changes, and any new clinical observations."),
+            ("Call pharmacy re: {name} allergy",                   "High",   "Verify documented penicillin allergy with dispensing pharmacist before authorising the prescribed antibiotic course."),
+            ("Order follow-up MRI \u2014 {name}",                  "Medium", "Submit MRI brain with contrast order. Indicate clinical indication as post-treatment surveillance and mark as routine priority."),
+            ("Sign discharge summary \u2014 Room 204",             "Medium", "Complete and co-sign the discharge summary for the patient in Room 204. Ensure medication reconciliation and follow-up instructions are included."),
+            ("Prepare Friday case review presentation",            "Medium", "Compile three complex cases for the weekly multidisciplinary team review. Include imaging, lab trends, and proposed management changes."),
+            ("Schedule echocardiogram \u2014 {name}",              "High",   "Arrange transthoracic echocardiogram to evaluate left ventricular function. Coordinate with cardiology for earliest available slot this week."),
+            ("Follow up on blood culture results \u2014 {name}",   "High",   "Results from Tuesday\u2019s cultures are pending. Review sensitivities when available and adjust empirical antibiotic coverage as needed."),
+            ("Adjust insulin dosage \u2014 {name}",                "High",   "Review three-day glucose log. HbA1c trending above target. Consider increasing basal insulin by 10% and recheck fasting glucose in 48 hours."),
+            ("Notify family of discharge \u2014 {name}",           "Medium", "Contact next of kin to confirm discharge date and transport arrangements. Provide written instructions for post-discharge medication and follow-up appointment."),
+            ("Review medication allergies \u2014 {name}",          "Medium", "Reconcile allergy list with current medication orders. Confirm no contraindicated prescriptions exist and update the EMR allergy panel."),
+            ("Update care plan \u2014 {name}",                     "Low",    "Revise the interdisciplinary care plan to reflect changes discussed at today\u2019s rounds. Ensure nursing, physio, and dietary goals are aligned."),
+            ("Consult cardiology for {name}",                      "High",   "Request urgent cardiology review for new onset arrhythmia. Attach recent ECG and telemetry strip. Ask for inpatient assessment within 4 hours."),
+            ("Process insurance authorisation \u2014 {name}",      "Low",    "Submit prior-authorisation request for the proposed PET-CT scan. Attach clinical justification letter and recent imaging reports."),
+            ("Arrange physical therapy session \u2014 {name}",     "Medium", "Refer to physiotherapy for post-operative mobilisation program. Goal is independent ambulation with a walking frame by day 5 post-op."),
+            ("Reorder IV fluids \u2014 Room 318",                  "Low",    "Stock of 0.9% NaCl 1 L bags is low on Ward C. Submit a reorder request to pharmacy for a minimum of 20 units to last the weekend."),
+            ("Check morning vitals \u2014 Ward B",                 "High",   "Confirm that all patients on Ward B have had temperature, BP, HR, RR, and SpO\u2082 documented before 08:00. Flag any abnormal readings immediately."),
+            ("Submit end-of-shift report",                         "Medium", "Complete the end-of-shift handover summary covering all active admissions. Include outstanding tasks, pending results, and any escalation concerns."),
+            ("Review imaging results \u2014 {name}",               "High",   "Chest X-ray and abdominal CT results are available in PACS. Review with reference to yesterday\u2019s examination and update clinical notes."),
+            ("Coordinate discharge transport \u2014 {name}",       "Medium", "Arrange non-emergency patient transport for discharge to the rehabilitation facility. Confirm bed availability and estimated arrival time with the receiving unit."),
+            ("Update allergy panel \u2014 {name}",                 "Low",    "Patient has reported a new reaction to codeine. Document the reaction type and severity in the allergy panel and remove all codeine-containing medications from the active prescription list."),
         };
 
         var tasks = new List<DailyTask>();
@@ -831,7 +845,7 @@ public static class HealthcareDataRepository
         {
             var t    = templates[i];
             var text = t.Tpl.Replace("{name}", picks[i % picks.Count].Name);
-            tasks.Add(new DailyTask { Id = i + 1, Task = text, Priority = t.Priority, Done = i == 0 || i == 3 || i == 5 || i == 9 || i == 16 });
+            tasks.Add(new DailyTask { Id = i + 1, Task = text, Priority = t.Priority, Description = t.Desc, Done = i == 0 || i == 3 || i == 5 || i == 9 || i == 16 });
         }
 
         return tasks;

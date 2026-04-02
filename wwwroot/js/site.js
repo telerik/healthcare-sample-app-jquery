@@ -10,122 +10,17 @@ var patientSearchRequest = null;
 ensurePatientSearchData();
 
 /* ═══════════════════════════════════════════════════════
-   PJAX — keep the appbar alive, swap only #page-content
+   PAGE HEADERS — toggle persistent headers by page name
 ═══════════════════════════════════════════════════════ */
-var _pjaxBusy = false;
-var _currentPageScript = null;   // <script> element of the active page
-
-function pjaxNavigate(url, pushState) {
-    if (_pjaxBusy) return;
-    _pjaxBusy = true;
-
-    var $content = $("#page-content");
-    $content.removeClass("page-ready").addClass("page-loading");
-
-    $.ajax({
-        url: url,
-        dataType: "html",
-        cache: false
-    }).done(function (html) {
-        var parsed = $($.parseHTML(html, document, true));
-
-        /* Extract the new page content */
-        var newContent = parsed.filter("#page-content").add(parsed.find("#page-content"));
-        if (!newContent.length) {
-            /* Fallback: if the response is unusual, do a full reload */
-            window.location.href = url;
-            return;
-        }
-
-        /* Find page-specific script(s) from the response body */
-        var pageScripts = [];
-        parsed.filter("script[src]").each(function () {
-            var src = $(this).attr("src") || "";
-            if (src.indexOf("/js/app.js")       !== -1 ||
-                src.indexOf("/js/schedule.js")   !== -1 ||
-                src.indexOf("/js/patients.js")   !== -1 ||
-                src.indexOf("/js/analytics.js")  !== -1) {
-                pageScripts.push(src);
-            }
-        });
-
-        /* Close any open AIPrompt / AI Dialog popups before tearing down
-           the page so they don't linger after navigation. */
-        $("#notes-ai-prompt-container").hide();
-        var aiDlg = $("#dialog-ai-assistant").data("kendoDialog");
-        if (aiDlg && aiDlg.wrapper && aiDlg.wrapper.is(":visible")) { aiDlg.close(); }
-
-        /* Destroy all Kendo widgets in the old content to free memory.
-           kendo.destroy walks the tree and calls destroy on each widget. */
-        kendo.destroy($content);
-
-        /* Remove any floating popups / animation containers owned by old widgets,
-           but keep the ones belonging to the appbar search autocomplete. */
-        var searchPopup = $("#appbar-search").data("kendoAutoComplete");
-        var searchAnimC = searchPopup && searchPopup.popup ? searchPopup.popup.wrapper.closest(".k-animation-container")[0] : null;
-        $("body > .k-animation-container, body > .k-popup, body > .k-overlay").filter(function () {
-            return this !== searchAnimC;
-        }).remove();
-
-        /* Remove previously injected page script */
-        if (_currentPageScript) {
-            $(_currentPageScript).remove();
-            _currentPageScript = null;
-        }
-
-        /* Swap content */
-        $content.html(newContent.html());
-
-        /* Update history */
-        if (pushState !== false) {
-            history.pushState({ pjax: true, url: url }, "", url);
-        }
-
-        /* Load and execute the new page script */
-        if (pageScripts.length) {
-            /* Strip cache-busting query and re-add a timestamp to force re-execution */
-            var src = pageScripts[0].replace(/\?v=.*$/, "") + "?_=" + Date.now();
-            var script = document.createElement("script");
-            script.src = src;
-            script.onload = function () {
-                $content.removeClass("page-loading").addClass("page-ready");
-                _pjaxBusy = false;
-            };
-            script.onerror = function () {
-                $content.removeClass("page-loading").addClass("page-ready");
-                _pjaxBusy = false;
-            };
-            _currentPageScript = script;
-            document.body.appendChild(script);
+function showPageHeader(pageName) {
+    $("#page-headers .page-header").each(function () {
+        var $h = $(this);
+        if ($h.attr("data-page") === pageName) {
+            $h.addClass("active");
         } else {
-            $content.removeClass("page-loading").addClass("page-ready");
-            _pjaxBusy = false;
+            $h.removeClass("active");
         }
-
-    }).fail(function () {
-        /* On network error fall back to traditional navigation */
-        window.location.href = url;
     });
-}
-
-/* Browser back / forward */
-$(window).on("popstate", function (e) {
-    var state = e.originalEvent.state;
-    if (state && state.pjax) {
-        var seg = $("#appbar-nav").data("kendoSegmentedControl");
-        var pageValue = _urlToPage(state.url);
-        if (seg && pageValue) { seg.select(pageValue); }
-        pjaxNavigate(state.url, false);
-    }
-});
-
-function _urlToPage(url) {
-    var path = url.replace(/^https?:\/\/[^/]+/, "").toLowerCase();
-    if (path === "/" || path === "")          return "Home";
-    if (path.indexOf("/schedule") === 0)     return "Schedule";
-    if (path.indexOf("/patients") === 0)     return "Patients";
-    if (path.indexOf("/analytics") === 0)    return "Analytics";
-    return null;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -133,11 +28,22 @@ function _urlToPage(url) {
 ═══════════════════════════════════════════════════════ */
 $(document).ready(function () {   
 
-    /* Settings button — toggle page dimming */
+    /* Show the correct page header on initial load */
+    var activePage = $("#appbar-nav").attr("data-active-page") || "Home";
+    showPageHeader(activePage);
+
+    /* Settings button — toggle page dimming (persisted across navigation) */
+    if (sessionStorage.getItem("pageDimmed") === "true") {
+        $("#page-content").addClass("page-dimmed");
+        $("#appbar").addClass("page-dimmed");
+    }
+
     $("#btn-settings").kendoButton({
         click: function () {
-            $("#page-content").toggleClass("page-dimmed");
-            $("#appbar").toggleClass("page-dimmed");
+            var dimmed = !$("#page-content").hasClass("page-dimmed");
+            $("#page-content").toggleClass("page-dimmed", dimmed);
+            $("#appbar").toggleClass("page-dimmed", dimmed);
+            sessionStorage.setItem("pageDimmed", dimmed ? "true" : "false");
         }
     });
 
@@ -146,12 +52,10 @@ $(document).ready(function () {
     ═══════════════════════════════════════════════ */
     var navRoutes = {
         "Home":      "/",
-        "Schedule":  "/Schedule",
-        "Patients":  "/Patients",
-        "Analytics": "/Analytics"
+        "Schedule":  "/schedule",
+        "Patients":  "/patients",
+        "Analytics": "/analytics"
     };
-
-    var activePage = $("#appbar-nav").attr("data-active-page") || "Home";    
 
     $("#appbar-nav").kendoSegmentedControl({
         items: [
@@ -164,7 +68,7 @@ $(document).ready(function () {
         change: function (e) {
             var url = navRoutes[e.value];
             if (url) {
-                pjaxNavigate(url, true);
+                window.location.href = url;
             }
         }
     });  
@@ -176,9 +80,6 @@ $(document).ready(function () {
             $(this).find(".k-button-text").before(customIcon);
         }
     });
-
-    /* Record the initial page in history so back-button works */
-    history.replaceState({ pjax: true, url: window.location.href }, "", window.location.href);
 });
 
 /* ═══════════════════════════════════════════════════════
@@ -196,10 +97,7 @@ function navigateToPatientProfile(patient) {
         return;
     }
 
-    /* Use PJAX to stay on the same page shell */
-    var seg = $("#appbar-nav").data("kendoSegmentedControl");
-    if (seg) { seg.select("Patients"); }
-    pjaxNavigate("/Patients", true);
+    window.location.href = "/patients";
 }
 
 function ensurePatientSearchData(forceRefresh) {
