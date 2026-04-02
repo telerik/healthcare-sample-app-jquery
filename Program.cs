@@ -5,6 +5,7 @@ using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(o =>
     {
@@ -72,6 +73,7 @@ app.UseStaticFiles(new StaticFileOptions
         ctx.Context.Response.Headers.CacheControl = "public, max-age=2592000, immutable";
     }
 });
+app.UsePathBase("/kendo-ui/healthcare/");
 
 app.UseRouting();
 app.UseSession();           // must be before MapControllerRoute

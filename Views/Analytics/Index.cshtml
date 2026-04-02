@@ -6,54 +6,46 @@
     <div class="analytics-wrapper">
 
     <!-- ═══════════════════════════════════════════
-         PAGE HEADER
-    ═══════════════════════════════════════════ -->
-    <div class="analytics-page-header">
-        <div>
-            <h1>Clinical Analytics</h1>
-            <p>Track vitals trends, lab results, risk scores, and alert patterns per patient</p>
-        </div>
-        <div class="analytics-header-controls">
-            <select id="patient-select"></select>
-            <button id="btn-export">Export</button>
-        </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════
          ANALYTICS BODY
     ═══════════════════════════════════════════ -->
     <div id="analytics-body" class="analytics-body">       
 
         <!-- Row 1: Vitals Over Time (full width) -->
         <div class="analytics-row">
-            <div class="card analytics-chart-card">
-                <div class="chart-header">
+            <div class="k-card analytics-chart-card">
+                <div class="k-card-header chart-header">
                     <div class="chart-title">Vitals Over Time</div>
                     <div class="chart-subtitle">Multi-series tracking of blood pressure, heart rate, SpO<sub>2</sub>, and temperature</div>
                 </div>
-                <div id="vitals-chart" style="min-height:300px"></div>
+                <div class="k-card-body">
+                    <div id="vitals-chart" style="min-height:300px"></div>
+                </div>
             </div>
         </div>
 
         <!-- Row 2: Alerts Over Time (full width) -->
         <div class="analytics-row">
-            <div class="card analytics-chart-card">
-                <div class="chart-header">
+            <div class="k-card analytics-chart-card">
+                <div class="k-card-header chart-header">
                     <div class="chart-title">Alerts Over Time</div>
                     <div class="chart-subtitle">Alert count trend by severity level</div>
                 </div>
-                <div id="alerts-column-chart" style="min-height:280px"></div>
+                <div class="k-card-body">
+                    <div id="alerts-column-chart" style="min-height:280px"></div>
+                </div>
             </div>
         </div>
 
         <!-- Row 3: Lab Results Range (full width) -->
         <div class="analytics-row">
-            <div class="card analytics-chart-card">
-                <div class="chart-header">
+            <div class="k-card analytics-chart-card">
+                <div class="k-card-header chart-header">
                     <div class="chart-title">Lab Results Range</div>
                     <div class="chart-subtitle">Multi-metric range chart showing latest lab results against optimal ranges</div>
                 </div>
-                <div id="labs-chart" style="min-height:260px"></div>
+                <div class="k-card-body">
+                    <div id="labs-charts-container"></div>
+                </div>
             </div>
         </div>
 
@@ -65,7 +57,7 @@
                     <div class="chart-title">Alerts by Category</div>
                     <div class="chart-subtitle">Distribution of alerts by clinical category</div>
                 </div>
-                <div id="alerts-donut-chart" style="min-height:340px"></div>
+                    <div id="alerts-donut-chart" style="min-height:340px"></div>
             </div>
 
             <div class="card analytics-chart-card analytics-gauge-card">
@@ -93,7 +85,8 @@
                         <span class="rsl-range">70–100</span>
                     </div>
                 </div>
-            </div>
+                </div><!-- /.k-card-body -->
+            </div><!-- /.k-card.analytics-gauge-card -->
 
         </div>
 

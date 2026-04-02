@@ -11,7 +11,6 @@ var currentPatient   = null;
 var previewPatient   = null;
 var listAiChat       = null;
 var notesEditor      = null;
-var notesAiPrompt    = null;
 var listAiReady      = false;
 var _aiAssistant    = {
         id: "ai-assistant",
@@ -20,7 +19,7 @@ var _aiAssistant    = {
  var _aiUser         = {
         id: "dr-carter",
         name: "Dr. Carter",
-        iconUrl: "/content/patient-images/women/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
+        iconUrl: "/content/patient-images/women/thumb/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
     };
 
 /* ═══════════════════════════════════════════════════════
@@ -162,7 +161,6 @@ function applyFilters(searchVal) {
    DRILLDOWN OPEN / CLOSE
 ═══════════════════════════════════════════════════════ */
 function openPatientDrilldown(patient) {
-    hideNotesAiPrompt();
     currentPatient = patient;
     renderPatientDetail(patient);
     $("#patients-list-view").hide();
@@ -171,16 +169,11 @@ function openPatientDrilldown(patient) {
     window.scrollTo(0, 0);
 }
 
-function hideNotesAiPrompt() {
-    $("#notes-ai-prompt-container").hide();
-}
-
 function closePatientDrilldown() {
     // Save editor content back to patient object
     if (notesEditor && currentPatient) {
         currentPatient.notes = notesEditor.value();
     }
-    hideNotesAiPrompt();
     $("#patients-detail-view").hide();
     $("#patients-breadcrumb").hide();
     $("#patients-list-view").show();
@@ -210,9 +203,10 @@ function renderPatientDetail(patient) {
 
     // ── Card 1: Patient Info ──────────────────────────────────────
     var infoCardHtml =
-        '<div class="card profile-info-card">' +
+        '<div class="k-card profile-info-card">' +
+            '<div class="k-card-body">' +
             '<div class="profile-info-header">' +
-                '<img src="' + patient.avatar + '" alt="' + kendo.htmlEncode(patient.name) + '" class="patient-avatar-profile" />' +
+                '<img src="' + patient.avatar.replace('/thumb/', '/') + '" alt="' + kendo.htmlEncode(patient.name) + '" class="patient-avatar-profile" />' +
                 '<div class="profile-name-status">' +
                     '<span class="profile-patient-name">' + kendo.htmlEncode(patient.name) + '</span>' +
                     '<span class="k-chip-status" data-status="' + kendo.htmlEncode(patient.status) + '"></span>' +
@@ -221,44 +215,51 @@ function renderPatientDetail(patient) {
             '<p class="profile-basic-heading">Basic Information</p>' +
             infoRow('Patient ID', '<strong>' + patient.id + '</strong>', false) +
             infoRow('Age/Gender', '<strong>' + patient.age + ' years, ' + patient.gender + '</strong>', false) +
+            '</div>' +
         '</div>';
 
     // ── Card 2: Recent Vitals ─────────────────────────────────────
     var rrVal    = vi.rr || 16;
     var vitalsCardHtml =
-        '<div class="card profile-section-card">' +
+        '<div class="k-card profile-section-card">' +
+            '<div class="k-card-body">' +
             '<p class="profile-section-heading">Recent Vitals</p>' +
             infoRow('Heart Rate',       vi.hr   + ' bpm',          vi.hr > 100 || vi.hr < 60) +
             infoRow('Blood Pressure',   vi.bp.replace(' mmHg', ''), vi.systolic > 140)         +
             infoRow('Temperature',      vi.temp + '\u00B0F',        vi.temp > 99.5)             +
             infoRow('O2 Saturation',    vi.spo2 + '%',              vi.spo2 < 94)               +
             infoRow('Respiratory Rate', rrVal   + ' breaths/min',   rrVal > 20 || rrVal < 12)  +
+            '</div>' +
         '</div>';
 
     // ── Card 3: Admission Details ─────────────────────────────────
     var admissionCardHtml =
-        '<div class="card profile-section-card">' +
+        '<div class="k-card profile-section-card">' +
+            '<div class="k-card-body">' +
             '<p class="profile-section-heading">Admission Details</p>' +
             infoRow('Department',     kendo.htmlEncode(adm.department    || patient.ward),      false) +
             infoRow('Ward',           kendo.htmlEncode(adm.wardUnit      || patient.ward),      false) +
             infoRow('Room',           kendo.htmlEncode(adm.room ? String(adm.room) : '\u2014'), false) +
             infoRow('Admission Date', kendo.htmlEncode(adm.admissionDate || patient.lastVisit), false) +
             infoRow('Assigned Nurse', kendo.htmlEncode(adm.assignedNurse || '\u2014'),          false) +
+            '</div>' +
         '</div>';
 
     // ── Patient Note card ─────────────────────────────────────────
     var notesCardHtml =
-        '<div class="card profile-note-card">' +
-            '<div class="detail-card-header-row">' +
-                '<span class="detail-card-header-text">Patient Note</span>' +
+        '<div class="k-card profile-note-card">' +
+            '<div class="k-card-header detail-card-header-row">' +
+                '<span class="k-card-title detail-card-header-text">Patient Note</span>' +
                 '<button id="btn-save-patient-note" class="detail-save-btn">Save</button>' +
             '</div>' +
-            '<textarea id="patient-notes-editor"></textarea>' +
+            '<div class="k-card-body">' +
+                '<textarea id="patient-notes-editor"></textarea>' +
+            '</div>' +
         '</div>';
 
     // ── Labs card ─────────────────────────────────────────────────
     var labsCardHtml =
-        '<div class="card profile-labs-card">' +
+        '<div class="k-card profile-labs-card">' +
             '<div id="patient-labs-grid"></div>' +
         '</div>';
 
@@ -316,130 +317,10 @@ function renderPatientDetail(patient) {
         tools: [
             "bold", "italic", "underline", "strikethrough",
             "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
-            "fontName", "formatting", "fontSize",
-            {
-                name:  "ask-ai",
-                icon:  "sparkles",
-                text:  "Ask AI",
-                showText: "always",
-                attributes: { "class": "k-button-ask-ai" },
-                exec: function () {
-                    var $container = $("#notes-ai-prompt-container");
-                    if ($container.is(":visible")) {
-                        $container.hide();
-                        return;
-                    }
-                    var $btn = $(".k-button-ask-ai").first();
-                    var offset = $btn.offset();
-                    $container.css({
-                        top:  offset.top + $btn.outerHeight() + 4,
-                        left: offset.left
-                    }).show();
-                }
-            }
+            "fontName", "formatting", "fontSize"
         ],
         value: patient.notes || ""
     }).data("kendoEditor");
-
-    // ── Loader overlay inside the Editor ──────────────────────────
-    $("#notes-editor-loader-overlay").remove();
-    notesEditor.wrapper.append(
-        '<div id="notes-editor-loader-overlay"><span id="notes-editor-loader"></span></div>'
-    );
-    var notesEditorLoader = $("#notes-editor-loader").kendoLoader({
-        visible:    false,
-        size:       "large",
-        themeColor: "primary"
-    }).data("kendoLoader");
-
-    // ── Standalone AIPrompt anchored below the Ask AI toolbar button ──
-    if ($("#notes-ai-prompt-container").length === 0) {
-        $("body").append(
-            '<div id="notes-ai-prompt-container" style="position:absolute;z-index:10001;display:none;width:480px;">' +
-                '<div id="notes-ai-prompt"></div>' +
-            '</div>'
-        );
-    } else {
-        $("#notes-ai-prompt-container").hide();
-    }
-    var existingAiPr = $("#notes-ai-prompt").data("kendoAIPrompt");
-    if (existingAiPr) { existingAiPr.destroy(); }
-    notesAiPrompt = $("#notes-ai-prompt").kendoAIPrompt({
-        promptRequest: function (e) {
-            e.preventDefault();
-
-            var patientContext =
-                "\n\n---PATIENT CONTEXT---" +
-                "\nName: "         + (patient.name       || "") +
-                "\nAge: "          + (patient.age        || "") +
-                "\nGender: "       + (patient.gender     || "") +
-                "\nDiagnosis: "    + (patient.diagnosis  || "") +
-                "\nBlood Type: "   + (patient.bloodType  || "") +
-                "\nWard: "         + (patient.ward       || "") +
-                "\nDoctor: "       + (patient.doctor     || "") +
-                "\nStatus: "       + (patient.status     || "") +
-                "\nRisk Score: "   + (patient.riskScore  || "") +
-                "\nAllergies: "    + ((patient.allergies || []).join(", ")) +
-                "\nVitals: BP "    + (patient.vitals && patient.vitals.bp   || "") +
-                          ", HR "  + (patient.vitals && patient.vitals.hr   || "") +
-                         ", SpO2 " + (patient.vitals && patient.vitals.spo2 || "") + "%" +
-                "\nMedications: "  + ((patient.medications || []).map(function (m) {
-                                         return m.drug + " " + m.dose + " " + m.frequency;
-                                     }).join("; ")) +
-                "\nCurrent Notes: " + (notesEditor ? notesEditor.value() : "") +
-                "\n---END PATIENT CONTEXT---";
-
-            if (notesEditorLoader) {
-                $("#notes-editor-loader-overlay").show();
-                notesEditorLoader.show();
-            }
-
-            $.ajax({
-                url: "https://demos.telerik.com/service/v2/ai/completion",
-                method: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(
-                    [{
-                        role: "user",
-                        contents: [{ $type: "text", text: e.prompt + patientContext }]
-                    }]
-                ),
-                success: function (response) {
-                    if (notesEditorLoader) {
-                        notesEditorLoader.hide();
-                        $("#notes-editor-loader-overlay").hide();
-                    }
-                    var text = response.messages[0].contents[0].text || "";
-                    if (text && notesEditor) {
-                        notesEditor.exec("insertHtml", { value: "<p>" + kendo.htmlEncode(text) + "</p>" });
-                        $("#notes-ai-prompt-container").hide();
-                    } else if (!text) {
-                        kendo.alert("The AI service returned an empty response. Please try again. \n </br><i> Sample prompt: Summarize the note</i>");
-                    } else {
-                        e.sender.addPromptOutput({ output: text, prompt: e.prompt });
-                    }
-                },
-                error: function () {
-                    if (notesEditorLoader) {
-                        notesEditorLoader.hide();
-                        $("#notes-editor-loader-overlay").hide();
-                    }
-                    e.sender.addPromptOutput({ output: "AI service unavailable.", prompt: e.prompt });
-                }
-            });
-        },
-        promptResponse: function (e) {
-            var text = e.output || "";
-            if (text && notesEditor) {
-                notesEditor.exec("insertHtml", { value: "<p>" + kendo.htmlEncode(text) + "</p>" });
-                $("#notes-ai-prompt-container").hide();
-            }
-        },    
-        promptTextArea: {
-            rows: 3,
-            placeholder: "Ask AI to summarize recent vitals...",
-        }
-    }).data("kendoAIPrompt");
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -523,7 +404,7 @@ function buildPatientPreviewHtml(patient) {
         '</div>' +
         '<div class="k-card-body pp-body">' +
             '<div class="pp-avatar-row">' +
-                '<img src="' + patient.avatar + '" class="pp-avatar" onerror="this.src=\'/content/patient-images/women/aiony-haust-3TLl_97HNJo-unsplash.jpg\'" />' +
+                '<img src="' + patient.avatar + '" class="pp-avatar" onerror="this.src=\'/content/patient-images/women/thumb/aiony-haust-3TLl_97HNJo-unsplash.jpg\'" />' +
                 '<div class="pp-name-block">' +
                     '<div class="pp-name-row">' +
                         '<span class="pp-name">' + kendo.htmlEncode(patient.name) + '</span>' +
@@ -753,7 +634,7 @@ function initGrid() {
             {
                 field: "name",
                 title: "Patient Name",
-                template: ({ avatar, name }) => `<div class="patient-name-cell"><img src="${kendo.htmlEncode(avatar)}" loading="lazy" class="patient-avatar-sm" onerror="this.src='/content/patient-images/women/aiony-haust-3TLl_97HNJo-unsplash.jpg'" /><div><strong>${kendo.htmlEncode(name)}</strong></div></div>`,
+                template: ({ avatar, name }) => `<div class="patient-name-cell"><img src="${kendo.htmlEncode(avatar)}" loading="lazy" class="patient-avatar-sm" onerror="this.src='/content/patient-images/women/thumb/aiony-haust-3TLl_97HNJo-unsplash.jpg'" /><div><strong>${kendo.htmlEncode(name)}</strong></div></div>`,
                 width: 185
             },
             { field: "age",       title: "Age",        width: 110 },
@@ -773,7 +654,7 @@ function initGrid() {
                 filterable: false,
                 sortable:   false,
                 groupable:  false,
-                template:   ({ id }) => `<button class="btn-view-patient" data-id="${kendo.htmlEncode(id)}">View Profile</button>`
+                template:   ({ id }) => `<a class="btn-view-patient grid-view-link" data-id="${kendo.htmlEncode(id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Profile</a>`
             }
         ],
         sortable:    true,
@@ -797,22 +678,7 @@ function initGrid() {
 function onGridDataBound() {
     var widget = this;
     initKendoStatusBadges(widget.tbody);
-    // Init View Profile buttons with Kendo Button click event
-    widget.tbody.find(".btn-view-patient:not(.k-button)").each(function () {
-        $(this).kendoButton({
-            icon:     "eye",
-            text:     "View Profile",
-            fillMode: "flat",
-            rounded:  "large",
-            size:     "small",
-            click: function (e) {
-                e.event.stopPropagation();
-                var id      = $(e.event.currentTarget).data("id");
-                var patient = getFullPatient(id);
-                if (patient) { openPatientDrilldown(patient); }
-            }
-        });
-    });
+    // View Profile links — use event delegation instead of per-row widget init
 
     // Bind double-click once on tbody via delegation (survives re-renders)
     if (!widget._dblClickBound) {
@@ -852,42 +718,49 @@ $(document).ready(function () {
     });
 
     // Export
-    $("#btn-export").kendoButton({
-        icon:    "download",
-        rounded: "large",
-        click: function () { grid.saveAsExcel(); }
-    });
+    if (!$("#btn-export-patients").data("kendoButton")) {
+        $("#btn-export-patients").kendoButton({
+            icon:    "download",
+            rounded: "large",
+            click: function () {
+                var g = $("#patients-grid").data("kendoGrid");
+                if (g) { g.saveAsExcel(); }
+            }
+        });
+    }
 
     // AI Assistance toggle
-    $("#btn-ai-assistance").kendoButton({
-        icon:    "sparkles",
-        rounded: "large",
-        click: function () {
-            var aiPanelOpen;
+    if (!$("#btn-ai-assistance").data("kendoButton")) {
+        $("#btn-ai-assistance").kendoButton({
+            icon:    "sparkles",
+            rounded: "large",
+            click: function () {
+                var aiPanelOpen;
 
-            // If the user is on the patient detail view, navigate back to the grid first
-            if ($("#patients-detail-view").is(":visible")) {
-                closePatientDrilldown();
-                aiPanelOpen = false;
-            } else {
-                aiPanelOpen = $("#list-ai-panel").is(":visible");
+                // If the user is on the patient detail view, navigate back to the grid first
+                if ($("#patients-detail-view").is(":visible")) {
+                    closePatientDrilldown();
+                    aiPanelOpen = false;
+                } else {
+                    aiPanelOpen = $("#list-ai-panel").is(":visible");
+                }
+
+                aiPanelOpen = !aiPanelOpen;
+
+                if (aiPanelOpen) {
+                    closePatientPreview();
+                    $("#list-ai-panel").show();
+                    $("#patients-list-body").addClass("ai-panel-open");
+                    updateGridHeightVar();
+                    deferGridResize();
+                } else {
+                    $("#list-ai-panel").hide();
+                    $("#patients-list-body").removeClass("ai-panel-open");
+                    deferGridResize();
+                }
             }
-
-            aiPanelOpen = !aiPanelOpen;
-
-            if (aiPanelOpen) {
-                closePatientPreview();
-                $("#list-ai-panel").show();
-                $("#patients-list-body").addClass("ai-panel-open");
-                updateGridHeightVar();
-                deferGridResize();
-            } else {
-                $("#list-ai-panel").hide();
-                $("#patients-list-body").removeClass("ai-panel-open");
-                deferGridResize();
-            }
-        }
-    });
+        });
+    }
 
     // Grid (data fetch + render happens async; dataBound applies page-ready)
     initGrid();
@@ -918,6 +791,15 @@ $(document).ready(function () {
         if (patient) { openPatientDrilldown(patient); }
     });
 
+    // View Profile in grid — delegated for dynamically rendered links
+    $(document).on("click", ".grid-view-link.btn-view-patient", function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var id      = $(this).data("id");
+        var patient = getFullPatient(id);
+        if (patient) { openPatientDrilldown(patient); }
+    });
+
     // Hash-based deep link: patients.html#P-1003 opens that patient directly
     function handleLocationHash() {
         var hash = window.location.hash.replace("#", "").trim();
@@ -931,6 +813,5 @@ $(document).ready(function () {
 
     handleLocationHash();
     $(window).on("hashchange", handleLocationHash);
-    $(window).on("pagehide beforeunload", hideNotesAiPrompt);
 
 });

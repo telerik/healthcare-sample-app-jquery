@@ -8,21 +8,19 @@
     ═══════════════════════════════════════════ -->
     <div class="page-body">
 
-        <!-- Greeting — full width row -->
-        <div class="greeting home-greeting">
-            <h1>Good morning, Dr. Carter</h1>
-            <p>Today is <span id="today-date"></span></p>
-        </div>
-
         <!-- LEFT COLUMN -->
         <div class="col-main">
 
             <!-- Quick Actions -->
-            <div class="card quick-actions-card">
-                <h2 class="card-title">Quick Actions</h2>
+            <div class="k-card quick-actions-card">
+                <div class="k-card-header">
+                    <h2 class="k-card-title">Quick Actions</h2>
+                </div>
+                <div class="k-card-body">
                 <div class="shortcut-grid">
 
-                    <div class="shortcut-card">
+                    <div class="k-card shortcut-card">
+                        <div class="k-card-body">
                         <div class="shortcut-top">
                             <div>
                                 <div class="shortcut-title">Add new clinical note</div>
@@ -38,12 +36,16 @@
                                 <path d="M37.4115 9.84527C38.1086 9.14815 38.5002 8.20265 38.5002 7.21677C38.5002 6.23089 38.1086 5.28539 37.4115 4.58827C36.7143 3.89115 35.7688 3.49951 34.783 3.49951C33.7971 3.49951 32.8516 3.89115 32.1545 4.58827L23.387 13.3593C22.9709 13.7751 22.6663 14.2891 22.5015 14.8538L21.0367 19.8763C20.9928 20.0269 20.9902 20.1865 21.0291 20.3384C21.068 20.4904 21.1471 20.6291 21.258 20.74C21.3689 20.8509 21.5076 20.93 21.6595 20.9689C21.8115 21.0078 21.9711 21.0052 22.1217 20.9613L27.1442 19.4965C27.7089 19.3316 28.2229 19.0271 28.6387 18.611L37.4115 9.84527Z" stroke="#6366FB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                                 </g>
                             </svg>                        </div>
+                        </div><!-- /.k-card-body -->
+                        <div class="k-actions k-card-actions">
                         <button id="btn-new-note" class="shortcut-add-btn" title="Add new clinical note">                           
                             <span class="btn-label">Add note</span>
                         </button>
-                    </div>
+                        </div><!-- /.k-actions -->
+                    </div><!-- /.k-card.shortcut-card -->
 
-                    <div class="shortcut-card">
+                    <div class="k-card shortcut-card">
+                        <div class="k-card-body">
                         <div class="shortcut-top">
                             <div>
                                 <div class="shortcut-title">Request lab test</div>
@@ -57,12 +59,16 @@
                                 </g>
                             </svg>
                         </div>
+                        </div><!-- /.k-card-body -->
+                        <div class="k-actions k-card-actions">
                         <button id="btn-lab-test" class="shortcut-add-btn" title="Request lab test">                            
                             <span class="btn-label">Request test</span>
                         </button>
-                    </div>
+                        </div><!-- /.k-actions -->
+                    </div><!-- /.k-card.shortcut-card -->
 
-                    <div class="shortcut-card">
+                    <div class="k-card shortcut-card">
+                        <div class="k-card-body">
                         <div class="shortcut-top">
                             <div>
                                 <div class="shortcut-title">Message nurse</div>
@@ -75,21 +81,27 @@
 </svg>
 
                         </div>
+                        </div><!-- /.k-card-body -->
+                        <div class="k-actions k-card-actions">
                         <button id="btn-nurse-chat" class="shortcut-add-btn" title="Message nurse">                            
                             <span class="btn-label">Send message</span>
                         </button>
-                    </div>
+                        </div><!-- /.k-actions -->
+                    </div><!-- /.k-card.shortcut-card -->
 
-                </div>
-            </div>
+                </div><!-- /.shortcut-grid -->
+                </div><!-- /.k-card-body -->
+            </div><!-- /.k-card.quick-actions-card -->
 
             <!-- Today's Appointments -->
-            <div class="card appointments-card">
-                <div class="appointments-header">
-                    <h2 class="card-title">Today's Appointments</h2>
+            <div class="k-card appointments-card">
+                <div class="k-card-header appointments-header">
+                    <h2 class="k-card-title">Today's Appointments</h2>
                     <a asp-controller="Schedule" asp-action="Index" id="btn-view-schedule" class="view-schedule-btn">View Schedule</a>
                 </div>
-                <div id="appointments-grid"></div>
+                <div class="k-card-body">
+                    <div id="appointments-grid"></div>
+                </div>
             </div>
 
         </div>
@@ -104,7 +116,7 @@
                 </div>
                 <div class="k-card-body">
                     <div class="next-patient-header">
-                        <img class="patient-avatar" src="/content/patient-images/women/aiony-haust-3TLl_97HNJo-unsplash.jpg" alt="Emma Johnson" />
+                        <img class="patient-avatar" src="/content/patient-images/women/thumb/aiony-haust-3TLl_97HNJo-unsplash.jpg" alt="Emma Johnson" />
                         <div class="patient-info">
                             <div class="patient-name-row">
                                 <span class="patient-name">Emma Johnson</span>

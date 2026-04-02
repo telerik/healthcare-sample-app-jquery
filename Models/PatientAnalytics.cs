@@ -15,6 +15,7 @@ public class LabChartResult
 {
     public string Name { get; set; } = "";
     public double Value { get; set; }
+    public double NormalMin { get; set; }
     public double NormalMax { get; set; }
     public double WarningMax { get; set; }
     public string Unit { get; set; } = "";

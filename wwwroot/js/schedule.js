@@ -72,7 +72,7 @@ $(document).ready(function () {
     var endTime   = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 19, 0, 0);
 
     var scheduler = $("#scheduler").kendoScheduler({
-        date:      new Date(2026, 2, 23),
+        date:      new Date(),
         startTime: startTime,
         endTime:   endTime,
         height:    890,
@@ -297,7 +297,12 @@ $(document).ready(function () {
             }
         },
         schema: {
-            model: { id: "id" }
+            model: {
+                id: "id",
+                fields: {
+                    description: { type: "string" }
+                }
+            }
         }
     });
 
@@ -310,7 +315,7 @@ $(document).ready(function () {
     $("#tasks-list").kendoListView({
         dataSource: tasksDS,
         template: ({ done, id, task, priority }) =>
-            `<div class="task-item ${done ? 'task-done' : ''}">`+
+            `<div class="task-item ${done ? 'task-done' : ''}" data-id="${kendo.htmlEncode(id)}">`+
             `<input type="checkbox" class="task-checkbox" data-id="${kendo.htmlEncode(id)}" ${done ? 'checked="checked"' : ''} />`+
             `<span class="task-text">${kendo.htmlEncode(task)}</span>`+
             `<span class="k-badge-priority" data-priority="${priorityTheme(priority)}">${kendo.htmlEncode(priority)}</span>`+
@@ -439,11 +444,12 @@ $(document).ready(function () {
                     var grp = $("#atf-priority-group").data("kendoButtonGroup");
                     var idx = grp ? grp.current().index() : 0;
                     var priority = priorities[idx !== undefined ? idx : 0];
+                    var description = ($("#atf-description").val() || "").trim();
                     $.ajax({
                         url:         "/api/tasks/create",
                         type:        "POST",
                         contentType: "application/json",
-                        data:        JSON.stringify({ task: name, priority: priority, done: false }),
+                        data:        JSON.stringify({ task: name, priority: priority, description: description, done: false }),
                         success: function () {
                             // Reset filter to "All" so the new task is visible,
                             // then re-read the DataSource to refresh the ListView.
@@ -497,6 +503,56 @@ $(document).ready(function () {
         $("#atf-name").closest(".k-input").removeClass("k-invalid");
         $("#add-task-dialog .atf-error").text("").removeClass("is-visible");
     }
+
+    /* ═══════════════════════════════════════════════
+       VIEW TASK DIALOG — opened by clicking a task row
+    ═══════════════════════════════════════════════ */
+    var _taskViewData = null;
+
+    $("#view-task-dialog").kendoDialog({
+        width:    690,
+        title:    "Task Details",
+        closable: true,
+        modal:    true,
+        visible:  false,
+        open: function () {
+            applySharedDialogShell(this);
+            if (!_taskViewData) { return; }
+            $("#vtf-name").text(_taskViewData.task || "");
+            $("#vtf-description").text(_taskViewData.description || "No description provided.");
+
+            var priorityEl = $("#vtf-priority-badge");
+            priorityEl.empty();
+            var p    = _taskViewData.priority || "Medium";
+            var badge = $('<span class="k-badge-priority"></span>')
+                .attr("data-priority", priorityTheme(p))
+                .text(p);
+            priorityEl.append(badge);
+            badge.kendoBadge({
+                themeColor: priorityTheme(p),
+                fillMode:   "solid",
+                rounded:    "full",
+                size:       "large"
+            });
+        },
+        actions: [
+            {
+                text:    "Close",
+                primary: true,
+                action:  function () { return true; }
+            }
+        ]
+    });
+
+    $("#tasks-list").on("click", ".task-item", function (e) {
+        // Ignore clicks on the checkbox itself
+        if ($(e.target).closest(".k-checkbox-wrap, .k-checkbox").length) { return; }
+        var id   = parseInt($(this).data("id"), 10);
+        var item = tasksDS.get(id);
+        if (!item) { return; }
+        _taskViewData = item.toJSON ? item.toJSON() : item;
+        $("#view-task-dialog").data("kendoDialog").open();
+    });
 
     /* ═══════════════════════════════════════════════
        PATIENTS FETCH — populates dialog dropdowns
