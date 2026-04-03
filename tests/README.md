@@ -17,10 +17,10 @@ End-to-end test suite for the Healthcare Sample App jQuery. Uses [Vitest](https:
 From the repo root, start the ASP.NET Core application:
 
 ```bash
-dotnet run
+dotnet run --launch-profile https
 ```
 
-The app must be running at `http://localhost:5263` before tests are executed. The base URL is configured in [`src/config.ts`](src/config.ts).
+The app must be running at `http://localhost:7016` before tests are executed. The base URL is configured in [`src/config.ts`](src/config.ts).
 
 ### 2. Install test dependencies
 
