@@ -158,8 +158,12 @@ $(document).ready(function () {
         ensurePatientSearchData(),
         $.getJSON("/api/analytics")
     ).done(function (patientsResp, analyticsResp) {
-        patientsData  = Array.isArray(patientsResp) ? patientsResp : (patientsResp[0] || []);
-        analyticsData = analyticsResp[0];
+        // $.when wraps jqXHR results as [data, textStatus, jqXHR],
+        // but a plain Deferred.resolve(value) passes the value directly.
+        patientsData  = (Array.isArray(patientsResp) && patientsResp.length > 0 && Array.isArray(patientsResp[0]))
+            ? patientsResp[0]
+            : (Array.isArray(patientsResp) ? patientsResp : []);
+        analyticsData = Array.isArray(analyticsResp) ? analyticsResp[0] : analyticsResp;
 
         var existingDDL = $("#patient-select").data("kendoDropDownList");
         if (existingDDL) {
