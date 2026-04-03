@@ -1031,98 +1031,6 @@ a { text-decoration: none; color: inherit; }
     box-shadow: 0 0 0 3px rgba(61,61,143,0.08);
 }
 
-/* ── Lab test checkbox list ──────────────────────────── */
-.lab-search-wrap {
-    position: relative;
-    margin-bottom: 10px;
-}
-.lab-test-search {
-    width: 100%;
-    border: 1px solid #d8d8e8;
-    border-radius: 6px;
-    padding: 9px 36px 9px 12px;
-    font-size: 13.5px;
-    font-family: inherit;
-    color: #333;
-    background: #fff;
-    outline: none;
-    transition: border-color 0.15s;
-}
-.lab-test-search:focus { border-color: #3d3d8f; box-shadow: 0 0 0 3px rgba(61,61,143,0.08); }
-.lab-test-search::placeholder { color: #aaa; }
-
-.lab-test-list {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 12px;
-    gap: 20px;
-    height: 200px;
-    overflow-y: scroll;
-    align-self: stretch;
-    flex: none;
-    flex-grow: 0;
-    border: none;
-    border-radius: 0;
-}
-.lab-test-item {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0;
-    height: 56px;
-    border: 1px solid rgba(23, 56, 99, 0.08);
-    border-radius: 4px;
-    cursor: pointer;
-    align-self: stretch;
-    flex: none;
-    flex-grow: 0;
-    box-shadow: none;
-    transition: background 0.12s;
-}
-.lab-test-item:hover { background: #f5f5fb; }
-.lab-test-item-body {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 16px;
-    gap: 16px;
-    height: 56px;
-    background: #FFFFFF;
-    border-radius: 12px;
-    align-self: stretch;
-    flex: none;
-    flex-grow: 0;
-}
-.lab-test-item-body .k-checkbox-wrap {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    padding: 4px 0;
-    width: 16px;
-    height: 24px;
-    flex: none;
-    flex-grow: 0;
-}
-.lab-test-name {
-    font-family: 'Poppins', sans-serif;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 150%;
-    color: #232A36;
-    flex: 1;
-    flex-grow: 1;
-}
-.lab-test-empty {
-    padding: 16px;
-    font-size: 13px;
-    color: #999;
-    text-align: center;
-}
-
 /* Nurse message form */
 .nurse-msg-form { display: flex; flex-direction: column; gap: 16px; padding: 4px 0; }
 .nurse-msg-field { display: flex; flex-direction: column; gap: 6px; }
@@ -1346,8 +1254,6 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* ── Notifications dropdown ─────────────────────── */
-.notif-wrap { position: relative; }
-
 .np-dropdown.k-window {
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(61,61,143,.18), 0 2px 8px rgba(0,0,0,.08);
@@ -1856,9 +1762,7 @@ a { text-decoration: none; color: inherit; }
     opacity: 0.45;
 }
 
-/* Schedule daily tasks badge colors */ 
-/* Patients grid badge colors — match tasks-list palette */
-/* Patients grid badge colors — match tasks-list palette */
+/* Tasks list & patients grid — badge color overrides */
 #tasks-list .k-badge-error,
 #patient-labs-grid .k-badge-error,
 #patients-grid .k-badge-error,
@@ -1929,6 +1833,112 @@ a { text-decoration: none; color: inherit; }
     background: #fff;
 }
 
+/* ── Lab Test Dialog ─────────────────────────────── */
+.k-dialog-wrapper.app-dialog-shell.lab-request-dialog .k-dialog-content {
+    padding: 18px 24px 12px;
+    overflow: hidden;
+}
+
+.k-dialog-wrapper.app-dialog-shell.lab-request-dialog .k-actions {
+    padding: 0 24px 24px;
+}
+
+#dialog-lab-test {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+#dialog-lab-test .dialog-field { margin-bottom: 0; }
+
+#dialog-lab-test .dialog-label {
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2f3747;
+}
+
+#dialog-lab-test .lab-search-wrap { margin-bottom: 16px; }
+
+    #dialog-lab-test .lab-test-list {
+        display: flex;
+        padding: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        height: 200px;
+        min-width: 300px;
+        max-height: min(360px, calc(100vh - 340px));
+        overflow-x: hidden;
+        overflow-y: auto;
+        border: 1px solid rgba(23, 56, 99, 0.08);
+        border-radius: 12px;
+        background: #ffffff;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(74, 86, 102, 0.45) transparent;
+    }
+
+#dialog-lab-test .lab-test-list::-webkit-scrollbar {
+    width: 6px;
+}
+#dialog-lab-test .lab-test-list::-webkit-scrollbar-track  { background: transparent; }
+#dialog-lab-test .lab-test-list::-webkit-scrollbar-thumb  { background: rgba(74, 86, 102, 0.45); border-radius: 999px; }
+
+#dialog-lab-test .lab-test-list .k-listview-content { width: 100%; min-width: 300px;}
+#dialog-lab-test .lab-test-list .k-listview-item    { margin-bottom: 10px; }
+
+#dialog-lab-test .lab-test-item {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    border: 1px solid rgba(23, 56, 99, 0.08);
+    border-radius: 12px;
+    cursor: pointer;
+    align-self: stretch;
+    overflow: hidden;
+    transition: background 0.12s;
+}
+#dialog-lab-test .lab-test-item:hover { background: #f5f5fb; }
+
+#dialog-lab-test .lab-test-item-body {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+    background: #ffffff;
+    border-radius: 12px;
+    align-self: stretch;
+}
+
+#dialog-lab-test .lab-test-item-body .k-checkbox-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 4px 0;
+    width: 16px;
+    height: 24px;
+    flex: none;
+}
+
+#dialog-lab-test .lab-test-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 150%;
+    color: #2b3445;
+    flex: 1;
+}
+
+#dialog-lab-test .lab-test-empty {
+    padding: 16px;
+    font-size: 13px;
+    color: #999;
+    text-align: center;
+}
+
 .add-task-form {
     display: flex;
     flex-direction: column;
@@ -1985,14 +1995,9 @@ a { text-decoration: none; color: inherit; }
     line-height: 1.6;
 }
 
-/* TextBox + TextArea full-width */
-#add-task-dialog .k-input,
-#add-task-dialog .k-textarea {
-    width: 100% !important;
-}
-
-/* Input 34px, border-radius 6px */
+/* TextBox — full-width, 34px tall */
 #add-task-dialog .k-input {
+    width: 100% !important;
     height: 34px;
     border: 1px solid rgba(23, 56, 99, 0.08);
     border-radius: 6px;
@@ -2004,8 +2009,9 @@ a { text-decoration: none; color: inherit; }
     border-color: #DC2626;
 }
 
-/* TextArea 98px */
+/* TextArea — full-width, 98px min */
 #add-task-dialog .k-textarea {
+    width: 100% !important;
     min-height: 98px;
     border: 1px solid rgba(23, 56, 99, 0.08);
     border-radius: 6px;
@@ -2344,13 +2350,14 @@ a { text-decoration: none; color: inherit; }
 .k-dialog:has(#dialog-alert-review) .k-dialog-titlebar .k-dialog-title { display: none; }
 
 /* Green "Mark as Resolved" button */
-.ar-resolve-btn.k-button-solid-primary,
-.ar-resolve-btn.k-button-solid-primary:hover {
+.ar-resolve-btn.k-button-solid-primary {
     background-color: #16a34a;
     border-color: #16a34a;
     color: #fff;
 }
-.ar-resolve-btn.k-button-solid-primary:hover { background-color: #15803d; }
+.ar-resolve-btn.k-button-solid-primary:hover {
+    background-color: #15803d;
+}
 
 /* Content layout */
 .ar-content { padding: 0 4px; }
@@ -3258,12 +3265,12 @@ a { text-decoration: none; color: inherit; }
     padding: 9px 16px;
 }
 
-.patients-grid-card .k-pager-numbers .k-link,
-.patients-grid-card .k-pager-numbers .k-selected {
+.patients-grid-card .k-pager-numbers .k-link {
     border-radius: 4px;
 }
 
 .patients-grid-card .k-pager-numbers .k-selected {
+    border-radius: 4px;
     background: rgba(30, 41, 59, 0.16);
     color: #1e293b;
 }
@@ -4341,7 +4348,6 @@ a { text-decoration: none; color: inherit; }
 }
 
 .analytics-chart-card { padding:0; overflow:hidden; }
-.analytics-gauge-card { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; }
 .chart-card-title { font-size:14px; font-weight:700; color:#1a1a2e; padding:16px 20px 0; margin-bottom:-8px; }
 
 /* Risk gauge labels */
@@ -4644,12 +4650,13 @@ a { text-decoration: none; color: inherit; }
         padding-top: 28px;
     }
 
-    /* Dialogs — prevent overflow (exclude np-dropdown: it uses fixed positioning on small screens) */
+    /* Dialogs — prevent overflow on small screens */
     .k-dialog,
     .k-window:not(.np-dropdown) {
-        max-width: 95vw !important;
+        width: 90vw !important;
+        max-width: 90vw !important;
         min-width: 0 !important;
-        left: max(2.5vw, 8px) !important;
+        left: 5vw !important;
     }
 
     /* Notifications dropdown */
@@ -4768,14 +4775,6 @@ a { text-decoration: none; color: inherit; }
     .patients-page-header h1,
     .analytics-page-header h1 {
         font-size: 22px;
-    }
-
-    /* Dialogs wider on mobile */
-    .k-dialog,
-    .k-window:not(.np-dropdown) {
-        width: 98vw !important;
-        max-width: 98vw !important;
-        left: 1vw !important;
     }
 
     /* Profile window scrollable on mobile */

@@ -420,7 +420,9 @@ $(document).ready(function () {
     $("#dialog-lab-test").kendoDialog({
         title: "Request Lab Tests",
         visible: false,
-        width: 480,
+        maxWidth: 650,
+        width: 500,
+        maxHeight: 500,
         modal: true,
         closable: true,
         actions: [
@@ -461,6 +463,7 @@ $(document).ready(function () {
         ],
         open: function () {
             applySharedDialogShell(this);
+            this.wrapper.closest(".k-dialog-wrapper").addClass("lab-request-dialog");
             if (!$("#lab-patient-ddl").data("kendoDropDownList")) {
                 $("#lab-patient-ddl").kendoDropDownList({
                     dataSource: patientsData.map(function (p) { return { text: p.name + " (" + p.id + ")", value: p.id }; }),
