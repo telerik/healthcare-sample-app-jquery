@@ -279,6 +279,9 @@ function renderPatientDetail(patient) {
     $("#btn-save-patient-note").kendoButton({
         icon:    "save",
         rounded: "large",
+        fillMode: "outline",
+        icon:    "save",
+        iconPosition: "start",
         click: function (e) {
             if (notesEditor && currentPatient) {
                 var noteVal = notesEditor.value();
@@ -303,7 +306,7 @@ function renderPatientDetail(patient) {
                         }, 1500);
                     },
                     error: function () {
-                        alert("Failed to save note. Please try again.");
+                        kendo.alert("Failed to save note. Please try again.");
                     }
                 });
             }

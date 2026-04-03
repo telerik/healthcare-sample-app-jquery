@@ -327,11 +327,11 @@ $(document).ready(function () {
                     var ddl  = $("#note-patient-ddl").data("kendoDropDownList");
                     var text = $("#note-textarea").val().trim();
                     if (!ddl || !ddl.value()) {
-                        alert("Please select a patient.");
+                        kendo.alert("Please select a patient.");
                         return false;
                     }
                     if (!text) {
-                        alert("Please enter a clinical note.");
+                        kendo.alert("Please enter a clinical note.");
                         return false;
                     }
                     var patientId = ddl.value();
@@ -347,7 +347,7 @@ $(document).ready(function () {
                             }
                         },
                         error: function () {
-                            alert("Could not save the note. Please try again.");
+                            kendo.alert("Could not save the note. Please try again.");
                         }
                     });
                     $("#note-textarea").val("");
@@ -387,49 +387,34 @@ $(document).ready(function () {
     ═══════════════════════════════════════════════ */
     var selectedLabTests = [];
 
-    function renderLabList(filter) {
-        var q = (filter || "").toLowerCase().trim();
-        var items = labTests.filter(function (t) {
-            return !q || t.toLowerCase().indexOf(q) !== -1;
-        });
-        var $list = $("#lab-test-list").empty();
-        if (items.length === 0) {
-            $list.append('<div class="lab-test-empty">No tests match your search.</div>');
-            return;
-        }
-        items.forEach(function (t) {
-            var checked = selectedLabTests.indexOf(t) !== -1;
-            var id = "lab-chk-" + t.replace(/[^a-z0-9]/gi, "-");
-            $list.append(
-                '<label class="lab-test-item' + (checked ? ' selected' : '') + '" data-test="' + t + '">' +
-                    '<span class="lab-test-check">' + (checked ? '<span class="lab-chk-tick">&#10003;</span>' : '') + '</span>' +
-                    '<span class="lab-test-name">' + t + '</span>' +
-                '</label>'
-            );
-        });
+    var labTestDataSource = new kendo.data.DataSource({
+        data: labTests.map(function (name) { return { name: name }; })
+    });
+
+    function labTestTemplate(dataItem) {
+        var name = dataItem.name;
+        var checked = selectedLabTests.indexOf(name) !== -1;
+        var chkId = "lab-chk-" + name.replace(/[^a-z0-9]/gi, "-");
+        return '<div class="k-card lab-test-item" data-test="' + kendo.htmlEncode(name) + '">' +
+                   '<div class="k-card-body lab-test-item-body">' +
+                       '<input type="checkbox" id="' + chkId + '"' + (checked ? ' checked="checked"' : '') + ' />' +
+                       '<label class="lab-test-name" for="' + chkId + '">' + kendo.htmlEncode(name) + '</label>' +
+                   '</div>' +
+               '</div>';
     }
 
-    $(document).on("click", "#lab-test-list .lab-test-item", function () {
-        var t = $(this).data("test");
-        var idx = selectedLabTests.indexOf(t);
-        if (idx === -1) {
-            selectedLabTests.push(t);
+    function filterLabListView(query) {
+        var q = (query || "").trim();
+        if (q) {
+            labTestDataSource.filter({ field: "name", operator: "contains", value: q });
         } else {
-            selectedLabTests.splice(idx, 1);
+            labTestDataSource.filter({});
         }
-        renderLabList($("#lab-test-search").val());
-    });
+    }
 
     $(document).on("input", "#lab-test-search", function () {
-        var q = $(this).val();
-        $("#lab-search-clear").toggle(q.length > 0);
-        renderLabList(q);
-    });
-
-    $(document).on("click", "#lab-search-clear", function () {
-        $("#lab-test-search").val("");
-        $(this).hide();
-        renderLabList("");
+        var q = $(this).val();        
+        filterLabListView(q);
     });
 
     $("#dialog-lab-test").kendoDialog({
@@ -443,10 +428,12 @@ $(document).ready(function () {
                 text: "Discard",
                 action: function () {
                     selectedLabTests = [];
-                    $("#lab-test-search").val("");
-                    $("#lab-search-clear").hide();
+                    var tb = $("#lab-test-search").data("kendoTextBox");
+                    if (tb) tb.value("");                    
                     var ddl = $("#lab-patient-ddl").data("kendoDropDownList");
                     if (ddl) ddl.select(0);
+                    filterLabListView("");
+                    kendo.alert("Lab test request has been discarded.");
                     return true;
                 }
             },
@@ -456,17 +443,18 @@ $(document).ready(function () {
                 action: function () {
                     var ddl = $("#lab-patient-ddl").data("kendoDropDownList");
                     if (!ddl || !ddl.value()) {
-                        alert("Please select a patient.");
+                        kendo.alert("Please select a patient.");
                         return false;
                     }
                     if (selectedLabTests.length === 0) {
-                        alert("Please select at least one lab test.");
+                        kendo.alert("Please select at least one lab test.");
                         return false;
                     }
-                    console.log("Lab request for:", ddl.text(), "Tests:", selectedLabTests);
+                    kendo.alert("Lab request sent for " + ddl.text() + ". Tests: " + selectedLabTests.join(", ") + ".");
                     selectedLabTests = [];
-                    $("#lab-test-search").val("");
-                    $("#lab-search-clear").hide();
+                    var tb = $("#lab-test-search").data("kendoTextBox");
+                    if (tb) tb.value("");                    
+                    filterLabListView("");
                     return true;
                 }
             }
@@ -483,9 +471,41 @@ $(document).ready(function () {
                     rounded:  "large"
                 });
             }
-            $("#lab-search-clear").hide();
-            $("#lab-test-search").val("");
-            renderLabList("");
+            if (!$("#lab-test-list").data("kendoListView")) {
+                $("#lab-test-list").kendoListView({
+                    dataSource: labTestDataSource,
+                    template: labTestTemplate,
+                    dataBound: function () {
+                        this.element.find("input[type=checkbox]").kendoCheckBox();
+                    }
+                });
+
+                $("#lab-test-list").on("change", "input[type=checkbox]", function () {
+                    var name = $(this).closest(".lab-test-item").data("test");
+                    var idx = selectedLabTests.indexOf(name);
+                    if (this.checked && idx === -1) {
+                        selectedLabTests.push(name);
+                    } else if (!this.checked && idx !== -1) {
+                        selectedLabTests.splice(idx, 1);
+                    }
+                });
+
+                $("#lab-test-list").on("click", ".lab-test-item", function (e) {
+                    if ($(e.target).is("input[type=checkbox], .k-checkbox")) return;
+                    var chk = $(this).find("input[type=checkbox]");
+                    chk.prop("checked", !chk.prop("checked")).trigger("change");
+                });
+            }
+            if (!$("#lab-test-search").data("kendoTextBox")) {
+                $("#lab-test-search").kendoTextBox({
+                    placeholder: "Search Lab Tests"
+                });
+            }            
+            
+            var tb = $("#lab-test-search").data("kendoTextBox");
+            if (tb) tb.value("");
+            selectedLabTests = [];
+            filterLabListView("");
         }
     });
 
@@ -517,11 +537,11 @@ $(document).ready(function () {
                 '</div>' +
                 '<div class="nurse-msg-field">' +
                     '<label class="nurse-msg-label">Subject</label>' +
-                    '<input id="nurse-msg-subject" type="text" class="nurse-msg-input" placeholder="Subject" />' +
+                    '<input id="nurse-msg-subject" />' +
                 '</div>' +
                 '<div class="nurse-msg-field">' +
                     '<label class="nurse-msg-label">Description</label>' +
-                    '<textarea id="nurse-msg-body" class="nurse-msg-textarea" placeholder="Write your message here..."></textarea>' +
+                    '<textarea id="nurse-msg-body"></textarea>' +
                 '</div>' +
             '</div>',
         actions: [
@@ -530,8 +550,11 @@ $(document).ready(function () {
                 action: function () {
                     var cb = $("#nurse-msg-to").data("kendoComboBox");
                     if (cb) cb.value("");
-                    $("#nurse-msg-subject").val("");
-                    $("#nurse-msg-body").val("");
+                    var subjectTb = $("#nurse-msg-subject").data("kendoTextBox");
+                    if (subjectTb) subjectTb.value("");
+                    var bodyTa = $("#nurse-msg-body").data("kendoTextArea");
+                    if (bodyTa) bodyTa.value("");
+                    kendo.alert("Message has been discarded.");
                     return true;
                 }
             },
@@ -541,11 +564,14 @@ $(document).ready(function () {
                 action: function () {
                     var cb      = $("#nurse-msg-to").data("kendoComboBox");
                     var to      = cb ? cb.value().trim() : $("#nurse-msg-to").val().trim();
-                    var subject = $("#nurse-msg-subject").val().trim();
-                    var body    = $("#nurse-msg-body").val().trim();
-                    if (!to) { alert("Please specify a recipient."); return false; }
-                    if (!subject) { alert("Please enter a subject."); return false; }
-                    if (!body) { alert("Please enter a message."); return false; }
+                    var subjectTb = $("#nurse-msg-subject").data("kendoTextBox");
+                    var subject = subjectTb ? subjectTb.value().trim() : $("#nurse-msg-subject").val().trim();
+                    var bodyTa = $("#nurse-msg-body").data("kendoTextArea");
+                    var body    = bodyTa ? bodyTa.value().trim() : $("#nurse-msg-body").val().trim();
+                    if (!to) { kendo.alert("Please specify a recipient."); return false; }
+                    if (!subject) { kendo.alert("Please enter a subject."); return false; }
+                    if (!body) { kendo.alert("Please enter a message."); return false; }
+                    kendo.alert("Message sent to " + to + ".");
                     return true;
                 }
             }
@@ -565,6 +591,17 @@ $(document).ready(function () {
                     placeholder: "Recipient email",
                     filter:   "contains",
                     rounded:  "large"
+                });
+            }
+            if (!$("#nurse-msg-subject").data("kendoTextBox")) {
+                $("#nurse-msg-subject").kendoTextBox({
+                    placeholder: "Subject"
+                });
+            }
+            if (!$("#nurse-msg-body").data("kendoTextArea")) {
+                $("#nurse-msg-body").kendoTextArea({
+                    placeholder: "Write your message here...",
+                    rows: 4
                 });
             }
         }

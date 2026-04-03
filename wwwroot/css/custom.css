@@ -265,6 +265,7 @@ a { text-decoration: none; color: inherit; }
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    min-width: 0; /* prevent grid column from expanding to min-content width */
 }
 
 .col-main .appointments-card {
@@ -280,6 +281,7 @@ a { text-decoration: none; color: inherit; }
     display: flex;
     flex-direction: column;
     overflow: visible;
+    min-width: 0; /* prevent grid column from expanding to min-content width */
 }
 
 .next-patient-card {
@@ -1048,63 +1050,71 @@ a { text-decoration: none; color: inherit; }
 }
 .lab-test-search:focus { border-color: #3d3d8f; box-shadow: 0 0 0 3px rgba(61,61,143,0.08); }
 .lab-test-search::placeholder { color: #aaa; }
-.lab-search-clear {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    color: #999;
-    line-height: 1;
-    padding: 0;
-}
-.lab-search-clear:hover { color: #333; }
+
 .lab-test-list {
-    border: 1px solid #d8d8e8;
-    border-radius: 6px;
-    max-height: 280px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+    gap: 20px;
+    height: 200px;
+    overflow-y: scroll;
+    align-self: stretch;
+    flex: none;
+    flex-grow: 0;
+    border: none;
+    border-radius: 0;
 }
 .lab-test-item {
+    box-sizing: border-box;
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 14px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f6;
-    transition: background 0.12s;
-    user-select: none;
-}
-.lab-test-item:last-child { border-bottom: none; }
-.lab-test-item:hover { background: #f5f5fb; }
-.lab-test-item.selected { background: #f0f0fb; }
-.lab-test-check {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-    border: 2px solid #c8c8d8;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    height: 56px;
+    border: 1px solid rgba(23, 56, 99, 0.08);
     border-radius: 4px;
+    cursor: pointer;
+    align-self: stretch;
+    flex: none;
+    flex-grow: 0;
+    box-shadow: none;
+    transition: background 0.12s;
+}
+.lab-test-item:hover { background: #f5f5fb; }
+.lab-test-item-body {
+    box-sizing: border-box;
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    background: #fff;
-    transition: border-color 0.12s, background 0.12s;
+    padding: 16px;
+    gap: 16px;
+    height: 56px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    align-self: stretch;
+    flex: none;
+    flex-grow: 0;
 }
-.lab-test-item.selected .lab-test-check {
-    background: #3d3d8f;
-    border-color: #3d3d8f;
-}
-.lab-chk-tick {
-    color: #fff;
-    font-size: 13px;
-    line-height: 1;
+.lab-test-item-body .k-checkbox-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 4px 0;
+    width: 16px;
+    height: 24px;
+    flex: none;
+    flex-grow: 0;
 }
 .lab-test-name {
-    font-size: 13.5px;
-    color: #333;
+    font-family: 'Poppins', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 150%;
+    color: #232A36;
+    flex: 1;
+    flex-grow: 1;
 }
 .lab-test-empty {
     padding: 16px;
@@ -1333,13 +1343,6 @@ a { text-decoration: none; color: inherit; }
     background: #f5f3ff;
     border-color: #c4b5fd;
     color: #7c3aed;
-}
-
-/* Badge */
-#notif-badge {
-    position: absolute;
-    top: 2px;
-    left: 17px;
 }
 
 /* ── Notifications dropdown ─────────────────────── */
@@ -3695,12 +3698,6 @@ a { text-decoration: none; color: inherit; }
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: none;
-    border: 1px solid #d0d0e8;
-    border-radius: 6px;
-    padding: 4px 12px;
-    font-size: 12.5px;
-    font-weight: 600;
     color: #3d3d8f;
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
@@ -4484,3 +4481,362 @@ a { text-decoration: none; color: inherit; }
 /* Avatar trigger */
 #profile-trigger { cursor: pointer; transition: opacity .15s; }
 #profile-trigger:hover { opacity: .82; }
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — GLOBAL BREAKPOINTS
+   Breakpoints:
+     1100px  large tablet / small desktop
+      768px  tablet portrait
+      640px  large mobile
+      480px  small mobile
+═══════════════════════════════════════════════════════ */
+
+/* ── 1100px ── AppBar starts to get tight ─────────── */
+@media (max-width: 1100px) {
+    .app-appbar {
+        width: calc(100% - 16px);
+        margin: 8px auto 0;
+        padding: 10px 14px;
+        height: auto;
+        min-height: 60px;
+        border-radius: 48px;
+    }
+
+    .appbar-right .k-autocomplete {
+        width: 180px;
+    }
+
+    .appbar-nav .k-segmented-control-button {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+    .page-body {
+        grid-template-columns: 1fr 480px;
+    }
+}
+
+/* ── 960px ── already collapses page-body to 1 col ── */
+@media (max-width: 960px) {
+    /* Collapse to single column — next-patient-card falls below appointments */
+    .page-body {
+        grid-template-columns: 1fr;
+    }
+
+    /* Daily alerts: card no longer has a defined height in single-column flow,
+       so flex:1 1 0 collapses to 0. Use max-height + scroll instead. */
+    .np-alerts-body.k-card-body {
+        flex: none;
+        min-height: unset;
+        max-height: 280px;
+        overflow-y: auto;
+    }
+
+    .app-appbar {
+        grid-template-columns: auto 1fr auto;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 40px;
+    }
+
+    /* Make nav section fill available space and scroll if needed */
+    .appbar-nav {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .appbar-nav::-webkit-scrollbar { display: none; }
+
+    .appbar-nav .k-segmented-control {
+        font-size: 14px;
+        height: 36px;
+        white-space: nowrap;
+    }
+
+    .appbar-nav .k-segmented-control-button {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+
+    .appbar-right .k-autocomplete {
+        width: 150px;
+    }
+
+    .home-greeting {
+        padding: 0 12px 16px;
+    }
+
+    .greeting h1 { font-size: 26px; }
+
+    .patients-page-header,
+    .analytics-page-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+
+    .patients-header-actions,
+    .analytics-header-controls {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+    }
+
+    .patients-header-actions > *,
+    .analytics-header-controls > * {
+        flex: 1;
+    }
+}
+
+/* ── 768px  ── column AppBar, search spreads with right items ── */
+@media (max-width: 768px) {
+    .app-appbar {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        border-radius: 20px;
+        padding: 10px 12px;
+        margin: 6px auto 0;
+        gap: 8px;
+        height: auto;
+        min-height: unset;
+    }
+
+    /* Nav row — full width, centered */
+    .app-appbar .appbar-nav {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Right row — full width, items spread across */
+    .appbar-right {
+        width: 100%;
+        justify-content: space-between;
+        height: auto;
+        gap: 8px;
+    }
+
+    /* Search expands to fill available space */
+    .appbar-right .k-autocomplete {
+        display: flex !important;
+        flex: 1;
+        width: auto;
+    }
+
+    .appbar-sep { display: none; }
+
+    .appbar-logo-img { height: 26px; }
+
+    .greeting h1 { font-size: 22px; }
+    .greeting p  { font-size: 13px; }
+
+    #page-headers .page-header.active {
+        margin-top: 16px;
+    }
+
+    .page-body {
+        padding: 8px 10px 20px;
+        gap: 12px;
+    }
+
+    #page-headers {
+        margin-top: -28px;
+        padding-top: 28px;
+    }
+
+    /* Dialogs — prevent overflow (exclude np-dropdown: it uses fixed positioning on small screens) */
+    .k-dialog,
+    .k-window:not(.np-dropdown) {
+        max-width: 95vw !important;
+        min-width: 0 !important;
+        left: max(2.5vw, 8px) !important;
+    }
+
+    /* Notifications dropdown */
+    .np-dropdown.k-window {
+        width: min(360px, 95vw) !important;
+    }
+
+    /* Profile window */
+    .k-window[aria-label="Profile Management"],
+    .k-window:has(#profile-window) {        
+        max-height: 92vh !important;
+        overflow-y: auto !important;
+    }
+
+    .pm-photo { height: 220px; width: 220px; }
+
+    /* Analytics — stack Alerts by Category above Risk Score */
+    .analytics-row-2col-equal {
+        grid-template-columns: 1fr;
+    }
+
+    /* Analytics — collapse all 2-col rows to single col */
+    .analytics-row-2col {
+        grid-template-columns: 1fr;
+    }
+
+    /* Quick actions */
+    .shortcut-grid { grid-template-columns: 1fr 1fr; }
+
+    /* Schedule */
+    .sched-card { margin: 0 0 16px; }
+
+    /* Tasks / patients list */
+    .patient-detail-row {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+}
+
+/* ── 640px ── full mobile ──────────────────────────── */
+@media (max-width: 640px) {
+    .app-appbar {
+        border-radius: 20px;
+        padding: 6px 8px;
+        min-height: 52px;
+    }
+
+    /* Page body — tighten padding so cards have more room */
+    .page-body {
+        padding: 6px 8px 16px;
+        gap: 10px;
+    }
+
+    /* Next patient header — stack appt-time below avatar+info */
+    .next-patient-header {
+        flex-wrap: wrap;
+    }
+    .patient-info {
+        min-width: 0; /* allow flex item to shrink */
+    }
+    .patient-avatar {
+        width: 52px;
+        height: 52px;
+    }
+    .patient-name {
+        font-size: 17px;
+    }
+    .appt-time {
+        flex-basis: 100%;
+        text-align: left;
+        margin-top: 4px;
+    }
+
+    /* Collapse nav to icon-only, no text labels */
+    .appbar-nav .k-segmented-control-button .k-button-text {
+        display: none;
+    }
+
+    .appbar-nav .k-segmented-control {
+        height: 32px;
+        padding: 2px;
+    }
+
+    .appbar-nav .k-segmented-control-button {
+        padding: 4px 10px;
+    }
+
+    .appbar-logo-img { height: 22px; }
+
+    .greeting h1 { font-size: 19px; }
+
+    .pm-photo { height: 160px; width: 160px;}
+
+    .shortcut-grid { grid-template-columns: 1fr; }
+    
+    .next-patient-actions {
+        flex-direction: column;
+    }
+
+    /* Schedule toolbar wrap */
+    .sched-card .k-scheduler-toolbar {
+        flex-wrap: wrap;
+        height: auto;
+        min-height: 44px;
+        padding: 4px 8px;
+        gap: 4px;
+    }
+
+    /* Patients grid — hide less important columns */
+    .patient-grid-wrap .k-grid-header th:nth-child(4),
+    .patient-grid-wrap .k-grid-content td:nth-child(4) {
+        display: none;
+    }
+
+    /* Page header stacked */
+    .patients-page-header h1,
+    .analytics-page-header h1 {
+        font-size: 22px;
+    }
+
+    /* Dialogs wider on mobile */
+    .k-dialog,
+    .k-window:not(.np-dropdown) {
+        width: 98vw !important;
+        max-width: 98vw !important;
+        left: 1vw !important;
+    }
+
+    /* Profile window scrollable on mobile */
+    .k-window:has(#profile-window) {
+        top: 16px !important;
+        max-height: calc(100vh - 32px) !important;
+    }
+    #profile-window { padding: 14px; }
+    .pm-photo { height: 160px; width: 160px; }
+}
+
+/* ── 480px ── very small mobile ──────────────────── */
+@media (max-width: 480px) {
+    .app-appbar {
+        border-radius: 14px;
+    }
+
+    /* Tighten page body further on very small phones */
+    .page-body {
+        padding: 4px 6px 12px;
+        gap: 8px;
+    }
+
+    /* Reduce Kendo card body/header padding so content has more room */
+    .k-card > .k-card-header {
+        padding: 14px 14px 0;
+    }
+    .k-card > .k-card-body {
+        padding: 12px 14px;
+    }
+    .quick-actions-card > .k-card-header { padding: 14px 14px 0; }
+    .quick-actions-card > .k-card-body   { padding: 12px 14px 14px; }
+    .appointments-header                  { padding: 14px 14px 10px; }
+    .col-main .appointments-card > .k-card-body { padding: 0 14px 14px; }
+    .next-patient-card > .k-card-header  { padding: 14px 14px 0; }
+    .next-patient-card > .k-card-body    { padding: 12px 14px; }
+
+    /* Scroll the nav if still too wide */
+    .appbar-nav {
+        min-width: 0;
+        max-width: calc(100vw - 130px);
+    }
+
+    .appbar-right {
+        gap: 4px;
+    }
+
+    /* Hide notification button on very small screens */
+    #notif-btn { display: none; }
+
+    .greeting h1 { font-size: 17px; }
+    .greeting p  { font-size: 12px; }
+
+    .card-title, .k-card-title { font-size: 18px; }
+
+    .patient-name { font-size: 16px; }
+
+    /* AI dialog — full-width-ish on tiny screens */
+    .ai-dialog-wrapper {
+        right: 8px !important;
+        left: 8px !important;
+        width: auto !important;
+    }
+}

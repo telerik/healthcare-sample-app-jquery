@@ -101,13 +101,17 @@ function initProfileNotification() {
 /* ── Init the window ─────────────────────────────── */
 function initProfileWindow() {
     $("#profile-window").kendoWindow({
-        title:    "Profile Management",
-        width:    420,
-        modal:    true,
-        visible:  false,
-        actions:  ["Close"],
+        title:     "Profile Management",
+        maxWidth:     420,
+        maxHeight: 1040,
+        resizable: true,
+        modal:     true,
+        visible:   false,
+        actions:   ["Close"],
         open: function () {
             populateProfileForm();
+            /* Re-centre so it's never off-screen on small devices */
+            this.center();
         }
     });
 }
@@ -278,7 +282,7 @@ function getUnreadCount() {
 
 function updateBadge() {
     var count = getUnreadCount();
-    var badge = $("#notif-badge").data("kendoBadge");
+    var badge = $("#notif-btn").find(".k-badge").data("kendoBadge");
     if (badge) {
         badge.text(count > 0 ? count : "");
         badge.themeColor(count > 0 ? "error" : "info");
@@ -405,32 +409,42 @@ function initNotifDropdown() {
         animation: { open: { duration: 150 }, close: { duration: 100 } },
         open: function () {
             this.wrapper.addClass("np-dropdown");
-            this.wrapper.css({
-                position: "absolute",
-                top: "calc(100% + 8px)",
-                right: 0,
-                left: "auto"
-            });
+            var btn = $("#notif-btn")[0].getBoundingClientRect();
+            if (window.innerWidth <= 768) {
+                /* On small screens the panel is appended inside notif-wrap which
+                   sits mid-row, so position: absolute relative to it overflows.
+                   Switch to fixed so coordinates are viewport-relative. */
+                this.wrapper.css({
+                    position: "fixed",
+                    top:      Math.round(btn.bottom) + 8,
+                    right:    8,
+                    left:     "auto"
+                });
+            } else {
+                this.wrapper.css({
+                    position: "absolute",
+                    top:      "calc(100% + 8px)",
+                    right:    0,
+                    left:     "auto"
+                });
+            }
         },
         close: function () {
             $("#np-dropdown").off("click.np");
         }
     });
 
-    /* Replace static badge init so we can manage it */
-    var $badge = $("#notif-badge");
-    if (!$badge.data("kendoBadge")) {
-        $badge.kendoBadge({
-            text:       getUnreadCount(),
+    var count = getUnreadCount();
+    $("#notif-btn").kendoButton({
+        badge: {
+            text:       count > 0 ? count : "",
             themeColor: "error",
             shape:      "pill",
-            rounded:    "full"
-        });
-    } else {
-        updateBadge();
-    }
-
-    $("#notif-btn").kendoButton({
+            rounded:    "full",
+            position:   "edge",
+            align:      "top end",
+            visible:    count > 0
+        },
         click: function (e) {
             openNotifPanel();
         }
