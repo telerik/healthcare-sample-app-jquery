@@ -1,6 +1,7 @@
 bin/
 obj/
 .vs/
+.vscode/
 
 # kendo-e2e CLI output
 .kendo-e2e/
