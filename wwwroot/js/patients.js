@@ -503,6 +503,8 @@ function openAllergyDetailsDialog(patient) {
         width:   420,
         modal:   true,
         visible: false,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
         content: '<div class="info-dialog">' +
                  '  <div class="info-dialog-section">' +
                  '    <div class="info-dialog-row"><span class="info-dialog-label">Patient</span><span>' + kendo.htmlEncode(patient.name) + '</span></div>' +
@@ -535,6 +537,8 @@ function openChangeStatusDialog(patient) {
             width:   360,
             modal:   true,
             visible: false,
+            draggable: { dragHandle: ".k-dialog-titlebar" },
+            resizable: true,
             open: function () {
                 if (!_statusPatient) return;
                 var $sel = $("#new-status-ddl");
