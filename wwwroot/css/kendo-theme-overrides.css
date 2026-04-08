@@ -155,10 +155,6 @@
 }
 
 /* ── Dialog ──────────────────────────────────────────────────── */
-.k-dialog .k-dialog-titlebar {
-    background-color: #1a1a2e;
-    color:            #ffffff;
-}
 .k-dialog .k-dialog-content {
     padding: 20px 24px;
 }

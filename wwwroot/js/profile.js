@@ -102,16 +102,20 @@ function initProfileNotification() {
 function initProfileWindow() {
     $("#profile-window").kendoWindow({
         title:     "Profile Management",
-        maxWidth:     420,
-        maxHeight: 1040,
+        width:     420,
         resizable: true,
+        draggable: { dragHandle: ".k-window-titlebar" },
         modal:     true,
         visible:   false,
         actions:   ["Close"],
         open: function () {
             populateProfileForm();
-            /* Re-centre so it's never off-screen on small devices */
-            this.center();
+            var win = this;
+            setTimeout(function () {
+                var maxH = Math.floor(window.innerHeight * 0.98);
+                win.setOptions({ height: "", maxHeight: maxH });
+                win.center();
+            });
         }
     });
 }

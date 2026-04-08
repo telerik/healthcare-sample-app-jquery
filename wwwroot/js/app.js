@@ -129,6 +129,8 @@ $(document).ready(function () {
         modal:   true,
         visible: false,
         closable: true,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
         open: function () {
             applySharedDialogShell(this);
         },
@@ -237,7 +239,9 @@ $(document).ready(function () {
         title:   "Reason for Visit — Details",
         width:   460,
         modal:   true,
-        visible: false, 
+        visible: false,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
         open: function () {
             applySharedDialogShell(this);
         },
@@ -275,6 +279,8 @@ $(document).ready(function () {
         width:   420,
         modal:   true,
         visible: false,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
         open: function () {
             applySharedDialogShell(this);
             initKendoChips(this.element);
@@ -307,14 +313,18 @@ $(document).ready(function () {
     $("#dialog-new-note").kendoDialog({
         title: "New Clinical Note",
         visible: false,
-        width: 520,
+        width: 690,
         modal: true,
         closable: true,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
+        buttonLayout: "normal",
         actions: [
             {
                 text: "Discard",
                 action: function () {
-                    $("#note-textarea").val("");
+                    var ta = $("#note-textarea").data("kendoTextArea");
+                    if (ta) ta.value("");
                     var ddl = $("#note-patient-ddl").data("kendoDropDownList");
                     if (ddl) ddl.select(0);
                     return true;
@@ -325,7 +335,8 @@ $(document).ready(function () {
                 primary: true,
                 action: function () {
                     var ddl  = $("#note-patient-ddl").data("kendoDropDownList");
-                    var text = $("#note-textarea").val().trim();
+                    var ta   = $("#note-textarea").data("kendoTextArea");
+                    var text = (ta ? ta.value() : "").trim();
                     if (!ddl || !ddl.value()) {
                         kendo.alert("Please select a patient.");
                         return false;
@@ -350,7 +361,8 @@ $(document).ready(function () {
                             kendo.alert("Could not save the note. Please try again.");
                         }
                     });
-                    $("#note-textarea").val("");
+                    kendo.alert("Clinical note for <strong>" + kendo.htmlEncode(ddl.text()) + "</strong> has been saved.");
+                    if (ta) ta.value("");
                     return true;
                 }
             }
@@ -366,8 +378,19 @@ $(document).ready(function () {
                     filter:   "contains",
                     rounded:  "large"
                 });
+                $("#note-patient-ddl").closest(".k-dropdownlist").css("width", "250px");
             }
-            setTimeout(function () { $("#note-textarea").focus(); }, 100);
+            if (!$("#note-textarea").data("kendoTextArea")) {
+                $("#note-textarea").kendoTextArea({
+                    placeholder: "Add clinical notes, observations, treatment plans, etc.",
+                    rows: 6,
+                    resize: "both"
+                });
+            }
+            setTimeout(function () {
+                var ta = $("#note-textarea").data("kendoTextArea");
+                if (ta) ta.focus();
+            }, 100);
         }
     });
 
@@ -394,12 +417,9 @@ $(document).ready(function () {
     function labTestTemplate(dataItem) {
         var name = dataItem.name;
         var checked = selectedLabTests.indexOf(name) !== -1;
-        var chkId = "lab-chk-" + name.replace(/[^a-z0-9]/gi, "-");
-        return '<div class="k-card lab-test-item" data-test="' + kendo.htmlEncode(name) + '">' +
-                   '<div class="k-card-body lab-test-item-body">' +
-                       '<input type="checkbox" id="' + chkId + '"' + (checked ? ' checked="checked"' : '') + ' />' +
-                       '<label class="lab-test-name" for="' + chkId + '">' + kendo.htmlEncode(name) + '</label>' +
-                   '</div>' +
+        return '<div class="k-card k-card-horizontal lab-test-item' + (checked ? ' selected' : '') + '" data-test="' + kendo.htmlEncode(name) + '">' +
+                   '<input type="checkbox" class="lab-test-checkbox"' + (checked ? ' checked="checked"' : '') + ' />' +
+                   '<span class="lab-test-name">' + kendo.htmlEncode(name) + '</span>' +
                '</div>';
     }
 
@@ -420,11 +440,13 @@ $(document).ready(function () {
     $("#dialog-lab-test").kendoDialog({
         title: "Request Lab Tests",
         visible: false,
-        maxWidth: 650,
-        width: 500,
-        maxHeight: 500,
+        width: 690,
+        height: 560,
         modal: true,
         closable: true,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
+        buttonLayout: "normal",
         actions: [
             {
                 text: "Discard",
@@ -435,7 +457,6 @@ $(document).ready(function () {
                     var ddl = $("#lab-patient-ddl").data("kendoDropDownList");
                     if (ddl) ddl.select(0);
                     filterLabListView("");
-                    kendo.alert("Lab test request has been discarded.");
                     return true;
                 }
             },
@@ -452,7 +473,7 @@ $(document).ready(function () {
                         kendo.alert("Please select at least one lab test.");
                         return false;
                     }
-                    kendo.alert("Lab request sent for " + ddl.text() + ". Tests: " + selectedLabTests.join(", ") + ".");
+                    kendo.alert("Lab test request for <strong>" + kendo.htmlEncode(ddl.text()) + "</strong> has been sent.<br><br>Tests: " + kendo.htmlEncode(selectedLabTests.join(", ")));
                     selectedLabTests = [];
                     var tb = $("#lab-test-search").data("kendoTextBox");
                     if (tb) tb.value("");                    
@@ -479,34 +500,55 @@ $(document).ready(function () {
                     dataSource: labTestDataSource,
                     template: labTestTemplate,
                     dataBound: function () {
-                        this.element.find("input[type=checkbox]").kendoCheckBox();
+                        this.element.find(".lab-test-checkbox").each(function () {
+                            if (!$(this).data("kendoCheckBox")) {
+                                $(this).kendoCheckBox({ rounded: "full" });
+                            }
+                        });
                     }
                 });
 
-                $("#lab-test-list").on("change", "input[type=checkbox]", function () {
-                    var name = $(this).closest(".lab-test-item").data("test");
+                $("#lab-test-list").on("change", ".lab-test-checkbox", function () {
+                    var $item = $(this).closest(".lab-test-item");
+                    var name = $item.data("test");
                     var idx = selectedLabTests.indexOf(name);
                     if (this.checked && idx === -1) {
                         selectedLabTests.push(name);
                     } else if (!this.checked && idx !== -1) {
                         selectedLabTests.splice(idx, 1);
                     }
+                    var isNowSelected = selectedLabTests.indexOf(name) !== -1;
+                    $item.toggleClass("selected", isNowSelected);
+                    var kendoCb = $(this).data("kendoCheckBox");
+                    if (kendoCb) kendoCb.check(isNowSelected);
                 });
 
                 $("#lab-test-list").on("click", ".lab-test-item", function (e) {
-                    if ($(e.target).is("input[type=checkbox], .k-checkbox")) return;
-                    var chk = $(this).find("input[type=checkbox]");
+                    if ($(e.target).is(".lab-test-checkbox, .k-checkbox")) return;
+                    var chk = $(this).find(".lab-test-checkbox");
                     chk.prop("checked", !chk.prop("checked")).trigger("change");
                 });
             }
             if (!$("#lab-test-search").data("kendoTextBox")) {
                 $("#lab-test-search").kendoTextBox({
-                    placeholder: "Search Lab Tests"
+                    placeholder: "Search Lab Tests",
+                    clearButton: true
                 });
             }            
             
             var tb = $("#lab-test-search").data("kendoTextBox");
-            if (tb) tb.value("");
+            if (tb) {
+                tb.value("");
+                tb.element.off("input.labfilter").on("input.labfilter", function () {
+                    var q = $(this).val() || "";
+                    filterLabListView(q);
+                });
+                tb.wrapper.off("click.labclear", ".k-clear-value").on("click.labclear", ".k-clear-value", function () {
+                    setTimeout(function () {
+                        filterLabListView("");
+                    }, 0);
+                });
+            }
             selectedLabTests = [];
             filterLabListView("");
         }
@@ -529,9 +571,13 @@ $(document).ready(function () {
     $("#dialog-nurse-chat").kendoDialog({
         title: "Message Nurse",
         visible: false,
-        width: 520,
+        width: 690,
+        height: 650,
         modal: true,
         closable: true,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
+        buttonLayout: "normal",
         content:
             '<div class="nurse-msg-form">' +
                 '<div class="nurse-msg-field">' +
@@ -540,7 +586,7 @@ $(document).ready(function () {
                 '</div>' +
                 '<div class="nurse-msg-field">' +
                     '<label class="nurse-msg-label">Subject</label>' +
-                    '<input id="nurse-msg-subject" />' +
+                    '<input id="nurse-msg-subject" class="nurse-msg-input" />' +
                 '</div>' +
                 '<div class="nurse-msg-field">' +
                     '<label class="nurse-msg-label">Description</label>' +
@@ -557,7 +603,6 @@ $(document).ready(function () {
                     if (subjectTb) subjectTb.value("");
                     var bodyTa = $("#nurse-msg-body").data("kendoTextArea");
                     if (bodyTa) bodyTa.value("");
-                    kendo.alert("Message has been discarded.");
                     return true;
                 }
             },
@@ -574,7 +619,7 @@ $(document).ready(function () {
                     if (!to) { kendo.alert("Please specify a recipient."); return false; }
                     if (!subject) { kendo.alert("Please enter a subject."); return false; }
                     if (!body) { kendo.alert("Please enter a message."); return false; }
-                    kendo.alert("Message sent to " + to + ".");
+                    kendo.alert("Message to <strong>" + kendo.htmlEncode(to) + "</strong> has been sent.<br><br>Subject: " + kendo.htmlEncode(subject));
                     return true;
                 }
             }
@@ -604,7 +649,8 @@ $(document).ready(function () {
             if (!$("#nurse-msg-body").data("kendoTextArea")) {
                 $("#nurse-msg-body").kendoTextArea({
                     placeholder: "Write your message here...",
-                    rows: 4
+                    rows: 10,
+                    resize: "both"
                 });
             }
         }
@@ -836,6 +882,7 @@ $(document).ready(function () {
                     modal:    false,
                     visible:  false,
                     resizable: true,
+                    draggable: { dragHandle: ".k-dialog-titlebar" },
                     closable: false,
                     actions:  [],
                     open: function () {

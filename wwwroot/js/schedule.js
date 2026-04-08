@@ -510,11 +510,14 @@ $(document).ready(function () {
     var _taskViewData = null;
 
     $("#view-task-dialog").kendoDialog({
-        width:    690,
+        width:    550,
         title:    "Task Details",
         closable: true,
         modal:    true,
         visible:  false,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
+        buttonLayout: "normal",
         open: function () {
             applySharedDialogShell(this);
             if (!_taskViewData) { return; }
