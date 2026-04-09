@@ -143,7 +143,6 @@ describe('Home Page — Quick Action Dialogs', () => {
         it('should close the dialog when clicking Discard', async () => {
             await browser.click('#dialog-lab-test ~ .k-dialog-actions .k-button');
             await browser.expect('#dialog-lab-test').not.toBeVisible();
-            await browser.click('[role="alertdialog"] .k-dialog-actions .k-button');
         });
     });
 
@@ -168,7 +167,6 @@ describe('Home Page — Quick Action Dialogs', () => {
         it('should close the dialog when clicking Cancel', async () => {
             await browser.click('#dialog-nurse-chat ~ .k-dialog-actions .k-button');
             await browser.expect('#dialog-nurse-chat').not.toBeVisible();
-            await browser.click('[role="alertdialog"] .k-dialog-actions .k-button');
         });
     });
 });
@@ -553,6 +551,7 @@ describe('Home Page — Create New Clinical Note', () => {
         await browser.executeScript("var ddl = kendo.jQuery('#note-patient-ddl').data('kendoDropDownList'); ddl.select(1); ddl.trigger('change');");
         await browser.type('#note-textarea', 'Note to be cleared after save.');
         await browser.click('#dialog-new-note ~ .k-dialog-actions .k-button:last-child');
+        await browser.click('[role="alertdialog"] .k-dialog-actions .k-button');
         await browser.click('#btn-new-note');
         await browser.expect('#note-textarea').toHaveValue('');
     });
@@ -684,7 +683,6 @@ describe('Home Page — Send New Nurse Message', () => {
         await browser.type('#nurse-msg-body', 'Temp body text.');
         await browser.click('#dialog-nurse-chat ~ .k-dialog-actions .k-button:first-child');
         await browser.expect('#dialog-nurse-chat').not.toBeVisible();
-        await browser.click('[role="alertdialog"] .k-dialog-actions .k-button');
         await browser.click('#btn-nurse-chat');
         await browser.expect('#nurse-msg-subject').toHaveValue('');
         await browser.expect('#nurse-msg-body').toHaveValue('');
@@ -767,8 +765,6 @@ describe('Home Page — Request Lab Test Dialog — Keyboard Navigation', () => 
         await browser.executeScript("document.querySelector('#dialog-lab-test ~ .k-dialog-actions .k-button:first-child').focus();");
         await browser.expect('#dialog-lab-test ~ .k-dialog-actions .k-button:first-child').toHaveFocus();
         await browser.sendKey(Key.RETURN);
-        await browser.expect('[role="alertdialog"]').toBeVisible();
-        await browser.click('[role="alertdialog"] .k-dialog-actions .k-button');
         await browser.expect('#dialog-lab-test').not.toBeVisible();
     });
 });
