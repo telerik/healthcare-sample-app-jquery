@@ -201,6 +201,8 @@ function initContextualSearch() {
         filter:        "contains",
         minLength:     1,
         rounded:       "full",
+        clearButton:   true,
+        adaptiveMode: "auto",
         placeholder:   "Search patients by name, ID or phone…",
         prefixOptions: { icon: "search", separator: false },
         template: ({ name, sub }) => `<div class="search-result-item"><span class="search-result-name">${kendo.htmlEncode(name)}</span><span class="search-result-sub">${kendo.htmlEncode(sub)}</span></div>`,
@@ -225,7 +227,7 @@ function initContextualSearch() {
             e.preventDefault();
             var item = e.dataItem;
             var patient = getPatientById(item.patientId) || findPatient(item.patientId) || { id: item.patientId };
-            this.value("");
+            this.value(item.name);
             this.close();
             $input.removeClass("search-no-match");
             navigateToPatientProfile(patient);

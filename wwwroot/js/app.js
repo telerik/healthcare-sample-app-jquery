@@ -892,6 +892,11 @@ $(document).ready(function () {
                     actions:  [],
                     open: function () {
                         this.wrapper.addClass("ai-dialog-wrapper");
+                        if (window.innerWidth < 900) {
+                            this.wrapper.addClass("chat-fullscreen");
+                        } else {
+                            this.wrapper.removeClass("chat-fullscreen");
+                        }
                         _initAiChatIfNeeded();
                     }
                 }).data("kendoDialog");
@@ -910,8 +915,10 @@ $(document).ready(function () {
 
     function updateFabOffset() {
         if (!_fab) return;
+        var isSmall = window.innerWidth < 1440;
         _fab.setOptions({
-            alignOffset: window.innerWidth < 1440 ? { x: 10, y: 10 } : { x: -28, y: 10 }
+            positionMode: isSmall ? "fixed" : "absolute",
+            alignOffset: isSmall ? { x: 10, y: 10 } : { x: -28, y: 10 }
         });
     }
 
