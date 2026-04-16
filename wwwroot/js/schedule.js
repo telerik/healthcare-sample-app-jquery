@@ -240,6 +240,8 @@ $(document).ready(function () {
         modal:    true,
         closable: false,
         visible:  false,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
         close: function () {
             _apptExpanded = false;
         },
@@ -396,8 +398,11 @@ $(document).ready(function () {
         closable: true,
         modal:    true,
         visible:  false,
+        draggable: { dragHandle: ".k-dialog-titlebar" },
+        resizable: true,
         open: function () {
             applySharedDialogShell(this);
+            this.center();
             if (!$("#atf-name").data("kendoTextBox")) {
                 $("#atf-name").kendoTextBox({ placeholder: "Enter task name" });
             }

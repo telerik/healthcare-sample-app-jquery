@@ -67,7 +67,7 @@ $(document).ready(function () {
        DAILY ALERTS + PATIENTS — loaded together
     ═════════════════════════════════════════════ */
     function renderAlertsList() {
-        var chevron = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        var chevron = kendo.ui.icon({ type: "svg", icon: "chevron-right" });
         var html = alertsData.map(function (a, idx) {
             return '<div class="k-card alert-card" data-alert-idx="' + idx + '">' +
                    '  <div class="k-card-body alert-card-body">' +
@@ -270,6 +270,7 @@ $(document).ready(function () {
             $("#dialog-reason-visit").data("kendoDialog").open();
         }
     });
+    $("#link-reason-details .detail-link-icon").html(kendo.ui.icon({ type: "svg", icon: "chevron-right" }));
 
     /* ═══════════════════════════════════════════════
        DIALOG — ALLERGY DETAILS
@@ -306,6 +307,7 @@ $(document).ready(function () {
             $("#dialog-allergy-details").data("kendoDialog").open();
         }
     });
+    $("#link-allergy-details .detail-link-icon").html(kendo.ui.icon({ type: "svg", icon: "chevron-right" }));
 
     /* ═══════════════════════════════════════════════
        DIALOG — NEW NOTE
@@ -369,6 +371,7 @@ $(document).ready(function () {
         ],
         open: function () {
             applySharedDialogShell(this);
+            this.center();
             if (!$("#note-patient-ddl").data("kendoDropDownList")) {
                 $("#note-patient-ddl").kendoDropDownList({
                     dataSource: patientsData.map(function (p) { return { text: p.name + " (" + p.id + ")", value: p.id }; }),
@@ -484,6 +487,7 @@ $(document).ready(function () {
         ],
         open: function () {
             applySharedDialogShell(this);
+            this.center();
             this.wrapper.closest(".k-dialog-wrapper").addClass("lab-request-dialog");
             if (!$("#lab-patient-ddl").data("kendoDropDownList")) {
                 $("#lab-patient-ddl").kendoDropDownList({
@@ -626,6 +630,7 @@ $(document).ready(function () {
         ],
         open: function () {
             applySharedDialogShell(this);
+            this.center();
             if (!$("#nurse-msg-to").data("kendoComboBox")) {
                 $("#nurse-msg-to").kendoComboBox({
                     dataSource: [
@@ -902,4 +907,14 @@ $(document).ready(function () {
             }
         }
     }).data("kendoFloatingActionButton");
+
+    function updateFabOffset() {
+        if (!_fab) return;
+        _fab.setOptions({
+            alignOffset: window.innerWidth < 1440 ? { x: 10, y: 10 } : { x: -28, y: 10 }
+        });
+    }
+
+    updateFabOffset();
+    $(window).on("resize", updateFabOffset);
 });

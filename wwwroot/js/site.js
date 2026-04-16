@@ -50,20 +50,28 @@ $(document).ready(function () {
     /* ═══════════════════════════════════════════════
        APP BAR NAV — SegmentedControl
     ═══════════════════════════════════════════════ */
-    var navRoutes = {
-        "Home":      "/",
-        "Schedule":  "/schedule",
-        "Patients":  "/patients",
-        "Analytics": "/analytics"
-    };
+    var navItems = [
+        { text: "Home", value: "Home", icon: "home", url: "/" },
+        { text: "Schedule", value: "Schedule", icon: "calendar", url: "/schedule" },
+        { text: "Patients", value: "Patients", icon: "user-outline", url: "/patients" },
+        { text: "Clinical Analytics", value: "Analytics", icon: "chart-bar-stacked", url: "/analytics" }
+    ];
+    var navRoutes = {};
+    var navIconDefs = [];
+
+    navItems.forEach(function (item) {
+        navRoutes[item.value] = item.url;
+        navIconDefs.push(item.icon);
+    });
 
     $("#appbar-nav").kendoSegmentedControl({
-        items: [
-            { text: "Home",               value: "Home" , icon: "home"},
-            { text: "Schedule",           value: "Schedule", icon: "calendar" },
-            { text: "Patients",           value: "Patients", icon: "user-outline" },
-            { text: "Clinical Analytics", value: "Analytics", icon: "chart-bar-stacked" }
-        ],
+        items: navItems.map(function (item) {
+            return {
+                text: item.text,
+                value: item.value,
+                icon: item.icon
+            };
+        }),
         selectedValue: activePage,
         change: function (e) {
             var url = navRoutes[e.value];
@@ -78,6 +86,54 @@ $(document).ready(function () {
         if (navIconDefs[i]) {
             var customIcon = kendo.ui.icon({ type: 'svg', icon: navIconDefs[i] });
             $(this).find(".k-button-text").before(customIcon);
+        }
+    });
+
+    /* ═══════════════════════════════════════════════
+       MOBILE NAV MENU (< 576px) — Kendo DropDownButton
+    ═══════════════════════════════════════════════ */
+    $("#hamburger-btn").kendoDropDownButton({
+        icon: "menu",
+        fillMode: "flat",
+        popup: {
+            appendTo: "#appbar"
+        },
+        items: navItems.map(function (item) {
+            return {
+                text: item.text,
+                icon: item.icon,
+                attributes: {
+                    "data-page": item.value
+                },
+                click: function () {
+                    window.location.href = item.url;
+                }
+            };
+        }),
+        open: function () {
+            var items = this.items();
+            items.removeClass("k-selected");
+            items.filter("[data-page='" + activePage + "']").addClass("k-selected");
+        }
+    });
+   
+
+    /* ═══════════════════════════════════════════════
+       MOBILE SEARCH ICON — toggle autocomplete
+    ═══════════════════════════════════════════════ */
+    $("#btn-search-toggle").on("click", function () {
+        var $appbar = $("#appbar");
+        var isOpen = $appbar.toggleClass("search-open").hasClass("search-open");
+        if (isOpen) {
+            var ac = $("#appbar-search").data("kendoAutoComplete");
+            if (ac) { ac.focus(); }
+        }
+    });
+
+    /* Close mobile search on click outside */
+    $(document).on("click", function (e) {
+        if (!$(e.target).closest("#appbar, .k-autocomplete-popup").length) {
+            $("#appbar").removeClass("search-open");
         }
     });
 });

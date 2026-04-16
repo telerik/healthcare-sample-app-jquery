@@ -24,8 +24,13 @@
     <div id="appbar" class="app-appbar">
         <!-- Logo -->
         <span class="k-appbar-section appbar-logo">
-            <img src="~/content/logo.png" alt="Logo" class="appbar-logo-img" />
+            <img src="~/content/logo.png" alt="Logo" class="appbar-logo-img logo-full" />
+            <img src="~/content/logo-no-text.png" alt="Logo" class="appbar-logo-img logo-compact" />
         </span>
+
+        <!-- Separator + Hamburger (mobile only) -->
+        <span class="appbar-sep hamburger-sep" aria-hidden="true"></span>
+        <button class="hamburger-btn" id="hamburger-btn" title="Menu" aria-label="Open navigation"></button>
 
         <!-- Nav -->
         <span class="k-appbar-section k-appbar-spacer-center appbar-nav">
@@ -35,6 +40,11 @@
         <!-- Right section -->
         <span class="k-appbar-section appbar-right">
             <input id="appbar-search" />
+            <button class="icon-btn search-icon-btn" id="btn-search-toggle" title="Search">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M7.333 12.667A5.333 5.333 0 1 0 7.333 2a5.333 5.333 0 0 0 0 10.667ZM14 14l-2.9-2.9" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
             <button class="icon-btn" id="btn-settings" title="Settings">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <g clip-path="url(#clip0_settings)">
@@ -56,7 +66,7 @@
                     </svg>
                 </button>
             </span>
-            <span class="appbar-sep" aria-hidden="true"></span>
+            <span class="appbar-sep"></span>
             <img class="avatar" id="profile-trigger" src="/content/patient-images/women/thumb/michael-dam-mEZ3PoFGs_k-unsplash.jpg" alt="Dr. Carter" title="Profile &amp; Settings" />
         </span>
     </div>
