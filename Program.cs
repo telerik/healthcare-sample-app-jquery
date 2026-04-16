@@ -49,6 +49,8 @@ builder.Services.AddSession(o =>
 
 var app = builder.Build();
 
+app.UsePathBase("/kendo-ui/healthcare/");
+
 // Eagerly warm up the seed singleton so the first request is never slow
 _ = app.Services.GetRequiredService<HealthcareSeedStore>();
 
@@ -73,7 +75,6 @@ app.UseStaticFiles(new StaticFileOptions
         ctx.Context.Response.Headers.CacheControl = "public, max-age=2592000, immutable";
     }
 });
-app.UsePathBase("/kendo-ui/healthcare/");
 
 app.UseRouting();
 app.UseSession();           // must be before MapControllerRoute
