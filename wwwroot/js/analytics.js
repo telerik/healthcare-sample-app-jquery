@@ -175,7 +175,7 @@ $(document).ready(function () {
     // ── Patient Selection DropDownList ─────────────────
     $.when(
         ensurePatientSearchData(),
-        $.getJSON("/api/analytics")
+        $.getJSON("./api/analytics")
     ).done(function (patientsResp, analyticsResp) {
         // $.when wraps jqXHR results as [data, textStatus, jqXHR],
         // but a plain Deferred.resolve(value) passes the value directly.

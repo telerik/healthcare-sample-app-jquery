@@ -9,7 +9,7 @@ var doctorProfile = {
     fullName: "Emily Carter",
     email:    "drcarter@email.com",
     phone:    "+(555) 776-90-84",
-    avatar:   "/content/profile.jpg"
+    avatar:   "./content/profile.jpg"
 };
 
 function applyDoctorProfile(profile) {
@@ -27,7 +27,7 @@ function applyDoctorProfile(profile) {
 }
 
 function loadDoctorProfile() {
-    return $.getJSON("/api/profile")
+    return $.getJSON("./api/profile")
         .done(function (profile) {
             applyDoctorProfile(profile);
             populateProfileForm();
@@ -138,7 +138,7 @@ function initProfileWidgets() {
             var reader = new FileReader();
             reader.onload = function (ev) {
                 $.ajax({
-                    url:         "/api/profile/avatar",
+                    url:         "./api/profile/avatar",
                     type:        "POST",
                     contentType: "application/json",
                     data:        JSON.stringify({ avatar: ev.target.result }),
@@ -205,7 +205,7 @@ function initProfileWidgets() {
             }
 
             $.ajax({
-                url:         "/api/profile/update",
+                url:         "./api/profile/update",
                 type:        "POST",
                 contentType: "application/json",
                 data:        JSON.stringify({ fullName: name, email: email, phone: phone }),
@@ -310,7 +310,7 @@ function renderNotifPanel() {
         html +=
             '<div class="k-card k-card-horizontal np-card' + (n.read ? ' np-card-read' : '') + '" data-id="' + n.id + '">' +
                 '<div class="k-card-image np-card-icon">' +
-                    '<img src="/content/notification-bell.png" alt="" class="np-bell-img" />' +
+                    '<img src="./content/notification-bell.png" alt="" class="np-bell-img" />' +
                 '</div>' +
                 '<div class="k-card-body np-card-body">' +
                     '<h6 class="k-card-title np-card-title">' + kendo.htmlEncode(n.title) + '</h6>' +

@@ -21,7 +21,7 @@ $(document).ready(function () {
         dataSource: new kendo.data.DataSource({
             transport: {
                 read: {
-                    url:      "/api/today-appointments",
+                    url:      "./api/today-appointments",
                     dataType: "json"
                 }
             },
@@ -83,7 +83,7 @@ $(document).ready(function () {
     }
 
     $.when(
-        $.getJSON("/api/alerts"),
+        $.getJSON("./api/alerts"),
         ensurePatientSearchData()
     ).done(function (alertsResp, patients) {
         alertsData   = alertsResp[0];
@@ -349,7 +349,7 @@ $(document).ready(function () {
                     }
                     var patientId = ddl.value();
                     $.ajax({
-                        url:         "/api/patients/" + patientId + "/add-note",
+                        url:         "./api/patients/" + patientId + "/add-note",
                         type:        "POST",
                         contentType: "application/json",
                         data:        JSON.stringify({ text: text }),
@@ -704,7 +704,7 @@ $(document).ready(function () {
     var _aiUser         = {
         id: "dr-carter",
         name: "Dr. Carter",
-        iconUrl: "/content/patient-images/women/thumb/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
+        iconUrl: "./content/patient-images/women/thumb/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
     };
     var _aiAssistant    = {
         id: "ai-assistant",

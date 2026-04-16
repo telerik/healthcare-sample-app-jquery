@@ -20,7 +20,7 @@ var _aiAssistant    = {
  var _aiUser         = {
         id: "dr-carter",
         name: "Dr. Carter",
-        iconUrl: "/content/patient-images/women/thumb/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
+        iconUrl: "./content/patient-images/women/thumb/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
     };
 
 /* ═══════════════════════════════════════════════════════
@@ -302,7 +302,7 @@ function renderPatientDetail(patient) {
                 var $btn = $(e.event.currentTarget);
                 var saveBtn = $btn.data("kendoButton");
                 $.ajax({
-                    url:         "/api/patients/" + currentPatient.id + "/notes",
+                    url:         "./api/patients/" + currentPatient.id + "/notes",
                     type:        "POST",
                     contentType: "application/json",
                     data:        JSON.stringify({ notes: noteVal }),
@@ -571,7 +571,7 @@ function openChangeStatusDialog(patient) {
                         if (!_statusPatient) return true;
                         var val = $("#new-status-ddl").data("kendoDropDownList").value();
                         $.ajax({
-                            url:         "/api/patients/" + _statusPatient.id + "/status",
+                            url:         "./api/patients/" + _statusPatient.id + "/status",
                             type:        "POST",
                             contentType: "application/json",
                             data:        JSON.stringify({ status: val }),
@@ -611,7 +611,7 @@ function initGrid() {
             transport: {
                 read: function (options) {
                     // Reuse the shared patient data already fetched by ensurePatientSearchData()
-                    // to avoid a duplicate /api/patients round-trip on page load.
+                    // to avoid a duplicate api/patients round-trip on page load.
                     ensurePatientSearchData().done(function (patients) {
                         var data = Array.isArray(patients) ? patients : (patients[0] || []);
                         options.success(data);
