@@ -3,6 +3,21 @@
 ═══════════════════════════════════════════════════════ */
 var patientsData   = [];
 var analyticsData  = {};
+var lastDonutSmall = null;
+
+function updateDonutLabels() {
+    var donut = $("#alerts-donut-chart").data("kendoChart");
+    if (!donut) return;
+    var isSmall = window.innerWidth < 730;
+    if (isSmall === lastDonutSmall) return;
+    lastDonutSmall = isSmall;
+    var series = donut.options.series[0];
+    series.labels.position = isSmall ? "insideEnd" : "outsideEnd";
+    series.labels.distance = isSmall ? 0 : 20;
+    series.labels.align = isSmall ? "circle" : "column";
+    series.labels.connectors.width = isSmall ? 0 : 1;
+    donut.redraw();
+}
 
 /* ═══════════════════════════════════════════════════════
    HELPERS
@@ -144,6 +159,10 @@ function updateAllCharts(id) {
         donutChart.dataSource.data(data.alertsByType);
         donutChart.refresh();
     }
+
+    // Re-apply responsive donut labels after data refresh
+    lastDonutSmall = null;
+    updateDonutLabels();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -347,5 +366,28 @@ $(document).ready(function () {
 
     // ── Initial load with first patient ───────────────
     // Initial chart load is called after the API responds (inside $.when above)
+
+    // ── Resize charts on window resize ────────────────
+    var resizeTimer;
+
+    $(window).on("resize", function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            $("#vitals-chart, #alerts-column-chart, #alerts-donut-chart").each(function () {
+                var chart = $(this).data("kendoChart");
+                if (chart) { chart.resize(); }
+            });
+            var gauge = $("#risk-gauge").data("kendoArcGauge");
+            if (gauge) { gauge.resize(); }
+            $("[id^='klab-']").each(function () {
+                var chart = $(this).data("kendoChart");
+                if (chart) { chart.resize(); }
+            });
+            updateDonutLabels();
+        }, 150);
+    });
+
+    // Apply on initial load too
+    setTimeout(updateDonutLabels, 300);
 
 });

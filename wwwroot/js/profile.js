@@ -162,7 +162,7 @@ function initProfileWidgets() {
     /* Upload button */
     $("#pm-btn-upload").kendoButton({
         icon:       "upload",
-        themeColor: "dark",
+        themeColor: "primary",
         rounded:    "large",
         click: function () {
             $("#pm-file-input").closest(".k-upload").find("input[type=file]").trigger("click");
@@ -288,9 +288,8 @@ function updateBadge() {
     var count = getUnreadCount();
     var badge = $("#notif-btn").find(".k-badge").data("kendoBadge");
     if (badge) {
-        badge.text(count > 0 ? count : "");
-        badge.themeColor(count > 0 ? "error" : "info");
-        if (count === 0) badge.element.hide(); else badge.element.show();
+        badge.text("");
+        if (count === 0) { badge.element.hide(); } else { badge.element.show(); }
     }
 }
 
@@ -339,7 +338,8 @@ function _bindNotifDialogEvents() {
     $el.off("click.np");
 
     /* Mark all read */
-    $el.on("click.np", "#np-mark-all", function () {
+    $el.on("click.np", "#np-mark-all", function (e) {
+        e.stopPropagation();
         $.each(notificationsData, function (_, n) { n.read = true; });
         _refreshNotifDialogContent();
         updateBadge();
@@ -432,19 +432,29 @@ function initNotifDropdown() {
                     left:     "auto"
                 });
             }
+
+            /* Close on outside click */
+            setTimeout(function () {
+                $(document).on("click.npoutside", function (e) {
+                    if (!$(e.target).closest("#np-dropdown, #notif-btn").length) {
+                        closeNotifPanel();
+                    }
+                });
+            }, 0);
         },
         close: function () {
             $("#np-dropdown").off("click.np");
+            $(document).off("click.npoutside");
         }
     });
 
     var count = getUnreadCount();
     $("#notif-btn").kendoButton({
         badge: {
-            text:       count > 0 ? count : "",
-            themeColor: "error",
-            shape:      "pill",
-            rounded:    "full",
+            text:       "",
+            themeColor: "dark",
+            shape:      "circle",
+            size:       "large",
             position:   "edge",
             align:      "top end",
             visible:    count > 0
