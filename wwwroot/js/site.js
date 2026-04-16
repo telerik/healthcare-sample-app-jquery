@@ -50,11 +50,12 @@ $(document).ready(function () {
     /* ═══════════════════════════════════════════════
        APP BAR NAV — SegmentedControl
     ═══════════════════════════════════════════════ */
+
     var navItems = [
-        { text: "Home", value: "Home", icon: "home", url: "/" },
-        { text: "Schedule", value: "Schedule", icon: "calendar", url: "/schedule" },
-        { text: "Patients", value: "Patients", icon: "user-outline", url: "/patients" },
-        { text: "Clinical Analytics", value: "Analytics", icon: "chart-bar-stacked", url: "/analytics" }
+        { text: "Home", value: "Home", icon: "home", url: "./" },
+        { text: "Schedule", value: "Schedule", icon: "calendar", url: "./schedule" },
+        { text: "Patients", value: "Patients", icon: "user-outline", url: "./patients" },
+        { text: "Clinical Analytics", value: "Analytics", icon: "chart-bar-stacked", url: "./analytics" }
     ];
     var navRoutes = {};
     var navIconDefs = [];
@@ -153,7 +154,7 @@ function navigateToPatientProfile(patient) {
         return;
     }
 
-    window.location.href = "/patients";
+    window.location.href = "./patients";
 }
 
 function ensurePatientSearchData(forceRefresh) {
@@ -165,7 +166,7 @@ function ensurePatientSearchData(forceRefresh) {
         return patientSearchRequest;
     }
 
-    patientSearchRequest = $.getJSON("/api/patients")
+    patientSearchRequest = $.getJSON("./api/patients")
         .done(function (patients) {
             sharedPatients = patients || [];
         })

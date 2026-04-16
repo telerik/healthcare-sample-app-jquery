@@ -25,16 +25,16 @@ $(document).ready(function () {
     var schedulerDS = new kendo.data.SchedulerDataSource({
         transport: {
             read: {
-                url:      "/api/appointments",
+                url:      "./api/appointments",
                 dataType: "json"
             },
             update: {
-                url:         "/api/appointments/update",
+                url:         "./api/appointments/update",
                 type:        "POST",
                 contentType: "application/json"
             },
             destroy: {
-                url:         "/api/appointments/destroy",
+                url:         "./api/appointments/destroy",
                 type:        "POST",
                 contentType: "application/json"
             },
@@ -282,11 +282,11 @@ $(document).ready(function () {
     var tasksDS = new kendo.data.DataSource({
         transport: {
             read: {
-                url:      "/api/tasks",
+                url:      "./api/tasks",
                 dataType: "json"
             },
             update: {
-                url:         "/api/tasks/update",
+                url:         "./api/tasks/update",
                 type:        "POST",
                 dataType:    "json",
                 contentType: "application/json"
@@ -451,7 +451,7 @@ $(document).ready(function () {
                     var priority = priorities[idx !== undefined ? idx : 0];
                     var description = ($("#atf-description").val() || "").trim();
                     $.ajax({
-                        url:         "/api/tasks/create",
+                        url:         "./api/tasks/create",
                         type:        "POST",
                         contentType: "application/json",
                         data:        JSON.stringify({ task: name, priority: priority, description: description, done: false }),
