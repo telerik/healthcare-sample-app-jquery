@@ -585,14 +585,19 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* ═══════════════════════════════════════════════════════
+   PAGE HEADERS — common h1 styles
+═══════════════════════════════════════════════════════ */
+.page-header h1 {
+    font-size: 36px;
+    font-weight: var(--kendo-font-weight-semibold);
+    color: var(--kendo-color-on-app-surface);
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════
    GREETING
 ═══════════════════════════════════════════════════════ */
-.greeting h1 {
-    font-size: 32px;
-    font-weight: 800;
-    color: #1a1a2e;
-    line-height: 1.2;
-}
 .greeting p {
     font-size: 14px;
     color: #888;
@@ -2689,10 +2694,6 @@ a { text-decoration: none; color: inherit; }
 
 .patients-page-header h1 {
     margin: 0;
-    font-size: 42px;
-    line-height: 1.2;
-    font-weight: 600;
-    color: #232a36;
 }
 
 .patients-page-header p {
@@ -2710,10 +2711,6 @@ a { text-decoration: none; color: inherit; }
 }
 
 .patients-page-title {
-    font-size: 42px;
-    line-height: 1.2;
-    font-weight: 600;
-    color: #232a36;
     margin-bottom: 0;
 }
 
@@ -2764,8 +2761,7 @@ a { text-decoration: none; color: inherit; }
     color: #232a36;
 }
 
-.patients-list-body {
-    padding: 0 0px 20px;
+.patients-list-body {   
     margin: 0 auto;
 }
 
@@ -4383,7 +4379,7 @@ a { text-decoration: none; color: inherit; }
 ═══════════════════════════════════════════════════════ */
 .analytics-wrapper { position:relative; z-index:1; padding:0 0px 24px; max-width: min(1648px, calc(100% - 32px)); margin:0 auto; }
 .analytics-page-header { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding: 0 16px 24px; max-width: min(1648px, calc(100% - 32px)); margin:0 auto; }
-.analytics-page-header h1 { font-size:28px; font-weight:800; color:#1a1a2e; margin:0 0 4px; }
+.analytics-page-header h1 { margin:0 0 4px; }
 .analytics-page-header p  { font-size:14px; color:#888; margin:0; }
 .analytics-header-controls { display:none; align-items:center; gap:12px; flex-shrink:1; flex-wrap:wrap; justify-content:flex-end; min-width:0; }
 .analytics-header-controls.is-ready { display:flex; }
@@ -4465,7 +4461,7 @@ a { text-decoration: none; color: inherit; }
 .klab-chart { flex: 1; min-width: 0; }
 
 /* Gauge card layout */
-.analytics-gauge-card { display:flex; flex-direction:column; align-items:center; padding:0; justify-content:flex-start; }
+.analytics-gauge-card { display:flex; flex-direction:column; align-items:stretch; padding:0; justify-content:flex-start; }
 
 /* Risk gauge overlay (shows % inside arc) */
 .risk-gauge-wrap { position:relative; width:100%; }
@@ -4874,11 +4870,21 @@ a { text-decoration: none; color: inherit; }
     .page-body {
         grid-template-columns: 1fr 480px;
         gap: 24px;
-        padding: 0px 32px 32px;
+        padding: 0px 32px 24px;
     }
 
     .page-body:has(> .col-side) {
         grid-template-columns: 1fr;
+    }
+
+    .next-patient-card {
+        max-height: 70vh;
+        overflow: hidden;
+    }
+
+    .next-patient-card > .k-card-body {
+        flex: 1 1 auto;
+        min-height: 0;
     }
 
     .col-main { gap: 24px; }
@@ -4992,11 +4998,10 @@ a { text-decoration: none; color: inherit; }
 
     .appbar-logo-img { height: 26px; }    
 
-    .greeting h1 {
+    .page-header h1 {
         font-size: 28px;
         font-weight: 600;
         line-height: 1.2;
-        color: #232A36;
     }
 
     .greeting p  {
@@ -5016,6 +5021,10 @@ a { text-decoration: none; color: inherit; }
     #page-headers {
         margin-top: -28px;
         padding-top: 28px;
+    }
+
+    #page-content:has(.patients-breadcrumb) {
+        padding: 0 0 32px;
     }
 
     .card-title, .k-card-title { font-size: 18px; }
@@ -5079,6 +5088,10 @@ a { text-decoration: none; color: inherit; }
         grid-template-columns: 1fr;
     }
 
+    .analytics-row-2col-equal .k-card{
+        margin-bottom: 0px;
+    }
+
     .analytics-row-2col {
         grid-template-columns: 1fr;
     }
@@ -5113,14 +5126,7 @@ a { text-decoration: none; color: inherit; }
         padding-bottom: 24px;
     }
 
-    .patients-page-title,
-    .patients-page-header h1,
-    .analytics-page-header h1 {
-        font-size: 32px;
-        line-height: 1.2;
-        font-weight: 600;
-        color: #232A36;
-    }
+
 
     .patients-page-sub,
     .patients-page-header p,
@@ -5258,11 +5264,10 @@ a { text-decoration: none; color: inherit; }
         padding: 0 12px 12px;
     }
 
-    .greeting h1 {
+    .page-header h1 {
         font-size: 24px;
         font-weight: 600;
         line-height: 1.2;
-        color: #232A36;
     }
 
     .greeting p  {
@@ -5338,11 +5343,7 @@ a { text-decoration: none; color: inherit; }
         display: none;
     }
 
-    /* ── Page Headers ── */
-    .patients-page-header h1,
-    .analytics-page-header h1 {
-        font-size: 22px;
-    }
+
 
     .patients-page-header,
     .patients-list-body,
