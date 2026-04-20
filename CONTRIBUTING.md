@@ -28,7 +28,7 @@ Thank you for your interest in contributing to the Healthcare Sample App! This d
    dotnet run
    ```
 
-The application will start at `https://localhost:5263/kendo-ui/healthcare/`
+The application will start at `https://localhost:5263/kendo-ui-healthcare/`
 
 ## Development Workflow
 
@@ -55,7 +55,7 @@ The application will start at `https://localhost:5263/kendo-ui/healthcare/`
 2. Include any relevant issue numbers using `#issue-number`
 3. Your PR will automatically be deployed to a staging environment (accessible to Progress employees only)
 4. Address any feedback or review comments
-5. Upon successful merge, your changes will be automatically deployed to: https://demos.telerik.com/kendo-ui/healthcare/
+5. Upon successful merge, your changes will be automatically deployed to: https://demos.telerik.com/kendo-ui-healthcare/
 
 ## Code Guidelines
 
