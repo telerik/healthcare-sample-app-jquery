@@ -85,7 +85,7 @@ Session isolation is handled server-side — each browser session gets a deep-co
 dotnet run
 ```
 
-The app starts at **`http://localhost:5263/kendo-ui/healthcare/`**.
+The app starts at **`http://localhost:5263/kendo-ui-healthcare/`**.
 
 > The SQLite database (`healthcare.db`) is created and seeded automatically on first run. No setup steps are needed.
 
