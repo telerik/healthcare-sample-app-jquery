@@ -9,7 +9,7 @@ var doctorProfile = {
     fullName: "Emily Carter",
     email:    "drcarter@email.com",
     phone:    "+(555) 776-90-84",
-    avatar:   "/content/patient-images/women/thumb/michael-dam-mEZ3PoFGs_k-unsplash.jpg"
+    avatar:   "/content/profile.jpg"
 };
 
 function applyDoctorProfile(profile) {
