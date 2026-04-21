@@ -67,7 +67,7 @@
 | 61 | Checked task strikethrough | should show strikethrough text on completed task | schedule.test.ts |
 | 62 | Task uncheck | should uncheck a completed task when checkbox is clicked again | schedule.test.ts |
 | 63 | Unchecked task normal text | should show normal text on unchecked task | schedule.test.ts |
-| 64 | Priority filter group (static) | should display priority filter button group | schedule.test.ts |
+| 64 | Task search input (static) | should display task search input | schedule.test.ts |
 | 65 | Tasks scrollable (more items) | should have more tasks than visible in the list | schedule.test.ts |
 | 66 | Task scroll to last | should reveal the last task after scrolling into view | schedule.test.ts |
 | 67 | Task search: no match → 0 items | should show no tasks when search matches nothing | schedule-interactions.test.ts |

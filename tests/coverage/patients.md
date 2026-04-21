@@ -27,7 +27,7 @@
 | 21 | Page numbers | should show page numbers in the pager | patients.test.ts |
 | 22 | Navigate to page 2 | should navigate to page 2 | patients.test.ts |
 | 23 | Navigate back to page 1 | should navigate back to page 1 | patients.test.ts |
-| 24 | AI panel opens | should open AI Assistance panel when button is clicked | patients.test.ts |
+| 24 | AI dialog opens | should open AI Assistance panel when button is clicked | patients.test.ts |
 | 25 | AI chat widget | should display the AI chat widget | patients.test.ts |
 | 26 | AI Assistant header | should display AI Assistant header | patients.test.ts |
 | 27 | AI welcome message | should display a welcome message | patients.test.ts |
@@ -36,7 +36,7 @@
 | 30 | AI suggestion inserts into prompt | should insert suggestion text into prompt box when clicked | patients.test.ts |
 | 31 | AI send suggestion message | should send the suggestion and show user message | patients.test.ts |
 | 32 | AI receive response | should receive an AI response after sending | patients.test.ts |
-| 33 | AI panel closes | should close AI Assistance panel when button is clicked again | patients.test.ts |
+| 33 | AI dialog closes | should close AI Assistance panel when button is clicked again | patients.test.ts |
 | 34 | Excel export triggered | should trigger an Excel download when clicked | patients.test.ts |
 | 35 | Filter no-match → No items to display | should show No items to display when filter matches no patients | patients.test.ts |
 | 36 | Filter no-match → restore rows | should restore rows after clearing the no-match filter | patients.test.ts |
