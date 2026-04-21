@@ -64,7 +64,7 @@ tests/
   vitest.config.ts                  # Sequential execution, 60s timeout
   src/config.ts                     # BASE_URL = http://localhost:5263
   src/global-teardown.ts            # Closes all kendo-e2e sessions after tests
-  src/*.test.ts                     # 11 test files, 455 tests
+  src/*.test.ts                     # 12 test files, 507 tests
   coverage/                          # Per-page test coverage reports
     README.md                        # Index with totals and links
     home.md                          # Home page (170 tests)
@@ -113,7 +113,7 @@ tests/
 |---|---|---|
 | Scheduler | `#scheduler` | kendoScheduler |
 | Tasks List | `#tasks-list` | kendoListView |
-| Priority Filter | `#tasks-priority-filter` | kendoButtonGroup |
+| Task Search | `#tasks-search` | input |
 | Add Task | `#add-task-dialog` | kendoDialog |
 | View Task | `#view-task-dialog` | kendoDialog |
 | Appointment Detail | `#appointment-dialog` | kendoDialog (expand/collapse) |
@@ -137,7 +137,7 @@ tests/
 **Triggers:**
 - `.btn-view-patient` click → opens patient drilldown (`#patients-detail-view`)
 - `.patient-name-cell` dblclick → opens preview panel (`#patient-preview-panel`)
-- `#btn-ai-assistance` → toggles `#list-ai-panel`
+- `#btn-ai-assistance` → toggles `#list-ai-dialog`
 - `#btn-export-patients` → Excel export
 - `#breadcrumb-back` → returns to grid
 
@@ -161,6 +161,22 @@ tests/
 | Profile Window | `#profile-window` | kendoWindow (modal) |
 | Notifications | `#np-dropdown` | kendoWindow (non-modal) |
 | Notification Badge | `#notif-badge` | kendoBadge |
+| Search Toggle | `#btn-search-toggle` | button (visible < 1440px) |
+| Hamburger Menu | `#hamburger-btn` | kendoDropDownButton (visible < 575px) |
+
+---
+
+## Responsive Layout
+
+The app uses desktop-first CSS breakpoints in `wwwroot/css/custom.css`.
+
+| Max-width | Key changes |
+|---|---|
+| 1439px | Nav shows icons only (`font-size: 0` on text). Search autocomplete hidden; `#btn-search-toggle` visible. Clicking it adds `.search-open` to `#appbar`, showing autocomplete as full-width overlay. Page body collapses to single column. Schedule stacks vertically. |
+| 900px | Compact logo (no text). Chat dialogs go fullscreen. Analytics rows single-column. |
+| 575px | `#hamburger-btn` replaces segmented nav. `.appbar-nav` hidden. Minimal padding. |
+
+**Test configuration:** Existing tests run at 1920×1080 (`BROWSER_WIDTH`/`BROWSER_HEIGHT` env vars in `vitest.config.ts`). Responsive tests in `responsive.test.ts` use `browser.resizeWindow(1200, 900)`.
 
 ---
 
@@ -358,6 +374,7 @@ await analyticsDdl.waitToCollapse();
 | DDL inside dialogs with focus timers | Avoid `selectItemByIndex`/`selectItemByText` for DDLs inside dialogs that steal focus via `setTimeout(...focus(), 100)` — use `executeScript` Kendo API instead (`ddl.select(n); ddl.trigger('change')`) |
 | DDL `setFilter` + click filtered item | After `setFilter(text)`, wait for `items.length === 1` using `getItems({waitForItems: false})` before clicking — the default `getItems()` returns immediately (items already exist before filter applies) |
 | `selectItemByText` requires exact match | Uses XPath `li[.="text"]` — full visible text including templates (e.g., `'Olivia Davis (P-1003)'` not just `'Olivia Davis'`) |
+| `browser.type` closes DDL popup | `type()` defaults to `clear: true` which calls `element.clear()` — this triggers a Kendo event that closes the popup. Use `browser.type(selector, text, { clear: false })` for DDL filter inputs. Click the filter input first to focus it. |
 
 ### DOM Exploration with CLI
 
@@ -377,4 +394,4 @@ npx vitest run --reporter=verbose           # Full suite
 npx vitest run src/home.test.ts             # Single file
 ```
 
-Tests run sequentially (`fileParallelism: false`, `maxWorkers: 1`). Server must be running on port 5263.
+Tests run in parallel (`fileParallelism: true`, `maxWorkers: 4`). Default browser size is 1920×1080 (set via `env` in `vitest.config.ts`). Server must be running on port 5263.

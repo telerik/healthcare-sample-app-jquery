@@ -126,8 +126,8 @@ describe('Schedule Page', () => {
             expect(decoration).toBe('none');
         });
 
-        it('should display priority filter button group', async () => {
-            await browser.expect('#tasks-priority-filter[data-role="buttongroup"]').toHaveCount(1);
+        it('should display task search input', async () => {
+            await browser.expect('#tasks-search').toBeVisible();
         });
     });
 

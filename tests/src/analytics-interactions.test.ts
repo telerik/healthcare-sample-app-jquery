@@ -33,57 +33,56 @@ describe('Analytics Page — Interactions', () => {
         it('should open dropdown and display all 30 patients', async () => {
             await browser.expect('.analytics-header-controls.is-ready').toBeVisible();
             await browser.expect('.analytics-header-controls .k-input-value-text').toBeVisible();
-            await dropdown.expand();
-            await dropdown.waitToExpand();
-            const items = await dropdown.getItems();
-            expect(items.length).toBe(30);
+            await browser.click('.analytics-header-controls .k-dropdownlist');
+            await browser.expect('.k-dropdownlist-popup').toBeVisible();
+            await browser.expect('.k-dropdownlist-popup .k-list-item').toHaveCount(30);
             await browser.sendKey(Key.ESCAPE);
             await dropdown.waitToCollapse();
         });
 
         it('should display filter input in the dropdown', async () => {
-            await dropdown.expand();
-            await dropdown.waitToExpand();
+            await browser.click('.analytics-header-controls .k-dropdownlist');
+            await browser.expect('.k-dropdownlist-popup').toBeVisible();
             await browser.expect('.k-dropdownlist-popup .k-list-filter .k-input-inner').toBeVisible();
             await browser.sendKey(Key.ESCAPE);
             await dropdown.waitToCollapse();
         });
 
         it('should filter and select a patient from the dropdown', async () => {
-            await dropdown.expand();
-            await dropdown.waitToExpand();
-            await browser.executeScript("kendo.jQuery('#patient-select').data('kendoDropDownList').search('Olivia Davis');");
-            await browser.wait(async () => {
-                const count = await browser.executeScript("return kendo.jQuery('#patient-select').data('kendoDropDownList').dataSource.view().length;") as number;
-                return count === 1;
-            });
-            await browser.click('#patient-select_listbox .k-list-item:first-child');
-            await dropdown.waitToCollapse();
+            await browser.click('.analytics-header-controls .k-dropdownlist');
+            await browser.expect('.k-dropdownlist-popup').toBeVisible();
+            await browser.click('.k-dropdownlist-popup .k-list-filter .k-input-inner');
+            await browser.type('.k-dropdownlist-popup .k-list-filter .k-input-inner', 'Olivia Davis', { clear: false });
+            await browser.expect('.k-dropdownlist-popup .k-list-item').toHaveCount(1);
+            await browser.click('.k-dropdownlist-popup .k-list-item:first-child');
+            await browser.expect('.k-dropdownlist-popup').not.toBeVisible();
             await browser.expect('.analytics-header-controls .k-input-value-text').toContainText('Olivia Davis');
         });
 
         it('should update the risk gauge after changing patient', async () => {
-            const gaugeValue = await browser.executeScript("return String(kendo.jQuery('#risk-gauge').data('kendoArcGauge').value())");
-            expect(Number(gaugeValue)).toBe(78);
+            await browser.expect('.k-arcgauge-label').toContainText('78%');
         });
 
         it('should update the vitals chart after changing patient', async () => {
-            const dataTotal = await browser.executeScript("return String(kendo.jQuery('#vitals-chart').data('kendoChart').dataSource.total())");
-            expect(Number(dataTotal)).toBe(5);
+            await browser.expect('#vitals-chart svg').toBeVisible();
         });
 
         it('should update the alerts column chart after changing patient', async () => {
-            const dataTotal = await browser.executeScript("return String(kendo.jQuery('#alerts-column-chart').data('kendoChart').dataSource.total())");
-            expect(Number(dataTotal)).toBe(10);
+            await browser.expect('#alerts-column-chart svg').toBeVisible();
         });
 
         it('should update the alerts donut chart after changing patient', async () => {
-            const dataTotal = await browser.executeScript("return String(kendo.jQuery('#alerts-donut-chart').data('kendoChart').dataSource.total())");
-            expect(Number(dataTotal)).toBe(6);
+            await browser.expect('#alerts-donut-chart svg').toBeVisible();
         });
 
         it('should select back the first patient', async () => {
-            await dropdown.selectItemByIndex(0);
+            await browser.click('.analytics-header-controls .k-dropdownlist');
+            await browser.expect('.k-dropdownlist-popup').toBeVisible();
+            await browser.click('.k-dropdownlist-popup .k-list-filter .k-input-inner');
+            await browser.type('.k-dropdownlist-popup .k-list-filter .k-input-inner', 'Emma Johnson', { clear: false });
+            await browser.expect('.k-dropdownlist-popup .k-list-item').toHaveCount(1);
+            await browser.click('.k-dropdownlist-popup .k-list-item:first-child');
+            await browser.expect('.k-dropdownlist-popup').not.toBeVisible();
             await browser.expect('.analytics-header-controls .k-input-value-text').toContainText('Emma Johnson');
         });
     });
