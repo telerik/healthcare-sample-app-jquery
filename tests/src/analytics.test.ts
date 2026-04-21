@@ -6,7 +6,7 @@ describe('Analytics Page', () => {
 
     beforeAll(async () => {
         browser = new Browser();
-        await browser.navigateTo(`${BASE_URL}/Analytics`);
+        await browser.navigateTo(`${BASE_URL}Analytics`);
     });
 
     afterAll(async () => {

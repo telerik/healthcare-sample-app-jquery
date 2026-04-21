@@ -201,7 +201,7 @@ describe('Responsive Layout (< 1440px)', () => {
 
     describe('Schedule Page — Responsive Layout', () => {
         it('should navigate to Schedule page', async () => {
-            await browser.navigateTo(`${BASE_URL}/Schedule`);
+            await browser.navigateTo(`${BASE_URL}Schedule`);
             await browser.expect('#scheduler[data-role="scheduler"]').toBeVisible();
         });
 
@@ -223,7 +223,7 @@ describe('Responsive Layout (< 1440px)', () => {
 
     describe('Patients Page — Responsive Layout', () => {
         it('should navigate to Patients page', async () => {
-            await browser.navigateTo(`${BASE_URL}/Patients`);
+            await browser.navigateTo(`${BASE_URL}Patients`);
             await browser.expect('#patients-grid[data-role="grid"]').toBeVisible();
         });
 
@@ -245,7 +245,7 @@ describe('Responsive Layout (< 1440px)', () => {
 
     describe('Analytics Page — Responsive Layout', () => {
         it('should navigate to Analytics page', async () => {
-            await browser.navigateTo(`${BASE_URL}/Analytics`);
+            await browser.navigateTo(`${BASE_URL}Analytics`);
             await browser.expect('#vitals-chart[data-role="chart"]').toBeVisible();
         });
 
