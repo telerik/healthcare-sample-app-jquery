@@ -572,7 +572,7 @@ describe('Home Page — Create New Clinical Note', () => {
         await browser.expect('#dialog-new-note').not.toBeVisible();
 
         // navigate to Patients, filter by that patient, open their profile
-        await browser.navigateTo(`${BASE_URL}/Patients`);
+        await browser.navigateTo(`${BASE_URL}Patients`);
         await browser.type('#patients-grid .k-filter-row [aria-label="Patient Name Filter"]', patientName);
         await browser.sendKey(Key.ENTER);
         await browser.expect('#patients-grid .k-master-row').toHaveCount(1);

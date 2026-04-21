@@ -6,7 +6,7 @@ describe('Schedule Page — Scheduler Interactions', () => {
 
     beforeAll(async () => {
         browser = new Browser();
-        await browser.navigateTo(`${BASE_URL}/Schedule`);
+        await browser.navigateTo(`${BASE_URL}Schedule`);
     });
 
     afterAll(async () => {
@@ -237,7 +237,7 @@ describe('Schedule Page — Scheduler Interactions', () => {
 
     describe('Create New Daily Task', () => {
         beforeEach(async () => {
-            await browser.navigateTo(`${BASE_URL}/Schedule`);
+            await browser.navigateTo(`${BASE_URL}Schedule`);
             await browser.click('#btn-add-task');
             await browser.expect('#add-task-dialog').toBeVisible();
         });
@@ -283,7 +283,7 @@ describe('Schedule Page — Scheduler Interactions', () => {
 
     describe('Add Task Dialog — Keyboard Navigation', () => {
         beforeEach(async () => {
-            await browser.navigateTo(`${BASE_URL}/Schedule`);
+            await browser.navigateTo(`${BASE_URL}Schedule`);
             await browser.click('#btn-add-task');
             await browser.expect('#add-task-dialog').toBeVisible();
         });
@@ -388,7 +388,7 @@ describe('Schedule Page — Scheduler Interactions', () => {
 
     describe('View Task Dialog — Keyboard Navigation', () => {
         beforeEach(async () => {
-            await browser.navigateTo(`${BASE_URL}/Schedule`);
+            await browser.navigateTo(`${BASE_URL}Schedule`);
             await browser.click('.task-text');
             await browser.expect('#view-task-dialog').toBeVisible();
         });

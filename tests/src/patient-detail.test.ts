@@ -8,7 +8,7 @@ describe('Patient Detail Drilldown', () => {
     beforeAll(async () => {
         browser = new Browser();
         labsGrid = new Grid(browser, '#patient-labs-grid');
-        await browser.navigateTo(`${BASE_URL}/Patients`);
+        await browser.navigateTo(`${BASE_URL}Patients`);
     });
 
     afterAll(async () => {
