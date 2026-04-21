@@ -10,7 +10,7 @@ describe('Analytics Page — Interactions', () => {
     beforeAll(async () => {
         browser = new Browser();
         dropdown = new DropDownList(browser, '.analytics-header-controls .k-dropdownlist');
-        await browser.navigateTo(`${BASE_URL}/Analytics`);
+        await browser.navigateTo(`${BASE_URL}Analytics`);
     });
 
     afterAll(async () => {

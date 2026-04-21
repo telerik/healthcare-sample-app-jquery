@@ -6,7 +6,7 @@ describe('Schedule Page', () => {
 
     beforeAll(async () => {
         browser = new Browser();
-        await browser.navigateTo(`${BASE_URL}/Schedule`);
+        await browser.navigateTo(`${BASE_URL}Schedule`);
     });
 
     afterAll(async () => {
@@ -133,7 +133,7 @@ describe('Schedule Page', () => {
 
     describe('Daily Tasks Scroll', () => {
         it('should have more tasks than visible in the list', async () => {
-            await browser.navigateTo(`${BASE_URL}/Schedule`);
+            await browser.navigateTo(`${BASE_URL}Schedule`);
             const tasks = await browser.findAll('.k-listview-content .task-item');
             expect(tasks.length).toBe(21);
         });
