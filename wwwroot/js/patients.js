@@ -420,14 +420,14 @@ function buildPatientPreviewHtml(patient) {
         '</div>' +
         '<div class="k-card-body pp-body">' +
             '<div class="pp-avatar-row">' +
-                '<img src="' + patient.avatar + '" class="pp-avatar" onerror="this.src=\'/content/patient-images/women/thumb/aiony-haust-3TLl_97HNJo-unsplash.jpg\'" />' +
+                '<img src="' + patient.avatar + '" class="pp-avatar" onerror="this.onerror=null;this.src=new URL(\'content/patient-images/women/thumb/aiony-haust-3TLl_97HNJo-unsplash.jpg\',document.baseURI).href" />' +
                 '<div class="pp-name-block">' +
                     '<div class="pp-name-row">' +
                         '<span class="pp-name">' + kendo.htmlEncode(patient.name) + '</span>' +
-                        '<a class="pp-view-profile-link btn-view-patient" data-id="' + patient.id + '">' +
+                        '<span class="pp-view-profile-link btn-view-patient" data-id="' + patient.id + '">' +
                             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
                             ' View profile' +
-                        '</a>' +
+                        '</span>' +
                     '</div>' +
                     '<span class="pp-age-gender">' + patient.age + ' years, ' + kendo.htmlEncode(patient.gender) + '</span>' +
                 '</div>' +
@@ -654,7 +654,7 @@ function initGrid() {
             {
                 field: "name",
                 title: "Patient Name",
-                template: ({ avatar, name }) => `<div class="patient-name-cell"><img src="${kendo.htmlEncode(avatar)}" loading="lazy" class="patient-avatar-sm" onerror="this.src='/content/patient-images/women/thumb/aiony-haust-3TLl_97HNJo-unsplash.jpg'" /><div><strong>${kendo.htmlEncode(name)}</strong></div></div>`,
+                template: ({ avatar, name }) => `<div class="patient-name-cell"><img src="${kendo.htmlEncode(avatar)}" loading="lazy" class="patient-avatar-sm" onerror="this.onerror=null;this.src=new URL('content/patient-images/women/thumb/aiony-haust-3TLl_97HNJo-unsplash.jpg',document.baseURI).href" /><div><strong>${kendo.htmlEncode(name)}</strong></div></div>`,
                 width: 185
             },
             { field: "age",       title: "Age",        width: 110 },
@@ -674,7 +674,7 @@ function initGrid() {
                 filterable: false,
                 sortable:   false,
                 groupable:  false,
-                template:   ({ id }) => `<a class="btn-view-patient grid-view-link" data-id="${kendo.htmlEncode(id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Profile</a>`
+                template:   ({ id }) => `<span class="btn-view-patient grid-view-link" data-id="${kendo.htmlEncode(id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Profile</span>`
             }
         ],
         sortable:    true,
@@ -698,7 +698,15 @@ function initGrid() {
 function onGridDataBound() {
     var widget = this;
     initKendoStatusBadges(widget.tbody);
-    // View Profile links — use event delegation instead of per-row widget init
+
+    // View Profile — bind click on each grid row's .btn-view-patient
+    widget.tbody.find(".btn-view-patient").on("click", function (e) {
+        e.stopPropagation();
+        var row      = $(this).closest("tr");
+        var dataItem = widget.dataItem(row);
+        var patient  = getFullPatient(dataItem.id);
+        if (patient) { openPatientDrilldown(patient); }
+    });
 
     // Bind double-click once on tbody via delegation (survives re-renders)
     if (!widget._dblClickBound) {
@@ -819,15 +827,6 @@ $(document).ready(function () {
     // View Profile in preview panel — delegated for the dynamically rendered link
     $(document).on("click", ".pp-view-profile-link.btn-view-patient", function (e) {
         e.stopPropagation();
-        var id      = $(this).data("id");
-        var patient = getFullPatient(id);
-        if (patient) { openPatientDrilldown(patient); }
-    });
-
-    // View Profile in grid — delegated for dynamically rendered links
-    $(document).on("click", ".grid-view-link.btn-view-patient", function (e) {
-        e.stopPropagation();
-        e.preventDefault();
         var id      = $(this).data("id");
         var patient = getFullPatient(id);
         if (patient) { openPatientDrilldown(patient); }
