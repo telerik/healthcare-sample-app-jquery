@@ -2793,6 +2793,66 @@ a { text-decoration: none; color: inherit; }
     overflow-y: auto;
 }
 
+/* AI Assistant panel — uses the same side-by-side layout as the preview panel */
+.patients-list-body.ai-panel-open {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 32px;
+    align-items: start;
+}
+
+.patients-list-body.ai-panel-open > .patient-ai-panel {
+    max-height: var(--patients-grid-height, 80vh);
+    position: sticky;
+    top: 100px;
+    overflow: hidden;
+}
+
+.patient-ai-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+/* Below 900px the AI assistant takes over the entire viewport */
+@media (max-width: 899px) {
+    .patients-list-body.ai-panel-open {
+        display: block;
+        position: relative;
+    }
+
+    .patients-list-body.ai-panel-open > .patients-grid-col {
+        display: none;
+    }
+
+    .patients-list-body.ai-panel-open > .patient-ai-panel,
+    body > .patient-ai-panel.patient-ai-panel-floating {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        max-height: none;
+        z-index: 10000;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    /* Let the floating panel escape #page-content's clipping overflow,
+       and ensure the appbar/header sit beneath the fullscreen chat. */
+    body.patients-ai-open #page-content {
+        overflow: visible;
+    }
+
+    body.patients-ai-open .app-appbar,
+    body.patients-ai-open #page-headers {
+        z-index: 1;
+    }
+}
+
 /* ═══════════════════════════════════════════════════════
    PATIENTS PAGE — DIM MODE OVERRIDES
    Same ::after overlay approach used on Home & Schedule pages.

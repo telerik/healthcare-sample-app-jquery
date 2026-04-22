@@ -10,7 +10,7 @@ var grid             = null;
 var currentPatient   = null;
 var previewPatient   = null;
 var listAiChat       = null;
-var listAiDialog     = null;
+var listAiOpen       = false;
 var notesEditor      = null;
 var listAiReady      = false;
 var _aiAssistant    = {
@@ -146,8 +146,53 @@ function _initListAiChatIfNeeded() {
     listAiChat.scrollToBottom();
 
     $("#list-ai-chat").on("click", ".close-chat", function () {
-        if (listAiDialog) listAiDialog.close();
+        closeListAiPanel();
     });
+}
+
+/* ═══════════════════════════════════════════════════════
+   AI ASSISTANT SIDE-PANEL
+═══════════════════════════════════════════════════════ */
+function syncListAiPanelHost() {
+    var panel = $("#patient-ai-panel");
+    if (!panel.length) return;
+
+    if (listAiOpen && window.innerWidth < 900) {
+        if (!panel.parent().is("body")) {
+            panel.appendTo("body");
+        }
+        panel.addClass("patient-ai-panel-floating");
+        return;
+    }
+
+    if (!panel.parent().is("#patients-list-body")) {
+        panel.appendTo("#patients-list-body");
+    }
+    panel.removeClass("patient-ai-panel-floating");
+}
+
+function openListAiPanel() {
+    // Mutually exclusive with the patient preview panel
+    closePatientPreview();
+
+    listAiOpen = true;
+    _initListAiChatIfNeeded();
+    syncListAiPanelHost();
+    $("#patient-ai-panel").css("display", "flex");
+    $("#patients-list-body").addClass("ai-panel-open");
+    $("body").addClass("patients-ai-open");
+    updateGridHeightVar();
+    deferGridResize();
+    if (listAiChat) { listAiChat.scrollToBottom(); }
+}
+
+function closeListAiPanel() {
+    listAiOpen = false;
+    $("#patient-ai-panel").css("display", "none");
+    $("#patients-list-body").removeClass("ai-panel-open");
+    $("body").removeClass("patients-ai-open");
+    syncListAiPanelHost();
+    deferGridResize();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -465,6 +510,9 @@ function buildPatientPreviewHtml(patient) {
 }
 
 function openPatientPreview(patient) {
+    // Mutually exclusive with the AI assistant panel
+    if (listAiOpen) { closeListAiPanel(); }
+
     previewPatient = patient;
     $("#patient-preview-panel").html(buildPatientPreviewHtml(patient)).css("display", "flex");
     $("#patients-list-body").addClass("preview-panel-open");
@@ -722,7 +770,7 @@ function onGridDataBound() {
             var dataItem = widget.dataItem(row);
             var patient  = getFullPatient(dataItem.id || dataItem.get("id"));
             if (patient) {
-                if (listAiDialog) listAiDialog.close();
+                if (listAiOpen) closeListAiPanel();
                 openPatientPreview(patient);
             }
         });
@@ -772,40 +820,10 @@ $(document).ready(function () {
                     closePatientDrilldown();
                 }
 
-                // First click: create dialog and open immediately (same pattern as home page)
-                if (!listAiReady) {
-                    listAiReady = true;
-                    listAiDialog = $("#list-ai-dialog").kendoDialog({
-                        title:    false,
-                        width:    390,
-                        height:   600,
-                        modal:    false,
-                        visible:  false,
-                        resizable: true,
-                        draggable: { dragHandle: ".k-dialog-titlebar" },
-                        closable: false,
-                        actions:  [],
-                        open: function () {
-                            this.wrapper.addClass("ai-dialog-wrapper");
-                            if (window.innerWidth < 900) {
-                                this.wrapper.addClass("chat-fullscreen");
-                            } else {
-                                this.wrapper.removeClass("chat-fullscreen");
-                            }
-                            _initListAiChatIfNeeded();
-                        }
-                    }).data("kendoDialog");
-                    if (listAiDialog) listAiDialog.open();
-                    return;
-                }
-
-                // Subsequent clicks: toggle
-                if (!listAiDialog) return;
-                if (listAiDialog.wrapper && listAiDialog.wrapper.is(":visible")) {
-                    listAiDialog.close();
+                if (listAiOpen) {
+                    closeListAiPanel();
                 } else {
-                    closePatientPreview();
-                    listAiDialog.open();
+                    openListAiPanel();
                 }
             }
         });
@@ -815,6 +833,7 @@ $(document).ready(function () {
     initGrid();
 
     $(window).on("resize.patientsPanels", function () {
+        syncListAiPanelHost();
         updateGridHeightVar();
     });
 
