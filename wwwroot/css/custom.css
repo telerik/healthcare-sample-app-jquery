@@ -79,7 +79,6 @@ a { text-decoration: none; color: inherit; }
 .appbar-nav .k-segmented-control-thumb {
     background: #FFFFFF;
     box-shadow: 0 1px 4px rgba(35, 42, 54, 0.10);
-    transition: none !important;
 }
 
 /* Individual segment buttons */
@@ -738,6 +737,15 @@ a { text-decoration: none; color: inherit; }
 }
 .view-schedule-btn:hover { background: #3d3d8f !important; }
 
+.k-toolbar .k-scheduler-views .k-selected{
+    border-color: var(--kendo-color-dark, #3d3d3d);
+    background-color: var(--kendo-color-dark, #3d3d3d);
+}
+
+.k-toolbar .k-scheduler-views .k-selected .k-button-text{
+    color: #ffffff;
+}
+
 /* Grid overrides */
 #appointments-grid .k-grid {
     border: 0px solid rgba(23, 56, 99, 0.08);
@@ -853,7 +861,7 @@ a { text-decoration: none; color: inherit; }
     font-weight: 400;
     line-height: 1.42;
 }
-.view-profile-link:hover { text-decoration: underline; }
+.view-profile-link:hover { text-decoration: underline; cursor: pointer;}
 
 .patient-meta {
     font-size: 14px;
@@ -1506,11 +1514,12 @@ a { text-decoration: none; color: inherit; }
 }
 
 .sched-card .k-scheduler-views-wrapper .k-button.k-selected,
-.sched-card .k-scheduler-views-wrapper .k-button:hover {
-    background: #FFFFFF !important;
+.sched-card .k-scheduler-views-wrapper .k-button.k-selected:hover {
+    background: #232A36 !important;
     box-shadow: none !important;
-    color: #232A36 !important;
+    color: #FFFFFF !important;
 }
+
 
 /* ── Day header cells ── */
 .sched-card .k-scheduler-header th,
@@ -1694,7 +1703,7 @@ a { text-decoration: none; color: inherit; }
     flex-direction: column;
     overflow: hidden;
     border-radius: 16px;
-    height: 890px;
+    height: 760px;
     box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.04), 0px 2px 6px -1px rgba(0, 0, 0, 0.06);
     background: #FFFFFF;
 }
@@ -2784,6 +2793,66 @@ a { text-decoration: none; color: inherit; }
     overflow-y: auto;
 }
 
+/* AI Assistant panel — uses the same side-by-side layout as the preview panel */
+.patients-list-body.ai-panel-open {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 32px;
+    align-items: start;
+}
+
+.patients-list-body.ai-panel-open > .patient-ai-panel {
+    max-height: var(--patients-grid-height, 80vh);
+    position: sticky;
+    top: 100px;
+    overflow: hidden;
+}
+
+.patient-ai-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+/* Below 900px the AI assistant takes over the entire viewport */
+@media (max-width: 899px) {
+    .patients-list-body.ai-panel-open {
+        display: block;
+        position: relative;
+    }
+
+    .patients-list-body.ai-panel-open > .patients-grid-col {
+        display: none;
+    }
+
+    .patients-list-body.ai-panel-open > .patient-ai-panel,
+    body > .patient-ai-panel.patient-ai-panel-floating {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        max-height: none;
+        z-index: 10000;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    /* Let the floating panel escape #page-content's clipping overflow,
+       and ensure the appbar/header sit beneath the fullscreen chat. */
+    body.patients-ai-open #page-content {
+        overflow: visible;
+    }
+
+    body.patients-ai-open .app-appbar,
+    body.patients-ai-open #page-headers {
+        z-index: 1;
+    }
+}
+
 /* ═══════════════════════════════════════════════════════
    PATIENTS PAGE — DIM MODE OVERRIDES
    Same ::after overlay approach used on Home & Schedule pages.
@@ -3275,7 +3344,7 @@ a { text-decoration: none; color: inherit; }
     cursor: pointer;
     gap: 2px;
 }
-.grid-view-link:hover { color: #2a2a6e; text-decoration: underline; }
+.grid-view-link:hover { color: #2a2a6e; }
 
 .patients-grid-col { min-width: 0; }
 

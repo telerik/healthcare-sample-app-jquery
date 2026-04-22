@@ -1,4 +1,4 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+﻿﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
 /* Declared before the eager call so the in-flight XHR reference is
@@ -193,12 +193,7 @@ function initContextualSearch() {
             };
         });
     }
-
-    /* Wait for patient data to load before initialising the AutoComplete.
-       Initialising with a fully-populated DataSource avoids a known
-       VirtualList glitch (used internally by adaptiveMode) where the
-       internal item cache becomes stale after a select → clear → search
-       cycle when the data was repopulated post-init. */
+    
     ensurePatientSearchData().done(function (patients) {
         if ($input.data("kendoAutoComplete")) return;
 
