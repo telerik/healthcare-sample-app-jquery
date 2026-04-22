@@ -75,7 +75,7 @@ $(document).ready(function () {
         date:      new Date(),
         startTime: startTime,
         endTime:   endTime,
-        height:    890,
+        height:    760,
         views: [
             { type: "day", selected: true, dateHeaderTemplate: ({ date }) => `<strong>${kendo.toString(date, 'D')}</strong>`, },
             { type: "week", dateHeaderTemplate: ({ date }) => `<strong>${kendo.toString(date, 'ddd, dd/MM')}</strong>`, },

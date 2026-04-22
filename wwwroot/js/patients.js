@@ -10,7 +10,7 @@ var grid             = null;
 var currentPatient   = null;
 var previewPatient   = null;
 var listAiChat       = null;
-var listAiDialog     = null;
+var listAiOpen       = false;
 var notesEditor      = null;
 var listAiReady      = false;
 var _aiAssistant    = {
@@ -146,8 +146,53 @@ function _initListAiChatIfNeeded() {
     listAiChat.scrollToBottom();
 
     $("#list-ai-chat").on("click", ".close-chat", function () {
-        if (listAiDialog) listAiDialog.close();
+        closeListAiPanel();
     });
+}
+
+/* ═══════════════════════════════════════════════════════
+   AI ASSISTANT SIDE-PANEL
+═══════════════════════════════════════════════════════ */
+function syncListAiPanelHost() {
+    var panel = $("#patient-ai-panel");
+    if (!panel.length) return;
+
+    if (listAiOpen && window.innerWidth < 900) {
+        if (!panel.parent().is("body")) {
+            panel.appendTo("body");
+        }
+        panel.addClass("patient-ai-panel-floating");
+        return;
+    }
+
+    if (!panel.parent().is("#patients-list-body")) {
+        panel.appendTo("#patients-list-body");
+    }
+    panel.removeClass("patient-ai-panel-floating");
+}
+
+function openListAiPanel() {
+    // Mutually exclusive with the patient preview panel
+    closePatientPreview();
+
+    listAiOpen = true;
+    _initListAiChatIfNeeded();
+    syncListAiPanelHost();
+    $("#patient-ai-panel").css("display", "flex");
+    $("#patients-list-body").addClass("ai-panel-open");
+    $("body").addClass("patients-ai-open");
+    updateGridHeightVar();
+    deferGridResize();
+    if (listAiChat) { listAiChat.scrollToBottom(); }
+}
+
+function closeListAiPanel() {
+    listAiOpen = false;
+    $("#patient-ai-panel").css("display", "none");
+    $("#patients-list-body").removeClass("ai-panel-open");
+    $("body").removeClass("patients-ai-open");
+    syncListAiPanelHost();
+    deferGridResize();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -190,13 +235,6 @@ function closePatientDrilldown() {
     $("#patients-detail-view").hide();
     $("#patients-breadcrumb").hide();
     $("#patients-list-view").show();
-    // Refresh grid only if a status was changed
-    //if (grid && grid._statusDirty) {
-    //    grid._statusDirty = false;
-    //    // Invalidate the shared cache so the grid re-fetches fresh data
-    //    sharedPatients = [];
-    //    grid.dataSource.read();
-    //}
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -465,6 +503,9 @@ function buildPatientPreviewHtml(patient) {
 }
 
 function openPatientPreview(patient) {
+    // Mutually exclusive with the AI assistant panel
+    if (listAiOpen) { closeListAiPanel(); }
+
     previewPatient = patient;
     $("#patient-preview-panel").html(buildPatientPreviewHtml(patient)).css("display", "flex");
     $("#patients-list-body").addClass("preview-panel-open");
@@ -674,7 +715,7 @@ function initGrid() {
                 filterable: false,
                 sortable:   false,
                 groupable:  false,
-                template:   ({ id }) => `<span class="btn-view-patient grid-view-link" data-id="${kendo.htmlEncode(id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Profile</span>`
+                template:   ({ id }) => `<button class="btn-view-patient grid-view-link" data-id="${kendo.htmlEncode(id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Profile</button>`
             }
         ],
         sortable:    true,
@@ -699,6 +740,11 @@ function onGridDataBound() {
     var widget = this;
     initKendoStatusBadges(widget.tbody);
 
+    // Initialize grid-view-link buttons as kendoButton
+    widget.tbody.find(".grid-view-link").each(function () {
+        $(this).kendoButton({ fillMode: "flat", fillMode: 'flat', rounded: "full" });
+    });
+
     // View Profile — bind click on each grid row's .btn-view-patient
     widget.tbody.find(".btn-view-patient").on("click", function (e) {
         e.stopPropagation();
@@ -717,7 +763,7 @@ function onGridDataBound() {
             var dataItem = widget.dataItem(row);
             var patient  = getFullPatient(dataItem.id || dataItem.get("id"));
             if (patient) {
-                if (listAiDialog) listAiDialog.close();
+                if (listAiOpen) closeListAiPanel();
                 openPatientPreview(patient);
             }
         });
@@ -767,40 +813,10 @@ $(document).ready(function () {
                     closePatientDrilldown();
                 }
 
-                // First click: create dialog and open immediately (same pattern as home page)
-                if (!listAiReady) {
-                    listAiReady = true;
-                    listAiDialog = $("#list-ai-dialog").kendoDialog({
-                        title:    false,
-                        width:    390,
-                        height:   600,
-                        modal:    false,
-                        visible:  false,
-                        resizable: true,
-                        draggable: { dragHandle: ".k-dialog-titlebar" },
-                        closable: false,
-                        actions:  [],
-                        open: function () {
-                            this.wrapper.addClass("ai-dialog-wrapper");
-                            if (window.innerWidth < 900) {
-                                this.wrapper.addClass("chat-fullscreen");
-                            } else {
-                                this.wrapper.removeClass("chat-fullscreen");
-                            }
-                            _initListAiChatIfNeeded();
-                        }
-                    }).data("kendoDialog");
-                    if (listAiDialog) listAiDialog.open();
-                    return;
-                }
-
-                // Subsequent clicks: toggle
-                if (!listAiDialog) return;
-                if (listAiDialog.wrapper && listAiDialog.wrapper.is(":visible")) {
-                    listAiDialog.close();
+                if (listAiOpen) {
+                    closeListAiPanel();
                 } else {
-                    closePatientPreview();
-                    listAiDialog.open();
+                    openListAiPanel();
                 }
             }
         });
@@ -810,6 +826,7 @@ $(document).ready(function () {
     initGrid();
 
     $(window).on("resize.patientsPanels", function () {
+        syncListAiPanelHost();
         updateGridHeightVar();
     });
 
