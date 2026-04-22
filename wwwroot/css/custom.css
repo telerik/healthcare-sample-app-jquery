@@ -79,7 +79,6 @@ a { text-decoration: none; color: inherit; }
 .appbar-nav .k-segmented-control-thumb {
     background: #FFFFFF;
     box-shadow: 0 1px 4px rgba(35, 42, 54, 0.10);
-    transition: none !important;
 }
 
 /* Individual segment buttons */
@@ -738,6 +737,15 @@ a { text-decoration: none; color: inherit; }
 }
 .view-schedule-btn:hover { background: #3d3d8f !important; }
 
+.k-toolbar .k-scheduler-views .k-selected{
+    border-color: var(--kendo-color-dark, #3d3d3d);
+    background-color: var(--kendo-color-dark, #3d3d3d);
+}
+
+.k-toolbar .k-scheduler-views .k-selected .k-button-text{
+    color: #ffffff;
+}
+
 /* Grid overrides */
 #appointments-grid .k-grid {
     border: 0px solid rgba(23, 56, 99, 0.08);
@@ -853,7 +861,7 @@ a { text-decoration: none; color: inherit; }
     font-weight: 400;
     line-height: 1.42;
 }
-.view-profile-link:hover { text-decoration: underline; }
+.view-profile-link:hover { text-decoration: underline; cursor: pointer;}
 
 .patient-meta {
     font-size: 14px;
@@ -1506,11 +1514,12 @@ a { text-decoration: none; color: inherit; }
 }
 
 .sched-card .k-scheduler-views-wrapper .k-button.k-selected,
-.sched-card .k-scheduler-views-wrapper .k-button:hover {
-    background: #FFFFFF !important;
+.sched-card .k-scheduler-views-wrapper .k-button.k-selected:hover {
+    background: #232A36 !important;
     box-shadow: none !important;
-    color: #232A36 !important;
+    color: #FFFFFF !important;
 }
+
 
 /* ── Day header cells ── */
 .sched-card .k-scheduler-header th,
@@ -1694,7 +1703,7 @@ a { text-decoration: none; color: inherit; }
     flex-direction: column;
     overflow: hidden;
     border-radius: 16px;
-    height: 890px;
+    height: 760px;
     box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.04), 0px 2px 6px -1px rgba(0, 0, 0, 0.06);
     background: #FFFFFF;
 }
@@ -3275,7 +3284,7 @@ a { text-decoration: none; color: inherit; }
     cursor: pointer;
     gap: 2px;
 }
-.grid-view-link:hover { color: #2a2a6e; text-decoration: underline; }
+.grid-view-link:hover { color: #2a2a6e; }
 
 .patients-grid-col { min-width: 0; }
 

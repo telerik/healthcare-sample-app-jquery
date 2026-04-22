@@ -14,6 +14,30 @@ builder.Services.AddControllersWithViews()
 
 // SQLite database via EF Core — used read-only after initial seed
 var dbPath = Path.Combine(builder.Environment.ContentRootPath, "healthcare.db");
+var tmpDir = Path.Combine(builder.Environment.ContentRootPath, "tmp");
+var tmpDbPath = Path.Combine(tmpDir, "healthcare-local.db");
+
+if (builder.Environment.IsProduction())
+{
+    // In production, the SQLite DB is copied to a temp location to avoid locking issues.
+    if (!Directory.Exists(tmpDir))
+    {
+        Console.WriteLine($"Creating directory: {tmpDir}");
+        Directory.CreateDirectory(tmpDir);
+    }
+
+    if (File.Exists(tmpDbPath))
+    {
+        Console.WriteLine($"Deleting existing file: {tmpDbPath}");
+        File.Delete(tmpDbPath);
+    }
+
+    File.Copy(dbPath, tmpDbPath);
+    dbPath = tmpDbPath;
+}
+
+
+
 builder.Services.AddDbContext<HealthcareDbContext>(o =>
     o.UseSqlite($"Data Source={dbPath}"));
 

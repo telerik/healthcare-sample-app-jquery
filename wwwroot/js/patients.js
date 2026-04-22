@@ -674,7 +674,7 @@ function initGrid() {
                 filterable: false,
                 sortable:   false,
                 groupable:  false,
-                template:   ({ id }) => `<span class="btn-view-patient grid-view-link" data-id="${kendo.htmlEncode(id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Profile</span>`
+                template:   ({ id }) => `<button class="btn-view-patient grid-view-link" data-id="${kendo.htmlEncode(id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Profile</button>`
             }
         ],
         sortable:    true,
@@ -698,6 +698,11 @@ function initGrid() {
 function onGridDataBound() {
     var widget = this;
     initKendoStatusBadges(widget.tbody);
+
+    // Initialize grid-view-link buttons as kendoButton
+    widget.tbody.find(".grid-view-link").each(function () {
+        $(this).kendoButton({ fillMode: "flat", fillMode: 'flat', rounded: "full" });
+    });
 
     // View Profile — bind click on each grid row's .btn-view-patient
     widget.tbody.find(".btn-view-patient").on("click", function (e) {
