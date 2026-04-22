@@ -184,17 +184,27 @@ public class ApiController : ControllerBase
         End   = a.End.ToString("o"),
     };
 
-    private static ScheduleAppointment MapDto(ScheduleAppointmentDto d) => new()
+    private static ScheduleAppointment MapDto(ScheduleAppointmentDto d)
     {
-        Id          = d.Id,
-        Title       = d.Title       ?? "",
-        PatientName = d.PatientName ?? d.Title ?? "",
-        Reason      = d.Reason      ?? "",
-        Room        = d.Room        ?? "",
-        EventType   = d.EventType   ?? "",
-        Start       = d.Start,
-        End         = d.End,
-    };
+        var start = d.Start;
+        var end   = d.End;
+
+        // Enforce minimum 1-hour duration
+        if ((end - start).TotalHours < 1)
+            end = start.AddHours(1);
+
+        return new()
+        {
+            Id          = d.Id,
+            Title       = d.Title       ?? "",
+            PatientName = d.PatientName ?? d.Title ?? "",
+            Reason      = d.Reason      ?? "",
+            Room        = d.Room        ?? "",
+            EventType   = d.EventType   ?? "",
+            Start       = start,
+            End         = end,
+        };
+    }
 }
 
 // ── DTOs ──────────────────────────────────────────────────────────────────
