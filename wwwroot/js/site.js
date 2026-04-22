@@ -148,13 +148,14 @@ function navigateToPatientProfile(patient) {
     if (!patient || !patient.id) return;
 
     sessionStorage.setItem("openPatientId", patient.id);
-
-    if (window.location.pathname.toLowerCase().indexOf("/patients") !== -1) {
+   
+    var patientsUrl = new URL("patients", document.baseURI).href;
+    if (window.location.href.split("#")[0].split("?")[0] === patientsUrl) {
         window.location.hash = patient.id;
         return;
     }
 
-    window.location.href = "./patients";
+    window.location.href = patientsUrl;
 }
 
 function ensurePatientSearchData(forceRefresh) {
@@ -182,9 +183,6 @@ function initContextualSearch() {
     if (!$input.length) return;
     if ($input.data("kendoAutoComplete")) return;
 
-    var searchDataSource = new kendo.data.DataSource({ data: [] });
-    var _searchDataLoading = false;
-
     function buildSearchItems(patients) {
         return patients.map(function (p) {
             return {
@@ -196,49 +194,45 @@ function initContextualSearch() {
         });
     }
 
-    $input.kendoAutoComplete({
-        dataSource:    searchDataSource,
-        dataTextField: "text",
-        filter:        "contains",
-        minLength:     1,
-        rounded:       "full",
-        clearButton:   true,
-        adaptiveMode: "auto",
-        placeholder:   "Search patients by name, ID or phone…",
-        prefixOptions: { icon: "search", separator: false },
-        template: ({ name, sub }) => `<div class="search-result-item"><span class="search-result-name">${kendo.htmlEncode(name)}</span><span class="search-result-sub">${kendo.htmlEncode(sub)}</span></div>`,
-        filtering: function (e) {           
-            if (searchDataSource.data().length === 0) {
-                e.preventDefault();
-                if (!_searchDataLoading) {
-                    _searchDataLoading = true;
-                    var ac = this;
-                    ensurePatientSearchData().done(function (patients) {
-                        searchDataSource.data(buildSearchItems(patients));
-                        if (ac.value().length >= 1) {
-                            ac.search(ac.value());
-                        }
-                    }).always(function () {
-                        _searchDataLoading = false;
-                    });
-                }
-            }
-        },
-        select: function (e) {
-            e.preventDefault();
-            var item = e.dataItem;
-            var patient = getPatientById(item.patientId) || findPatient(item.patientId) || { id: item.patientId };
-            this.value(item.name);
-            this.close();
-            $input.removeClass("search-no-match");
-            navigateToPatientProfile(patient);
-        }
-    });
-
-    /* Populate the DataSource eagerly — ensurePatientSearchData() was called
-       at file load, so by DOM-ready the XHR is usually already resolved. */
+    /* Wait for patient data to load before initialising the AutoComplete.
+       Initialising with a fully-populated DataSource avoids a known
+       VirtualList glitch (used internally by adaptiveMode) where the
+       internal item cache becomes stale after a select → clear → search
+       cycle when the data was repopulated post-init. */
     ensurePatientSearchData().done(function (patients) {
-        searchDataSource.data(buildSearchItems(patients));
+        if ($input.data("kendoAutoComplete")) return;
+
+        $input.kendoAutoComplete({
+            dataSource:    { data: buildSearchItems(patients) },
+            dataTextField: "text",
+            filter:        "contains",
+            minLength:     1,
+            rounded:       "full",
+            clearButton:   true,
+            adaptiveMode:  "auto",
+            placeholder:   "Search patients by name, ID or phone…",
+            prefixOptions: { icon: "search", separator: false },
+            template: ({ name, sub }) => `<div class="search-result-item"><span class="search-result-name">${kendo.htmlEncode(name)}</span><span class="search-result-sub">${kendo.htmlEncode(sub)}</span></div>`,
+            select: function (e) {
+                e.preventDefault();
+                var item = e.dataItem;
+                if (!item) {
+                    // Fallback: derive item from the highlighted list element
+                    var $li = $(e.item);
+                    if ($li.length) {
+                        var ds = this.dataSource;
+                        var idx = $li.index();
+                        item = ds.view()[idx] || ds.data()[idx];
+                    }
+                }
+                if (!item || !item.patientId) return;
+                var patient = getPatientById(item.patientId) || findPatient(item.patientId) || { id: item.patientId };
+                this.value(item.name);
+                this.close();
+                $input.removeClass("search-no-match");
+                navigateToPatientProfile(patient);
+            }
+        });
     });
 }
 

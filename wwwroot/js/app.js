@@ -228,7 +228,7 @@ $(document).ready(function () {
         var patientId = $(this).data("patient-id");
         if (patientId) {
             sessionStorage.setItem("openPatientId", patientId);
-            window.location.href = "/patients";
+            window.location.href = new URL("patients", document.baseURI).href;
         }
     });
 
@@ -686,9 +686,10 @@ $(document).ready(function () {
     $(".view-profile-link").kendoButton({
         fillMode: "link",
         click: function (e) {
+            if (e.event && e.event.preventDefault) { e.event.preventDefault(); }
             var pid = $(e.event.currentTarget).data("patient-id") || (_nextPt && _nextPt.id);
             if (pid) sessionStorage.setItem("openPatientId", pid);
-            window.location.href = "/patients";
+            window.location.href = new URL("patients", document.baseURI).href;
         }
     });
 

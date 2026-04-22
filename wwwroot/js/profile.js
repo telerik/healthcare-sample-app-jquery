@@ -365,9 +365,9 @@ function _bindNotifDialogEvents() {
         var notif = notificationsData.filter(function (n) { return n.id === id; })[0];
         if (notif && notif.severity !== "system") {
             if (patientId) {
-                window.location.href = "/patients";
+                window.location.href = "./patients";
             } else if (notif.title.indexOf("Schedule") >= 0 || notif.title.indexOf("Appointment") >= 0) {
-                window.location.href = "/schedule";
+                window.location.href = "./schedule";
             }
         }
         var dlg = $("#np-dropdown").data("kendoWindow");
