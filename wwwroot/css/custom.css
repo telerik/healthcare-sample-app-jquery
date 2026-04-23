@@ -232,6 +232,36 @@ a { text-decoration: none; color: inherit; }
 
 .notif-wrap { position: relative; display: inline-flex; }
 
+/* GitHub source-code button */
+.github-wrap { position: relative; display: inline-flex; }
+#btn-github.icon-btn { border-radius: 4px; }
+
+.github-popup.k-window {
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+    z-index: 10002;
+}
+.github-popup .k-window-titlebar { display: none; }
+.gh-popup-content {
+    padding: 16px;
+    text-align: center;
+}
+.gh-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #232A36;
+    text-decoration: none;
+}
+.gh-link:hover { text-decoration: underline; }
+.gh-copyright {
+    margin: 12px 0 0;
+    font-size: 11px;
+    color: #64748b;
+}
+
 .appbar-sep {
     width: 1px;
     height: 20px;
