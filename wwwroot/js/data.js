@@ -113,8 +113,9 @@ function initKendoStatusBadges($container) {
  * Allergy chips: <span class="k-chip-allergy" data-label="Penicillin"></span>
  */
 function initKendoChips($container) {
-    $container.find(".k-chip-status:not(.k-chip)").each(function () {
+    $container.find(".k-chip-status").each(function () {
         var $el     = $(this);
+        if ($el.data("kendoChip")) { return; }
         var status  = $el.attr("data-status");
         var options = getStatusChipOptions(status);
         $el.kendoChip({
@@ -125,8 +126,9 @@ function initKendoChips($container) {
             size:      "large"
         });
     });
-    $container.find(".k-chip-allergy:not(.k-chip)").each(function () {
+    $container.find(".k-chip-allergy").each(function () {
         var $el   = $(this);
+        if ($el.data("kendoChip")) { return; }
         var label = $el.attr("data-label");
         $el.kendoChip({
             label:     "\u26A0 " + label,

@@ -71,51 +71,13 @@ public class ApiController : ControllerBase
     public IActionResult GetAppointments()
     {
         var list = _store.GetScheduleAppointments();
-        // Kendo Scheduler needs ISO 8601 date strings
         return Ok(list.Select(MapAppt));
     }
-
-    [HttpPost("appointments/update")]
-    public IActionResult UpdateAppointment([FromBody] ScheduleAppointmentDto dto)
-    {
-        var appt = MapDto(dto);
-        if (!_store.UpdateScheduleAppointment(appt))
-            return NotFound();
-        return Ok(MapAppt(appt));
-    }
-
-    [HttpPost("appointments/destroy")]
-    public IActionResult DeleteAppointment([FromBody] ScheduleAppointmentDto dto)
-    {
-        if (!_store.DeleteScheduleAppointment(dto.Id))
-            return NotFound();
-        return Ok(new { success = true });
-    }
-
     // ── Analytics ─────────────────────────────────────────────────────────
 
     [HttpGet("analytics")]
     public IActionResult GetAnalytics() =>
         Ok(_store.GetAnalytics());
-
-    [HttpGet("analytics/{patientId}")]
-    public IActionResult GetPatientAnalytics(string patientId)
-    {
-        var data = _store.GetAnalytics();
-        if (!data.TryGetValue(patientId, out var analytics))
-            return NotFound();
-        return Ok(analytics);
-    }
-
-    // ── Event Types & Rooms ───────────────────────────────────────────────
-
-    [HttpGet("event-types")]
-    public IActionResult GetEventTypes() =>
-        Ok(HealthcareDataRepository.GetEventTypes());
-
-    [HttpGet("rooms")]
-    public IActionResult GetRooms() =>
-        Ok(HealthcareDataRepository.GetRoomOptions());
 
     // ── Tasks ─────────────────────────────────────────────────────────────
 
@@ -183,28 +145,6 @@ public class ApiController : ControllerBase
         Start = a.Start.ToString("o"),
         End   = a.End.ToString("o"),
     };
-
-    private static ScheduleAppointment MapDto(ScheduleAppointmentDto d)
-    {
-        var start = d.Start;
-        var end   = d.End;
-
-        // Enforce minimum 1-hour duration
-        if ((end - start).TotalHours < 1)
-            end = start.AddHours(1);
-
-        return new()
-        {
-            Id          = d.Id,
-            Title       = d.Title       ?? "",
-            PatientName = d.PatientName ?? d.Title ?? "",
-            Reason      = d.Reason      ?? "",
-            Room        = d.Room        ?? "",
-            EventType   = d.EventType   ?? "",
-            Start       = start,
-            End         = end,
-        };
-    }
 }
 
 // ── DTOs ──────────────────────────────────────────────────────────────────
@@ -214,15 +154,3 @@ public record AddNotePayload(string? Text);
 public record StatusPayload(string? Status);
 public record DoctorProfilePayload(string? FullName, string? Email, string? Phone);
 public record AvatarPayload(string? Avatar);
-
-public class ScheduleAppointmentDto
-{
-    public int      Id          { get; set; }
-    public string?  Title       { get; set; }
-    public string?  PatientName { get; set; }
-    public string?  Reason      { get; set; }
-    public string?  Room        { get; set; }
-    public string?  EventType   { get; set; }
-    public DateTime Start       { get; set; }
-    public DateTime End         { get; set; }
-}

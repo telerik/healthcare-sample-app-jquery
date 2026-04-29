@@ -48,6 +48,36 @@ function legendItemVisual(e) {
         return layout;
 }
 
+function donutLegendItemVisual(e) {
+    var point = e.series && e.series.data && e.series.data[e.pointIndex]
+        ? e.series.data[e.pointIndex]
+        : null;
+    var index = e.pointIndex != null ? e.pointIndex : 0;
+    var color = (e.options.markers && e.options.markers.background) ||
+        (point && point.color) ||
+        e.series.color ||
+        "#94a3b8";
+    var valueText = point && point.value !== undefined ? String(point.value) : String(e.text || "");
+    var labelText = index + ": " + valueText;
+    var rect = new kendo.geometry.Rect([0, 0], [58, 18]);
+    var layout = new kendo.drawing.Layout(rect, {
+        spacing: 8,
+        alignItems: "center",
+        justifyContent: "center"
+    });
+    var circle = new kendo.drawing.Circle(new kendo.geometry.Circle([0, 0], 4.5), {
+        fill:   { color: color },
+        stroke: { color: color }
+    });
+    var label = new kendo.drawing.Text(labelText, [0, 0], {
+        fill: { color: "#232A36" },
+        font: "16px Poppins, sans-serif"
+    });
+    layout.append(circle, label);
+    layout.reflow();
+    return layout;
+}
+
 /* ═══════════════════════════════════════════════════════
    LAB RESULTS — one bullet chart per metric
 ═══════════════════════════════════════════════════════ */
@@ -176,9 +206,7 @@ $(document).ready(function () {
     $.when(
         ensurePatientSearchData(),
         $.getJSON("./api/analytics")
-    ).done(function (patientsResp, analyticsResp) {
-        // $.when wraps jqXHR results as [data, textStatus, jqXHR],
-        // but a plain Deferred.resolve(value) passes the value directly.
+    ).done(function (patientsResp, analyticsResp) {       
         patientsData  = (Array.isArray(patientsResp) && patientsResp.length > 0 && Array.isArray(patientsResp[0]))
             ? patientsResp[0]
             : (Array.isArray(patientsResp) ? patientsResp : []);
@@ -269,18 +297,15 @@ $(document).ready(function () {
         value: 0,
         centerTemplate: ({ color, value }) => `<div class="risk-gauge-center"><span class="risk-score-pct" style="color: ${color};">${value}%</span><span class="risk-score-outof">Out of 100</span></div>`,
         colors: [{
-            to: 25,
-            color: '#0058e9'
-        }, {
-            from: 25,
-            to: 50,
+            from: 0,
+            to: 39,
             color: '#37b400'
         }, {
-            from: 50,
-            to: 75,
-            color: '#ffc000'
+            from: 40,
+            to: 69,
+            color: '#f0c040'
         }, {
-            from: 75,
+            from: 70,
             color: '#f31700'
         }],
         scale: {
@@ -325,12 +350,12 @@ $(document).ready(function () {
     $("#alerts-donut-chart").kendoChart({
         legend: {
             position: "bottom",
-            spacing: 8,
+            spacing: 18,
             labels: {
                 font: "12px Poppins, sans-serif",
                 color: "#4A5666"
             },
-            //item: { visual: legendItemVisual }
+            item: { visual: donutLegendItemVisual }
         },
         series: [{
             type:          "donut",
@@ -362,10 +387,7 @@ $(document).ready(function () {
         },
         chartArea:  { background: "transparent" },
         dataSource: { data: [] }
-    });
-
-    // ── Initial load with first patient ───────────────
-    // Initial chart load is called after the API responds (inside $.when above)
+    });   
 
     // ── Resize charts on window resize ────────────────
     var resizeTimer;

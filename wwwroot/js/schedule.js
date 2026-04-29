@@ -6,16 +6,6 @@ $(document).ready(function () {
     var eventTypesData = sharedEventTypes;
     var roomOptions    = sharedRoomOptions;
 
-    /* ═══════════════════════════════════════════════
-       WEEK DATE HELPER
-    ═══════════════════════════════════════════════ */
-    function thisWeekDay(weekOffset, dayOfWeek, hours, minutes) {
-        var d    = new Date();
-        var diff = dayOfWeek - d.getDay() + weekOffset * 7;
-        var date = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff, hours, minutes, 0, 0);
-        return date;
-    }
-    
     var patientsData = [];
     var _pendingHighlightUid = null;
 
@@ -27,22 +17,6 @@ $(document).ready(function () {
             read: {
                 url:      "./api/appointments",
                 dataType: "json"
-            },
-            update: {
-                url:         "./api/appointments/update",
-                type:        "POST",
-                contentType: "application/json"
-            },
-            destroy: {
-                url:         "./api/appointments/destroy",
-                type:        "POST",
-                contentType: "application/json"
-            },
-            parameterMap: function (data, operation) {
-                if (operation !== "read") {
-                    return kendo.stringify(data);
-                }
-                return data;
             }
         },
         schema: {
@@ -86,10 +60,10 @@ $(document).ready(function () {
             "agenda"
         ],
         editable: {
-            create:       false,
-            move:         true,
-            resize:       true,
-            confirmation: "Are you sure you want to delete this appointment?"
+            create:  false,
+            move:    false,
+            resize:  false,
+            destroy: false
         },
         dataSource: schedulerDS,
         resources: [{
@@ -241,21 +215,14 @@ $(document).ready(function () {
         closable: false,
         visible:  false,
         draggable: { dragHandle: ".k-dialog-titlebar" },
+        buttonLayout: "normal",
         resizable: true,
         close: function () {
             _apptExpanded = false;
         },
         actions: [
             {
-                text: "Cancel",
-                action: function () {
-                    _apptExpanded = false;
-                    return true;
-                }
-            },
-            {
-                text: "Save",
-                primary: true,
+                text: "Close",
                 action: function () {
                     _apptExpanded = false;
                     return true;
@@ -378,15 +345,37 @@ $(document).ready(function () {
     });
 
     function applyTaskFilters() {
-        var q   = $("#tasks-search").val().toLowerCase().trim();
+        var searchBox = $("#tasks-search").data("kendoTextBox");
+        var q   = ((searchBox ? searchBox.value() : $("#tasks-search").val()) || "").toLowerCase().trim();
         var filters = [];
         if (q)                    { filters.push({ field: "task",     operator: "contains",  value: q }); }
         if (activePriorityFilter) { filters.push({ field: "priority", operator: "eq",        value: activePriorityFilter }); }
         tasksDS.filter(filters.length ? { logic: "and", filters: filters } : {});
     }
 
-    $("#tasks-search").on("input", function () {
-        applyTaskFilters();
+    if (!$("#tasks-search").data("kendoTextBox")) {
+        $("#tasks-search").kendoTextBox({
+            clearButton:   true,
+            width: 340,
+            placeholder:   "Search daily tasks",
+            prefixOptions: { icon: "search", separator: false },
+            input: function () {
+                applyTaskFilters();
+            },
+            change: function () {
+                applyTaskFilters();
+            }
+        });
+    }
+
+    $("#tasks-search").closest(".k-input").on("click", ".k-clear-value", function () {
+        var searchBox = $("#tasks-search").data("kendoTextBox");
+        if (searchBox) {
+            setTimeout(function () {
+                searchBox.value("");
+                applyTaskFilters();
+            }, 0);
+        }
     });
 
     /* ═══════════════════════════════════════════════
@@ -399,6 +388,7 @@ $(document).ready(function () {
         modal:    true,
         visible:  false,
         draggable: { dragHandle: ".k-dialog-titlebar" },
+        buttonLayout: "normal",
         resizable: true,
         open: function () {
             applySharedDialogShell(this);

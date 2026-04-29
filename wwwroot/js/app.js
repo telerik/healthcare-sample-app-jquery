@@ -130,6 +130,7 @@ $(document).ready(function () {
         visible: false,
         closable: true,
         draggable: { dragHandle: ".k-dialog-titlebar" },
+        buttonLayout: "normal",
         resizable: true,
         open: function () {
             applySharedDialogShell(this);
@@ -241,6 +242,7 @@ $(document).ready(function () {
         modal:   true,
         visible: false,
         draggable: { dragHandle: ".k-dialog-titlebar" },
+        buttonLayout: "normal",
         resizable: true,
         open: function () {
             applySharedDialogShell(this);
@@ -281,6 +283,7 @@ $(document).ready(function () {
         modal:   true,
         visible: false,
         draggable: { dragHandle: ".k-dialog-titlebar" },
+        buttonLayout: "normal",
         resizable: true,
         open: function () {
             applySharedDialogShell(this);
@@ -755,7 +758,7 @@ $(document).ready(function () {
             return;
         }
 
-        var reply = _aiResponses[text] || "I\u2019m sorry, I don\u2019t have information on that right now.";
+        var reply = _aiResponses[text] || "@@DEMO_DISCLAIMER@@";
         setTimeout(function () {
             chat.loading(false);
             chat.postMessage({
@@ -842,6 +845,13 @@ $(document).ready(function () {
                     html += '</div>';
                     return html;
                 }
+                if (message.text === "@@DEMO_DISCLAIMER@@") {
+                    return '<div class="ai-msg-content ai-demo-disclaimer">' +
+                        '<p>\u24D8 <strong>This is a demo assistant.</strong></p>' +
+                        '<p>Free-text queries are not supported in this preview. In your production app, connect a <strong>real AI service</strong> (e.g. OpenAI, Azure OpenAI, or your own clinical LLM) to handle any message.</p>' +
+                        '<p><strong>In this demo, you can use the suggestion chips</strong> to see pre-built responses.</p>' +
+                        '</div>';
+                }
                 // Bot messages → flat text (styled via CSS on .k-message-group-receiver)
                 // User messages → bubble
                 var encodedText = kendo.htmlEncode(message.text || "").replace(/\n/g, "<br>");
@@ -889,6 +899,7 @@ $(document).ready(function () {
                     visible:  false,
                     resizable: true,
                     draggable: { dragHandle: ".k-dialog-titlebar" },
+                    buttonLayout: "normal",
                     closable: false,
                     actions:  [],
                     open: function () {

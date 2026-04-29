@@ -122,7 +122,6 @@ function initProfileWindow() {
 
 /* ── Init form widgets ───────────────────────────── */
 function initProfileWidgets() {
-    /* Kendo Upload — avatar selector (hidden UI, triggered by the styled button) */
     $("#pm-file-input").kendoUpload({
         multiple: false,
         showFileList: false,
@@ -156,7 +155,6 @@ function initProfileWidgets() {
         }
     });
 
-    /* Hide the Kendo Upload default UI — we use our own styled button */
     $("#pm-file-input").closest(".k-upload").hide();
 
     /* Upload button */

@@ -1,7 +1,4 @@
-﻿﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-/* Declared before the eager call so the in-flight XHR reference is
+﻿﻿/* Declared before the eager call so the in-flight XHR reference is
    not overwritten when the var declaration is executed later in the file. */
 var patientSearchRequest = null;
 
@@ -30,6 +27,7 @@ $(document).ready(function () {
 
     /* Show the correct page header on initial load */
     var activePage = $("#appbar-nav").attr("data-active-page") || "Home";
+    var navTransitionTimer = 0;
     showPageHeader(activePage);
 
     /* Settings button — toggle page dimming (persisted across navigation) */
@@ -76,9 +74,17 @@ $(document).ready(function () {
         selectedValue: activePage,
         change: function (e) {
             var url = navRoutes[e.value];
-            if (url) {
-                window.location.href = url;
+            if (!url || e.value === activePage) {
+                return;
             }
+
+            activePage = e.value;
+            showPageHeader(activePage);
+
+            clearTimeout(navTransitionTimer);
+            navTransitionTimer = window.setTimeout(function () {
+                window.location.href = url;
+            }, 140);
         }
     });  
 
