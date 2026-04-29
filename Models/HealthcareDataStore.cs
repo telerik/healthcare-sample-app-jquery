@@ -44,10 +44,9 @@ public class HealthcareDataStore
         return _cache.GetOrCreate(sessionId, () => new UserSessionData
         {
             // Deep-copy from the shared seed so edits are fully isolated
-            Patients     = _seed.Patients.Select(DeepCopyPatient).ToList(),
-            Appointments = _seed.Appointments.Select(ShallowCopyAppt).ToList(),
-            Tasks        = _seed.Tasks.Select(ShallowCopyTask).ToList(),
-            Profile      = new DoctorProfile(),
+            Patients = _seed.Patients.Select(DeepCopyPatient).ToList(),
+            Tasks    = _seed.Tasks.Select(ShallowCopyTask).ToList(),
+            Profile  = new DoctorProfile(),
         });
     }
 
@@ -94,34 +93,9 @@ public class HealthcareDataStore
 
     // ── Schedule Appointments ─────────────────────────────────────────────
 
-    public List<ScheduleAppointment> GetScheduleAppointments() =>
-        Session().Appointments.ToList();
-
-    public bool UpdateScheduleAppointment(ScheduleAppointment updated)
-    {
-        var list = Session().Appointments;
-        var idx  = list.FindIndex(a => a.Id == updated.Id);
-        if (idx < 0) return false;
-
-        list[idx].Title       = updated.Title;
-        list[idx].PatientName = updated.PatientName;
-        list[idx].Reason      = updated.Reason;
-        list[idx].Room        = updated.Room;
-        list[idx].EventType   = updated.EventType;
-        list[idx].Start       = updated.Start;
-        list[idx].End         = updated.End;
-        return true;
-    }
-
-    public bool DeleteScheduleAppointment(int id)
-    {
-        var list = Session().Appointments;
-        var item = list.FirstOrDefault(a => a.Id == id);
-        if (item == null) return false;
-        list.Remove(item);
-        return true;
-    }
-
+    public IReadOnlyList<ScheduleAppointment> GetScheduleAppointments() =>
+        HealthcareDataRepository.BuildInitialScheduleAppointments(_seed.Patients.ToList()).AsReadOnly();
+    
     // ── Daily Tasks ───────────────────────────────────────────────────────
 
     public List<DailyTask> GetTasks() => Session().Tasks.ToList();
@@ -180,13 +154,6 @@ public class HealthcareDataStore
             Room = p.AdmissionDetails.Room, AdmissionDate = p.AdmissionDetails.AdmissionDate,
             AssignedNurse = p.AdmissionDetails.AssignedNurse
         }
-    };
-
-    private static ScheduleAppointment ShallowCopyAppt(ScheduleAppointment a) => new()
-    {
-        Id = a.Id, Title = a.Title, PatientName = a.PatientName,
-        Reason = a.Reason, Room = a.Room, EventType = a.EventType,
-        Start = a.Start, End = a.End
     };
 
     private static DailyTask ShallowCopyTask(DailyTask t) => new()

@@ -32,39 +32,6 @@ function getFullPatient(id) {
     return cached || null;
 }
 
-function formatVital(key, val) {
-    switch (key) {
-        case "bp":     return val;                       // already "148/92 mmHg"
-        case "hr":     return val + " bpm";
-        case "temp":   return val + "°F";
-        case "spo2":   return val + "%";
-        case "weight": return val + " lbs";
-        default:       return String(val);
-    }
-}
-
-function formatMed(m) {
-    if (typeof m === "string") return m;
-    return m.drug + " " + m.dose + (m.frequency !== "PRN" ? " " + m.frequency : " PRN");
-}
-
-function isVitalCritical(field, value) {
-    var num = parseFloat(value);
-    if (isNaN(num)) return false;
-    switch (field) {
-        case "bp":   return parseInt(value, 10) > 140;
-        case "hr":   return num > 100 || num < 60;
-        case "temp": return num > 99.5;
-        case "spo2": return num < 94;
-        default:     return false;
-    }
-}
-
-function flagClass(flag) {
-    var map = { "High": "flag-high", "Low": "flag-low", "Abnormal": "flag-abnormal", "Normal": "flag-normal" };
-    return map[flag] || "flag-normal";
-}
-
 var _listAiResponses = {
     "What are common patient risk factors?":
         "Common risk factors across patients include hypertension, diabetes, obesity, smoking, and sedentary lifestyle. Patients with complex medication regimens or known allergies require additional monitoring.",
@@ -78,7 +45,7 @@ var _listAiResponses = {
 
 function _replyToListAiMsg(text) {
     if (!listAiChat) return;
-    var reply = _listAiResponses[text] || "I\u2019m sorry, I don\u2019t have information on that right now.";
+    var reply = _listAiResponses[text] || "@@DEMO_DISCLAIMER@@";
     listAiChat.loading(true);
     setTimeout(function () {
         listAiChat.loading(false);
@@ -128,6 +95,17 @@ function _initListAiChatIfNeeded() {
             { text: "What follow-up protocols should I apply?" },
             { text: "How do I interpret abnormal lab results?" }            
         ],
+        messageTemplate: function (message) {
+            if (message.text === "@@DEMO_DISCLAIMER@@") {
+                return '<div class="ai-msg-content ai-demo-disclaimer">' +
+                    '<p>\u24D8 <strong>This is a demo assistant.</strong></p>' +
+                    '<p>Free-text queries are not supported in this preview. In your production app, connect a <strong>real AI service</strong> (e.g. OpenAI, Azure OpenAI, or your own clinical LLM) to handle any message.</p>' +
+                    '<p><strong>In this demo, you can use the suggestion chips</strong> to see pre-built responses.</p>' +
+                    '</div>';
+            }
+            var encodedText = kendo.htmlEncode(message.text || "").replace(/\n/g, "<br>");
+            return '<div class="ai-msg-content">' + encodedText + '</div>';
+        },
         sendMessage: function (e) {
             if (!e.generating) {
                 _replyToListAiMsg(e.message.text);
@@ -224,6 +202,7 @@ function openPatientDrilldown(patient) {
     $("#patients-list-view").hide();
     $("#patients-breadcrumb").show();
     $("#patients-detail-view").show();
+    $("#btn-ai-assistance").hide();
     window.scrollTo(0, 0);
 }
 
@@ -235,6 +214,7 @@ function closePatientDrilldown() {
     $("#patients-detail-view").hide();
     $("#patients-breadcrumb").hide();
     $("#patients-list-view").show();
+    $("#btn-ai-assistance").show();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -367,12 +347,13 @@ function renderPatientDetail(patient) {
     // Initialize editor
     var existingEditor = $("#patient-notes-editor").data("kendoEditor");
     if (existingEditor) { existingEditor.destroy(); }
-    notesEditor = $("#patient-notes-editor").kendoEditor({
+    notesEditor = $("#patient-notes-editor").kendoEditor({        
         tools: [
             "bold", "italic", "underline", "strikethrough",
             "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
             "fontName", "formatting", "fontSize"
         ],
+        stylesheets: ["/css/custom.css"],
         value: patient.notes || ""
     }).data("kendoEditor");
 }
@@ -398,7 +379,11 @@ function initPatientLabsGrid(patient) {
             buttonCount:  5,
             messages:     { itemsPerPage: "Items per page", display: "{0} - {1} of {2} items" }
         },
-        columnMenu: false, 
+        columnMenu: false,
+        excel: {
+            fileName: "Laboratory-Results.xlsx",
+            allPages: true
+        },
         columns: [
             { field: "test",      title: "Test",      width: 220 },
             { field: "result",    title: "Result",    width: 160 },
@@ -558,6 +543,7 @@ function openAllergyDetailsDialog(patient) {
         modal:   true,
         visible: false,
         draggable: { dragHandle: ".k-dialog-titlebar" },
+        buttonLayout: "normal",
         resizable: true,
         content: '<div class="info-dialog">' +
                  '  <div class="info-dialog-section">' +
@@ -592,6 +578,7 @@ function openChangeStatusDialog(patient) {
             modal:   true,
             visible: false,
             draggable: { dragHandle: ".k-dialog-titlebar" },
+            buttonLayout: "normal",
             resizable: true,
             open: function () {
                 if (!_statusPatient) return;
@@ -757,7 +744,7 @@ function onGridDataBound() {
     // Bind double-click once on tbody via delegation (survives re-renders)
     if (!widget._dblClickBound) {
         widget._dblClickBound = true;
-        widget.tbody.on("dblclick", ".patient-name-cell", function (e) {
+        widget.tbody.on("click", ".patient-name-cell", function (e) {
             e.stopPropagation();
             var row      = $(this).closest("tr");
             var dataItem = widget.dataItem(row);
@@ -796,8 +783,13 @@ $(document).ready(function () {
             icon:    "download",
             rounded: "large",
             click: function () {
-                var g = $("#patients-grid").data("kendoGrid");
-                if (g) { g.saveAsExcel(); }
+                if ($("#patients-detail-view").is(":visible")) {
+                    var labsGrid = $("#patient-labs-grid").data("kendoGrid");
+                    if (labsGrid) { labsGrid.saveAsExcel(); }
+                } else {
+                    var g = $("#patients-grid").data("kendoGrid");
+                    if (g) { g.saveAsExcel(); }
+                }
             }
         });
     }

@@ -8,10 +8,9 @@ namespace HealthcareApp.Models;
 /// </summary>
 public class UserSessionData
 {
-    public List<PatientRecord>       Patients      { get; set; } = [];
-    public List<ScheduleAppointment> Appointments  { get; set; } = [];
-    public List<DailyTask>           Tasks         { get; set; } = [];
-    public DoctorProfile             Profile       { get; set; } = new();
+    public List<PatientRecord> Patients { get; set; } = [];
+    public List<DailyTask>     Tasks    { get; set; } = [];
+    public DoctorProfile       Profile  { get; set; } = new();
 }
 
 /// <summary>

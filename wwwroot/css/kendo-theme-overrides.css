@@ -154,9 +154,25 @@
     color:            #3d3d8f;
 }
 
+.k-scheduler .k-scheduler-date-group .k-link {
+    background-color: #ffffff;
+    color: #1a1a2e;
+}
+
 /* ── Dialog ──────────────────────────────────────────────────── */
 .k-dialog .k-dialog-content {
     padding: 20px 24px;
+}
+
+/* Alert dialog — match the 12px rounded corners used by app dialogs */
+.k-dialog-wrapper:has([role="alertdialog"]) .k-dialog {
+    border-radius: 12px;
+}
+.k-dialog-wrapper:has([role="alertdialog"]) .k-dialog-titlebar {
+    border-radius: 12px 12px 0 0;
+}
+.k-dialog-wrapper:has([role="alertdialog"]) .k-dialog-actions {
+    border-radius: 0 0 12px 12px;
 }
 
 /* ── DropDownList / input widgets ────────────────────────────── */
