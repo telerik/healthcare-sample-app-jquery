@@ -154,14 +154,12 @@ describe('Schedule Page — Scheduler Interactions', () => {
         });
 
         it('should show no tasks when search matches nothing', async () => {
-            await browser.type('#tasks-search', 'ZZZNOMATCH999');
-            await browser.executeScript("kendo.jQuery('#tasks-search').trigger('input')");
+            await browser.executeScript("var tb = kendo.jQuery('#tasks-search').data('kendoTextBox'); tb.value('ZZZNOMATCH999'); tb.trigger('input');");
             await browser.expect('.task-item').toHaveCount(0);
         });
 
         it('should restore all tasks after clearing the no-match search', async () => {
-            await browser.type('#tasks-search', '');
-            await browser.executeScript("kendo.jQuery('#tasks-search').trigger('input')");
+            await browser.executeScript("var tb = kendo.jQuery('#tasks-search').data('kendoTextBox'); tb.value(''); tb.trigger('input');");
             await browser.expect('.task-item').toHaveCount(21);
         });
     });
