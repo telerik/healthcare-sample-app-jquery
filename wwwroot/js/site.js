@@ -31,9 +31,16 @@ $(document).ready(function () {
     showPageHeader(activePage);
 
     /* Settings button — toggle page dimming (persisted across navigation) */
+    function updateLogo(dimmed) {
+        $(".appbar-logo").toggleClass("show-dark", dimmed);
+    }
+
     if (sessionStorage.getItem("pageDimmed") === "true") {
         $("#page-content").addClass("page-dimmed");
         $("#appbar").addClass("page-dimmed");
+        updateLogo(true);
+    } else {
+        updateLogo(false);
     }
 
     $("#btn-settings").kendoButton({
@@ -41,6 +48,7 @@ $(document).ready(function () {
             var dimmed = !$("#page-content").hasClass("page-dimmed");
             $("#page-content").toggleClass("page-dimmed", dimmed);
             $("#appbar").toggleClass("page-dimmed", dimmed);
+            updateLogo(dimmed);
             sessionStorage.setItem("pageDimmed", dimmed ? "true" : "false");
         }
     });
