@@ -467,7 +467,7 @@ $(document).ready(function () {
 
     $("#btn-add-task").kendoButton({
         icon: "plus",
-        themeColor: "dark",
+        themeColor: "primary",
         fillMode: "solid",
         rounded: "full",
         click: function () {

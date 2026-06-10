@@ -403,7 +403,7 @@ $(document).ready(function () {
     $("#btn-new-note").kendoButton({
         rounded:    "full",
         fillMode:   "solid",
-        themeColor: "dark",
+        themeColor: "primary",
         icon:       "plus",
         size: 'large',
         click: function () {
@@ -564,7 +564,7 @@ $(document).ready(function () {
     $("#btn-lab-test").kendoButton({
         rounded:    "full",
         fillMode:   "solid",
-        themeColor: "dark",
+        themeColor: "primary",
         icon:       "plus",
          size: 'large',
         click: function () {
@@ -667,7 +667,7 @@ $(document).ready(function () {
     $("#btn-nurse-chat").kendoButton({
         rounded:    "full",
         fillMode:   "solid",
-        themeColor: "dark",
+        themeColor: "primary",
         icon:       "plus",
          size: 'large',
         click: function () {
@@ -681,7 +681,7 @@ $(document).ready(function () {
     $("#btn-view-schedule").kendoButton({
         rounded:    "full",
         fillMode:   "solid",
-        themeColor: "dark",
+        themeColor: "primary",
         icon:       "plus",
          size: 'large',
     });

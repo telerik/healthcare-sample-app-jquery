@@ -44,6 +44,7 @@ $(document).ready(function () {
     }
 
     $("#btn-settings").kendoButton({
+        rounded: "full", 
         click: function () {
             var dimmed = !$("#page-content").hasClass("page-dimmed");
             $("#page-content").toggleClass("page-dimmed", dimmed);
@@ -60,7 +61,7 @@ $(document).ready(function () {
     var navItems = [
         { text: "Home", value: "Home", icon: "home", url: "./" },
         { text: "Schedule", value: "Schedule", icon: "calendar", url: "./schedule" },
-        { text: "Patients", value: "Patients", icon: "user-outline", url: "./patients" },
+        { text: "Patients", value: "Patients", icon: "user", url: "./patients" },
         { text: "Clinical Analytics", value: "Analytics", icon: "chart-bar-stacked", url: "./analytics" }
     ];
     var navRoutes = {};
@@ -135,13 +136,18 @@ $(document).ready(function () {
 
     /* ═══════════════════════════════════════════════
        MOBILE SEARCH ICON — toggle autocomplete
-    ═══════════════════════════════════════════════ */
-    $("#btn-search-toggle").on("click", function () {
-        var $appbar = $("#appbar");
-        var isOpen = $appbar.toggleClass("search-open").hasClass("search-open");
-        if (isOpen) {
-            var ac = $("#appbar-search").data("kendoAutoComplete");
-            if (ac) { ac.focus(); }
+    ═══════════════════════════════════════════════ */   
+
+     $("#btn-search-toggle").kendoButton({
+        icon: 'search',
+        rounded: "full",
+        click: function (e) {
+            var $appbar = $("#appbar");
+            var isOpen = $appbar.toggleClass("search-open").hasClass("search-open");
+            if (isOpen) {
+                var ac = $("#appbar-search").data("kendoAutoComplete");
+                if (ac) { ac.focus(); }
+            }
         }
     });
 
@@ -196,15 +202,18 @@ function initGithubPopup() {
             '</a>' +
             '<p class="gh-copyright">Copyright \u00A9 ' + currentYear + ' Progress Software. All rights reserved.</p>' +
         '</div>'
-    );
+    );   
 
-    $("#btn-github").on("click", function (e) {
-        e.stopPropagation();
-        var w = $("#github-popup").data("kendoWindow");
-        if (w.wrapper && w.wrapper.is(":visible")) {
-            w.close();
-        } else {
-            w.open();
+     $("#btn-github").kendoButton({       
+        rounded: "full",  
+        click: function (e) {
+            e.stopPropagation();
+            var w = $("#github-popup").data("kendoWindow");
+            if (w.wrapper && w.wrapper.is(":visible")) {
+                w.close();
+            } else {
+                w.open();
+            }
         }
     });
 
