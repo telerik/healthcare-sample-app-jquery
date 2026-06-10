@@ -450,13 +450,14 @@ function initNotifDropdown() {
     $("#notif-btn").kendoButton({
         badge: {
             text:       "",
-            themeColor: "dark",
-            shape:      "circle",
+            themeColor: "primary",
+            rounded: "full",
             size:       "large",
             position:   "edge",
             align:      "top end",
             visible:    count > 0
-        },
+        },     
+        rounded: "full",
         click: function (e) {
             openNotifPanel();
         }
