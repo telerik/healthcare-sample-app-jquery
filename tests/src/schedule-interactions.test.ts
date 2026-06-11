@@ -99,8 +99,8 @@ describe('Schedule Page — Scheduler Interactions', () => {
 
     describe('Scheduler View Switching', () => {
         it('should switch to Week view', async () => {
-            await browser.click('.k-scheduler-views .k-button:nth-child(2)');
-            await browser.expect('.k-scheduler-views .k-button:nth-child(2)').toHaveAttribute('aria-pressed', 'true');
+            await browser.click(".k-segmented-control-button[data-value='week']");
+            await browser.expect(".k-segmented-control-button[data-value='week']").toHaveAttribute('aria-pressed', 'true');
         });
 
         it('should display week layout with multiple day columns', async () => {
@@ -108,18 +108,18 @@ describe('Schedule Page — Scheduler Interactions', () => {
         });
 
         it('should switch to Month view', async () => {
-            await browser.click('.k-scheduler-views .k-button:nth-child(3)');
-            await browser.expect('.k-scheduler-views .k-button:nth-child(3)').toHaveAttribute('aria-pressed', 'true');
+            await browser.click(".k-segmented-control-button[data-value='month']");
+            await browser.expect(".k-segmented-control-button[data-value='month']").toHaveAttribute('aria-pressed', 'true');
         });
 
         it('should switch to Agenda view', async () => {
-            await browser.click('.k-scheduler-views .k-button:nth-child(4)');
-            await browser.expect('.k-scheduler-views .k-button:nth-child(4)').toHaveAttribute('aria-pressed', 'true');
+            await browser.click(".k-segmented-control-button[data-value='agenda']");
+            await browser.expect(".k-segmented-control-button[data-value='agenda']").toHaveAttribute('aria-pressed', 'true');
         });
 
         it('should switch back to Day view', async () => {
-            await browser.click('.k-scheduler-views .k-button:nth-child(1)');
-            await browser.expect('.k-scheduler-views .k-selected .k-button-text').toHaveText('Day');
+            await browser.click(".k-segmented-control-button[data-value='day']");
+            await browser.expect(".k-segmented-control-button[data-value='day']").toHaveAttribute('aria-pressed', 'true');
         });
     });
 

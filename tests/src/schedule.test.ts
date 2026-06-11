@@ -47,23 +47,23 @@ describe('Schedule Page', () => {
         });
 
         it('should show Day/Week/Month/Agenda view buttons', async () => {
-            await browser.expect('.k-scheduler-views').toBeVisible();
-            const viewButtons = await browser.findAll('.k-scheduler-views .k-button');
+            await browser.expect('.k-scheduler-views.k-segmented-control').toBeVisible();
+            const viewButtons = await browser.findAll('.k-scheduler-views .k-segmented-control-button');
             expect(viewButtons.length).toBe(4);
         });
 
         it('should have Day view selected by default', async () => {
-            await browser.expect('.k-scheduler-views .k-selected .k-button-text').toHaveText('Day');
+            await browser.expect(".k-segmented-control-button[data-value='day']").toHaveAttribute('aria-pressed', 'true');
         });
 
         it('should switch to Week view when clicked', async () => {
-            await browser.click('.k-scheduler-views .k-button:nth-child(2)');
-            await browser.expect('.k-scheduler-views .k-button:nth-child(2)').toHaveAttribute('aria-pressed', 'true');
+            await browser.click(".k-segmented-control-button[data-value='week']");
+            await browser.expect(".k-segmented-control-button[data-value='week']").toHaveAttribute('aria-pressed', 'true');
         });
 
         it('should switch back to Day view', async () => {
-            await browser.click('.k-scheduler-views .k-button:nth-child(1)');
-            await browser.expect('.k-scheduler-views .k-selected .k-button-text').toHaveText('Day');
+            await browser.click(".k-segmented-control-button[data-value='day']");
+            await browser.expect(".k-segmented-control-button[data-value='day']").toHaveAttribute('aria-pressed', 'true');
         });
     });
 
