@@ -292,64 +292,42 @@ $(document).ready(function () {
         selectable: false,
         dataBound: function () {
             var el = this.element;
-            setTimeout(function () {
-                el.find(".task-checkbox").each(function () {
-                    if (!$(this).data("kendoCheckBox")) {
-                        $(this).kendoCheckBox({
-                            rounded: "full",
-                            size:    "medium",
-                            change:  function (e) {
-                                var id      = parseInt(e.sender.element.data("id"), 10);
-                                var checked = e.checked;
-                                var item    = tasksDS.get(id);
-                                if (item) {
-                                    item.set("done", checked);
-                                    tasksDS.sync();
-                                }
+            el.find(".task-checkbox").each(function () {
+                if (!$(this).data("kendoCheckBox")) {
+                    $(this).kendoCheckBox({
+                        rounded: "full",
+                        size:    "medium",
+                        change:  function (e) {
+                            var id      = parseInt(e.sender.element.data("id"), 10);
+                            var checked = e.checked;
+                            var item    = tasksDS.get(id);
+                            if (item) {
+                                item.set("done", checked);
+                                tasksDS.sync();
                             }
-                        });
-                    }
-                });
-                el.find(".k-badge-priority").each(function () {
-                    var p = $(this).attr("data-priority");
-                    if (!$(this).data("kendoBadge")) {
-                        $(this).kendoBadge({
-                            themeColor: p || "info",
-                            fillMode:   "solid",
-                            rounded:    "full",
-                            size:       "large"
-                        });
-                    }
-                });
-            }, 0);
+                        }
+                    });
+                }
+            });
+            el.find(".k-badge-priority").each(function () {
+                var p = $(this).attr("data-priority");
+                if (!$(this).data("kendoBadge")) {
+                    $(this).kendoBadge({
+                        themeColor: p || "info",
+                        fillMode:   "solid",
+                        rounded:    "full",
+                        size:       "large"
+                    });
+                }
+            });
         }
-    });
-
-    /* priority filter ButtonGroup */
-    var activePriorityFilter = null;
-
-    $("#tasks-priority-filter").kendoButtonGroup({
-        selection: "single",
-        index: 0,
-        buttons: [
-            { text: "All"    },
-            { text: "Low"    },
-            { text: "Medium" },
-            { text: "High"   }
-        ],
-        select: function (e) {
-            var label = e.indices[0] === 0 ? null : ["All", "Low", "Medium", "High"][e.indices[0]];
-            activePriorityFilter = label;
-            applyTaskFilters();
-        }
-    });
+    });    
 
     function applyTaskFilters() {
         var searchBox = $("#tasks-search").data("kendoTextBox");
-        var q   = ((searchBox ? searchBox.value() : $("#tasks-search").val()) || "").toLowerCase().trim();
+         var q   = $("#tasks-search").val().toLowerCase().trim();
         var filters = [];
-        if (q)                    { filters.push({ field: "task",     operator: "contains",  value: q }); }
-        if (activePriorityFilter) { filters.push({ field: "priority", operator: "eq",        value: activePriorityFilter }); }
+        if (q)                    { filters.push({ field: "task",     operator: "contains",  value: q }); }        
         tasksDS.filter(filters.length ? { logic: "and", filters: filters } : {});
     }
 
@@ -358,13 +336,11 @@ $(document).ready(function () {
             clearButton:   true,
             width: 340,
             placeholder:   "Search daily tasks",
-            prefixOptions: { icon: "search", separator: false },
-            input: function () {
-                applyTaskFilters();
-            },
-            change: function () {
-                applyTaskFilters();
-            }
+            prefixOptions: { icon: "search", separator: false }            
+        });    
+        
+        $("#tasks-search").on("input", function () {
+            applyTaskFilters();
         });
     }
 
@@ -396,13 +372,13 @@ $(document).ready(function () {
             if (!$("#atf-name").data("kendoTextBox")) {
                 $("#atf-name").kendoTextBox({ placeholder: "Enter task name" });
             }
-            if (!$("#atf-priority-group").data("kendoButtonGroup")) {
-                $("#atf-priority-group").kendoButtonGroup({
-                    selection: "single",
+            if (!$("#atf-priority-group").data("kendoSegmentedControl")) {
+                $("#atf-priority-group").kendoSegmentedControl({
+                    value: "Low",
                     items: [
-                        { text: "Low",    selected: true, attributes: { id: "atf-pri-low" } },
-                        { text: "Medium", attributes: { id: "atf-pri-medium" } },
-                        { text: "High",   attributes: { id: "atf-pri-high" } }
+                        { text: "Low",    value: "Low"    },
+                        { text: "Medium", value: "Medium" },
+                        { text: "High",   value: "High"   }
                     ]
                 });
             }
@@ -435,22 +411,15 @@ $(document).ready(function () {
                         return false;
                     }
                     clearTaskNameError();
-                    var priorities = ["Low", "Medium", "High"];
-                    var grp = $("#atf-priority-group").data("kendoButtonGroup");
-                    var idx = grp ? grp.current().index() : 0;
-                    var priority = priorities[idx !== undefined ? idx : 0];
+                    var grp = $("#atf-priority-group").data("kendoSegmentedControl");
+                    var priority = grp ? (grp.value() || "Low") : "Low";
                     var description = ($("#atf-description").val() || "").trim();
                     $.ajax({
                         url:         "./api/tasks/create",
                         type:        "POST",
                         contentType: "application/json",
                         data:        JSON.stringify({ task: name, priority: priority, description: description, done: false }),
-                        success: function () {
-                            // Reset filter to "All" so the new task is visible,
-                            // then re-read the DataSource to refresh the ListView.
-                            activePriorityFilter = null;
-                            var bg = $("#tasks-priority-filter").data("kendoButtonGroup");
-                            if (bg) { bg.select(0); }
+                        success: function () {                            
                             tasksDS.filter({});
                             tasksDS.read();
                         },
@@ -477,8 +446,8 @@ $(document).ready(function () {
 
     function resetAddTaskForm() {
         $("#atf-name").val("");
-        var grp = $("#atf-priority-group").data("kendoButtonGroup");
-        if (grp) grp.select(0);
+        var grp = $("#atf-priority-group").data("kendoSegmentedControl");
+        if (grp) grp.value("Low");
         $("#atf-description").val("");
         clearTaskNameError();
     }
