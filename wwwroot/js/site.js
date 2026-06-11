@@ -207,7 +207,6 @@ function initGithubPopup() {
      $("#btn-github").kendoButton({       
         rounded: "full",  
         click: function (e) {
-            e.stopPropagation();
             var w = $("#github-popup").data("kendoWindow");
             if (w.wrapper && w.wrapper.is(":visible")) {
                 w.close();
