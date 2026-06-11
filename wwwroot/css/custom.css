@@ -4477,7 +4477,7 @@ a { text-decoration: none; color: inherit; }
 /* Profile Image section */
 .pm-section { margin-bottom: 20px; }
 .pm-label { display: block; font-size: 13px; font-weight: 600; color: #232A36; margin-bottom: 12px; }
-.pm-photo-wrap { width: 100%; max-height: 320px; margin-bottom: 18px; border-radius: 12px; overflow: hidden; background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%); }
+.pm-photo-wrap { width: 100%; max-height: 280px; margin-bottom: 18px; border-radius: 12px; overflow: hidden; background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%); }
 .pm-photo { width: 100%; display: block; object-fit: cover; object-position: center top; }
 #pm-btn-upload.k-button { width: 100%; min-height: 42px; }
 
