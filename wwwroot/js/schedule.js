@@ -374,7 +374,7 @@ $(document).ready(function () {
             }
             if (!$("#atf-priority-group").data("kendoSegmentedControl")) {
                 $("#atf-priority-group").kendoSegmentedControl({
-                    value: "Low",
+                    selectedValue: "Low",
                     items: [
                         { text: "Low",    value: "Low"    },
                         { text: "Medium", value: "Medium" },
