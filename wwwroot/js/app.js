@@ -168,9 +168,7 @@ $(document).ready(function () {
             /* ── Header ── */
             '  <div class="ar-header">' +
             '    <span class="ar-icon">' +
-            '      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">' +
-            '        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' +
-            '      </svg>' +
+            kendo.ui.icon({ type: "svg", icon: "warning-circle" }) +
             '    </span>' +
             '    <div>' +
             '      <div class="ar-title">Alert Review</div>' +
@@ -191,9 +189,7 @@ $(document).ready(function () {
             /* ── Patient Information ── */
             (patient ? (
             '  <div class="ar-patient-header">' +
-            '    <svg class="ar-patient-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-            '      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>' +
-            '    </svg>' +
+            '<span class="ar-patient-icon">' + kendo.ui.icon({ type: "svg", icon: "user" }) + '</span>' +
             '    <span class="ar-patient-heading">Patient Information</span>' +
             '    <a class="ar-profile-link" href="#" data-patient-id="' + kendo.htmlEncode(patient.id) + '">View Full Profile \u2192</a>' +
             '  </div>' +
@@ -206,7 +202,7 @@ $(document).ready(function () {
             '        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>' +
             '      </span><div><div class="ar-vital-label">Blood Pressure</div><div class="ar-vital-value">' + kendo.htmlEncode(patient.vitals.bp.replace(" mmHg","")) + '</div></div></div>' +
             '      <div class="ar-vital"><span class="ar-vital-icon ar-vital-icon-hr">' +
-            '        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>' +
+            kendo.ui.icon({ type: "svg", icon: "heart" }) +
             '      </span><div><div class="ar-vital-label">Heart Rate</div><div class="ar-vital-value">' + patient.vitals.hr + ' bpm</div></div></div>' +
             '      <div class="ar-vital"><span class="ar-vital-icon ar-vital-icon-temp">' +
             '        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg>' +
@@ -833,13 +829,13 @@ $(document).ready(function () {
                     html += '</div>';
                     html += '<div class="ai-feedback-actions">' +
                         '<button class="ai-feedback-btn" title="Helpful">' +
-                            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>' +
+                            kendo.ui.icon({ type: "svg", icon: "thumb-up" }) +
                         '</button>' +
                         '<button class="ai-feedback-btn" title="Not helpful">' +
-                            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>' +
+                            kendo.ui.icon({ type: "svg", icon: "thumb-down" }) +
                         '</button>' +
                         '<button class="ai-feedback-btn" title="Regenerate">' +
-                            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>' +
+                            kendo.ui.icon({ type: "svg", icon: "arrow-rotate-cw" }) +
                         '</button>' +
                     '</div>';
                     html += '</div>';
