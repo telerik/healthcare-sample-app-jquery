@@ -448,6 +448,8 @@ function initNotifDropdown() {
 
     var count = getUnreadCount();
     $("#notif-btn").kendoButton({
+        icon: "bell",
+        text: '',
         badge: {
             text:       "",
             themeColor: "primary",

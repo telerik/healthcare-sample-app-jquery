@@ -418,17 +418,14 @@ function buildPatientPreviewHtml(patient) {
         allergyHtml =
             '<div class="pp-allergy-card">' +
                 '<div class="pp-allergy-icon">' +
-                    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFD760" stroke-width="2">' +
-                        '<path d="M9 3H4a1 1 0 0 0-1 1v5l10 10 6-6L9 3z"/>' +
-                        '<circle cx="15" cy="9" r="1.5" fill="#FFD760" stroke="none"/>' +
-                    '</svg>' +
+                    kendo.ui.icon({ type: "svg", icon: "warning" }) +
                 '</div>' +
                 '<div class="pp-allergy-text">' +
                     '<span class="pp-allergy-title">Allergy Alert</span>' +
                     '<span class="pp-allergy-desc">' + kendo.htmlEncode(patient.allergies.join(', ')) + '</span>' +
                 '</div>' +
                 '<a class="pp-details-link">Details ' +
-                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>' +
+                    kendo.ui.icon({ type: "svg", icon: "chevron-right" }) +
                 '</a>' +
             '</div>';
     }
@@ -438,7 +435,7 @@ function buildPatientPreviewHtml(patient) {
     return '<div class="k-card-header pp-header">' +
             '<h2 class="k-card-title pp-title">Patient Preview</h2>' +
             '<button class="pp-close-btn" id="btn-close-preview" aria-label="Close">' +
-                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#232A36" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+                kendo.ui.icon({ type: "svg", icon: "x" }) +
             '</button>' +
         '</div>' +
         '<div class="k-card-body pp-body">' +
@@ -448,7 +445,7 @@ function buildPatientPreviewHtml(patient) {
                     '<div class="pp-name-row">' +
                         '<span class="pp-name">' + kendo.htmlEncode(patient.name) + '</span>' +
                         '<span class="pp-view-profile-link btn-view-patient" data-id="' + patient.id + '">' +
-                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+                            kendo.ui.icon({ type: "svg", icon: "hyperlink-open" }) +
                             ' View profile' +
                         '</span>' +
                     '</div>' +
@@ -633,6 +630,7 @@ function openChangeStatusDialog(patient) {
    GRID INIT
 ═══════════════════════════════════════════════════════ */
 function initGrid() {
+    var eyeIconHtml = kendo.ui.icon({ type: "svg", icon: "eye" });
     grid = $("#patients-grid").kendoGrid({
         dataSource: new kendo.data.DataSource({
             pageSize: 10,
@@ -702,7 +700,7 @@ function initGrid() {
                 filterable: false,
                 sortable:   false,
                 groupable:  false,
-                template:   ({ id }) => `<button class="btn-view-patient grid-view-link" data-id="${kendo.htmlEncode(id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Profile</button>`
+                template:   ({ id }) => `<button class="btn-view-patient grid-view-link" data-id="${kendo.htmlEncode(id)}">${eyeIconHtml}View Profile</button>`
             }
         ],
         sortable:    true,
