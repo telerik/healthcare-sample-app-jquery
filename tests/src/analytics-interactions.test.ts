@@ -33,29 +33,28 @@ describe('Analytics Page — Interactions', () => {
         it('should open dropdown and display all 30 patients', async () => {
             await browser.expect('.analytics-header-controls.is-ready').toBeVisible();
             await browser.expect('.analytics-header-controls .k-input-value-text').toBeVisible();
-            await browser.click('.analytics-header-controls .k-dropdownlist');
-            await browser.expect('.k-dropdownlist-popup').toBeVisible();
+            await dropdown.expand();
+            await dropdown.waitToExpand();
             await browser.expect('.k-dropdownlist-popup .k-list-item').toHaveCount(30);
             await browser.sendKey(Key.ESCAPE);
             await dropdown.waitToCollapse();
         });
 
         it('should display filter input in the dropdown', async () => {
-            await browser.click('.analytics-header-controls .k-dropdownlist');
-            await browser.expect('.k-dropdownlist-popup').toBeVisible();
+            await dropdown.expand();
+            await dropdown.waitToExpand();
             await browser.expect('.k-dropdownlist-popup .k-list-filter .k-input-inner').toBeVisible();
             await browser.sendKey(Key.ESCAPE);
             await dropdown.waitToCollapse();
         });
 
         it('should filter and select a patient from the dropdown', async () => {
-            await browser.click('.analytics-header-controls .k-dropdownlist');
-            await browser.expect('.k-dropdownlist-popup').toBeVisible();
-            await browser.click('.k-dropdownlist-popup .k-list-filter .k-input-inner');
-            await browser.type('.k-dropdownlist-popup .k-list-filter .k-input-inner', 'Olivia Davis', { clear: false });
-            await browser.expect('.k-dropdownlist-popup .k-list-item').toHaveCount(1);
-            await browser.click('.k-dropdownlist-popup .k-list-item:first-child');
-            await browser.expect('.k-dropdownlist-popup').not.toBeVisible();
+            await dropdown.expand();
+            await dropdown.waitToExpand();
+            await dropdown.setFilter('Olivia Davis');
+            await browser.wait(async () => (await dropdown.getItems({ waitForItems: false })).length === 1);
+            await (await dropdown.getItemByIndex(0)).click();
+            await dropdown.waitToCollapse();
             await browser.expect('.analytics-header-controls .k-input-value-text').toContainText('Olivia Davis');
         });
 
@@ -76,13 +75,12 @@ describe('Analytics Page — Interactions', () => {
         });
 
         it('should select back the first patient', async () => {
-            await browser.click('.analytics-header-controls .k-dropdownlist');
-            await browser.expect('.k-dropdownlist-popup').toBeVisible();
-            await browser.click('.k-dropdownlist-popup .k-list-filter .k-input-inner');
-            await browser.type('.k-dropdownlist-popup .k-list-filter .k-input-inner', 'Emma Johnson', { clear: false });
-            await browser.expect('.k-dropdownlist-popup .k-list-item').toHaveCount(1);
-            await browser.click('.k-dropdownlist-popup .k-list-item:first-child');
-            await browser.expect('.k-dropdownlist-popup').not.toBeVisible();
+            await dropdown.expand();
+            await dropdown.waitToExpand();
+            await dropdown.setFilter('Emma Johnson');
+            await browser.wait(async () => (await dropdown.getItems({ waitForItems: false })).length === 1);
+            await (await dropdown.getItemByIndex(0)).click();
+            await dropdown.waitToCollapse();
             await browser.expect('.analytics-header-controls .k-input-value-text').toContainText('Emma Johnson');
         });
     });
