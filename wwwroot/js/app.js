@@ -13,7 +13,7 @@ $(document).ready(function () {
        GREETING DATE
     ═══════════════════════════════════════════════ */
     $("#today-date").text(kendo.toString(new Date(), "dddd, MMMM dd, yyyy"));
-    kendo.ui.icon($(".open-link"), { icon: 'hyperlink-open-sm' });
+    kendo.ui.icon($(".open-link"), { icon: 'hyperlink-open' });
     kendo.ui.icon($(".appt-time-icon"), { icon: 'clock' });
     
 
