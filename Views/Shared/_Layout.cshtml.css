@@ -8,34 +8,34 @@ a.navbar-brand {
 }
 
 a {
-  color: #0077cc;
+  color: var(--kendo-color-info-on-surface);
 }
 
 .btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  color: var(--kendo-color-on-primary);
+  background-color: var(--kendo-color-primary);
+  border-color: var(--kendo-color-primary);
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  color: var(--kendo-color-on-primary);
+  background-color: var(--kendo-color-primary);
+  border-color: var(--kendo-color-primary);
 }
 
 .border-top {
-  border-top: 1px solid #e5e5e5;
+  border-top: var(--kendo-spacing-1px) solid var(--kendo-color-border);
 }
 .border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: var(--kendo-spacing-1px) solid var(--kendo-color-border);
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+  box-shadow: var(--kendo-elevation-1);
 }
 
 button.accept-policy {
-  font-size: 1rem;
+  font-size: var(--kendo-font-size);
   line-height: inherit;
 }
 
