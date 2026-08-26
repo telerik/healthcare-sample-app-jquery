@@ -62,7 +62,16 @@ $(document).ready(function () {
         { text: "Home", value: "Home", icon: "home", url: "./" },
         { text: "Schedule", value: "Schedule", icon: "calendar", url: "./schedule" },
         { text: "Patients", value: "Patients", icon: "user", url: "./patients" },
+        { text: "Labs", value: "Labs", icon: "flask", url: "./labs" },
+        { text: "Messages", value: "Messages", icon: "comment", url: "./messages" },
         { text: "Clinical Analytics", value: "Analytics", icon: "chart-bar-stacked", url: "./analytics" }
+    ];
+    var moreNavItems = [
+        { text: "Providers", value: "Providers", icon: "user", url: "./providers" },
+        { text: "Settings & Preferences", value: "Settings", icon: "gear", url: "./settings" },
+        { text: "Notifications", value: "Notifications", icon: "bell", url: "./notifications" },
+        { text: "Help & Support", value: "Help", icon: "question", url: "./help" },
+        { text: "New Patient Intake", value: "Intake", icon: "plus", url: "./intake" }
     ];
     var navRoutes = {};
     var navIconDefs = [];
@@ -97,6 +106,23 @@ $(document).ready(function () {
         }
     });  
 
+    $("#nav-more").kendoDropDownButton({
+        icon: "more-horizontal",
+        fillMode: "flat",
+        items: moreNavItems.map(function (item) {
+            return {
+                text: item.text,
+                icon: item.icon,
+                click: function () {
+                    window.location.href = item.url;
+                }
+            };
+        })
+    });
+    $("#nav-more").toggleClass("k-selected", moreNavItems.some(function (item) {
+        return item.value === activePage;
+    }));
+
     /* Inject custom SVG icons into each button using kendo.ui.icon */
     $("#appbar-nav .k-button").each(function (i) {
         if (navIconDefs[i]) {
@@ -114,7 +140,7 @@ $(document).ready(function () {
         popup: {
             appendTo: "#appbar"
         },
-        items: navItems.map(function (item) {
+        items: navItems.concat(moreNavItems).map(function (item) {
             return {
                 text: item.text,
                 icon: item.icon,

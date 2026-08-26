@@ -69,6 +69,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStatusCodePagesWithReExecute("/not-found");
 
 // Serve patient images with a 30-day immutable cache so repeat page loads
 // require zero network requests for these files.
@@ -97,5 +98,4 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
-
 

@@ -1,0 +1,53 @@
+@{
+    var page = (string)ViewData["ActivePage"]!;
+    var title = (string)ViewData["WorkspaceTitle"]!;
+}
+
+<main class="workspace-page" data-workspace-page="@(page)">
+    @if (page == "NotFound")
+    {
+        <section class="workspace-empty-state" aria-labelledby="workspace-title">
+            <span class="workspace-empty-icon" aria-hidden="true"></span>
+            <h1 id="workspace-title">We couldn't find that page</h1>
+            <p>The page may have moved, or the link may no longer be available.</p>
+            <a class="workspace-primary-link" href="./">Return to Dashboard</a>
+        </section>
+    }
+    else if (page == "Login")
+    {
+        <section class="workspace-auth-card" aria-labelledby="workspace-title">
+            <img src="~/content/CarePointLogo.png" alt="CarePoint" class="workspace-auth-logo" />
+            <h1 id="workspace-title">@title</h1>
+            <p>Use your clinical workspace credentials to continue.</p>
+            <form id="login-form" class="workspace-form">
+                <label for="login-email">Work email</label>
+                <input id="login-email" type="email" autocomplete="email" required />
+                <label for="login-password">Password</label>
+                <input id="login-password" type="password" autocomplete="current-password" required />
+                <button type="submit" id="login-submit">Sign in</button>
+                <a href="./help">Need help signing in?</a>
+            </form>
+        </section>
+    }
+    else
+    {
+        <header class="workspace-header">
+            <div>
+                <h1 id="workspace-title">@title</h1>
+                <p id="workspace-subtitle"></p>
+            </div>
+            <div id="workspace-actions" class="workspace-actions"></div>
+        </header>
+
+        <section id="workspace-critical-alert" class="workspace-alert" role="alert" hidden>
+            <strong>Critical result awaiting review.</strong> Potassium result for Emma Johnson requires clinician acknowledgement.
+            <button type="button" id="workspace-alert-dismiss">Acknowledge</button>
+        </section>
+
+        <div id="workspace-content"></div>
+    }
+</main>
+
+@section Scripts {
+    <script src="~/js/workspace.js" asp-append-version="true"></script>
+}

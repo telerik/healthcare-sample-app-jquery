@@ -21,6 +21,237 @@ body {
 
 a { text-decoration: none; color: inherit; }
 
+/* Shared healthcare workflow pages use the same responsive content rhythm as
+   the existing dashboard while keeping forms deliberately narrow. */
+.workspace-page {
+    width: min(100% - 32px, 1440px);
+    margin: 0 auto;
+    padding: var(--kendo-spacing-8) 0 var(--kendo-spacing-12);
+}
+
+.workspace-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--kendo-spacing-6);
+    margin-bottom: var(--kendo-spacing-6);
+}
+
+.workspace-header h1,
+.workspace-empty-state h1,
+.workspace-auth-card h1 {
+    color: var(--kendo-color-primary-on-surface);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.workspace-header p,
+.workspace-auth-card > p,
+.workspace-empty-state p {
+    color: var(--kendo-color-subtle);
+    margin: var(--kendo-spacing-2) 0 0;
+}
+
+.workspace-actions {
+    display: flex;
+    gap: var(--kendo-spacing-3);
+    flex-wrap: wrap;
+}
+
+.workspace-card {
+    border: 1px solid var(--kendo-color-border);
+    border-radius: var(--kendo-border-radius-lg);
+    box-shadow: var(--kendo-elevation-1);
+    overflow: hidden;
+}
+
+.workspace-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--kendo-spacing-4);
+    margin-bottom: var(--kendo-spacing-4);
+}
+
+.workspace-toolbar .k-textbox,
+.workspace-toolbar .k-input {
+    flex: 1;
+    min-width: 14rem;
+}
+
+.workspace-alert {
+    display: flex;
+    align-items: center;
+    gap: var(--kendo-spacing-3);
+    background: var(--kendo-color-error-subtle);
+    color: var(--kendo-color-error-on-subtle);
+    border: 1px solid var(--kendo-color-error-emphasis);
+    border-radius: var(--kendo-border-radius-md);
+    margin-bottom: var(--kendo-spacing-5);
+    padding: var(--kendo-spacing-4);
+}
+
+.workspace-alert button {
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.workspace-two-column {
+    display: grid;
+    grid-template-columns: minmax(18rem, .8fr) minmax(0, 1.6fr);
+    gap: var(--kendo-spacing-6);
+}
+
+.workspace-message-item,
+.workspace-notification-item {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--kendo-spacing-1);
+    padding: var(--kendo-spacing-4);
+    text-align: left;
+    background: var(--kendo-color-surface);
+    border: 0;
+    border-bottom: 1px solid var(--kendo-color-border);
+    color: var(--kendo-color-on-surface);
+    cursor: pointer;
+}
+
+.workspace-message-item:hover { background: var(--kendo-color-primary-subtle); }
+.workspace-message-item span,
+.workspace-message-item small,
+.workspace-notification-item p { color: var(--kendo-color-subtle); }
+
+.workspace-provider-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--kendo-spacing-5);
+}
+
+.workspace-provider-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--kendo-spacing-4);
+    padding: var(--kendo-spacing-5);
+}
+
+.workspace-provider-card h2,
+.workspace-notification-item h2,
+.workspace-contact h2 { font-size: 1rem; margin: 0; }
+.workspace-provider-card p { color: var(--kendo-color-subtle); margin: var(--kendo-spacing-1) 0 var(--kendo-spacing-3); }
+.workspace-provider-card .provider-profile { grid-column: 1 / -1; justify-self: start; }
+
+.workspace-provider-avatar {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--kendo-border-radius-full);
+    background: var(--kendo-color-primary-subtle);
+    color: var(--kendo-color-primary-on-subtle);
+    font-weight: 600;
+}
+
+.workspace-status {
+    color: var(--kendo-color-success-on-surface);
+    font-size: var(--kendo-font-size-sm);
+    font-weight: 500;
+}
+
+.workspace-settings,
+.workspace-help {
+    display: grid;
+    gap: var(--kendo-spacing-5);
+    max-width: 48rem;
+}
+
+.workspace-settings-row,
+.workspace-settings-select,
+.workspace-notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--kendo-spacing-5);
+}
+
+.workspace-settings-row small {
+    display: block;
+    color: var(--kendo-color-subtle);
+    margin-top: var(--kendo-spacing-1);
+}
+
+.workspace-settings-select .k-dropdownlist { min-width: 14rem; }
+.workspace-help > .k-input { width: 100%; }
+.workspace-contact { padding: var(--kendo-spacing-5); }
+.workspace-contact p { color: var(--kendo-color-subtle); margin: var(--kendo-spacing-2) 0 var(--kendo-spacing-4); }
+
+.workspace-notification-item {
+    flex-direction: row;
+    align-items: start;
+    justify-content: space-between;
+    cursor: default;
+}
+
+.workspace-notification-item p { margin: var(--kendo-spacing-1) 0 0; }
+
+.workspace-intake {
+    max-width: 45rem;
+    margin: 0 auto;
+}
+
+.workspace-intake .k-stepper { margin-bottom: var(--kendo-spacing-8); }
+.workspace-form { display: grid; gap: var(--kendo-spacing-3); padding: var(--kendo-spacing-6); }
+.workspace-form h2 { font-size: 1.125rem; margin: 0; }
+.workspace-form p { color: var(--kendo-color-subtle); margin: 0 0 var(--kendo-spacing-2); }
+.workspace-form-actions { display: flex; justify-content: space-between; margin-top: var(--kendo-spacing-3); }
+.workspace-form-error { color: var(--kendo-color-error-on-surface) !important; font-weight: 500; }
+.workspace-review-list { display: grid; grid-template-columns: 10rem 1fr; gap: var(--kendo-spacing-3); margin: 0; }
+.workspace-review-list dt { font-weight: 600; }
+.workspace-review-list dd { margin: 0; color: var(--kendo-color-subtle); }
+
+.workspace-auth-card,
+.workspace-empty-state {
+    max-width: 26.25rem;
+    margin: var(--kendo-spacing-16) auto;
+    padding: var(--kendo-spacing-8);
+    text-align: center;
+    border: 1px solid var(--kendo-color-border);
+    border-radius: var(--kendo-border-radius-xl);
+    background: var(--kendo-color-surface);
+    box-shadow: var(--kendo-elevation-2);
+}
+
+.workspace-auth-logo { display: block; max-width: 10rem; height: auto; margin: 0 auto var(--kendo-spacing-6); }
+.workspace-auth-card .workspace-form { padding: var(--kendo-spacing-6) 0 0; text-align: left; }
+.workspace-auth-card .workspace-form a { color: var(--kendo-color-info-on-surface); text-align: center; }
+.workspace-page:has(.workspace-auth-card) { padding-top: var(--kendo-spacing-16); }
+body:has(.workspace-auth-card) { padding-top: 0; }
+body:has(.workspace-auth-card) .app-appbar { display: none; }
+.workspace-empty-state { max-width: 38rem; }
+.workspace-empty-icon { display: block; width: 3rem; height: 3rem; margin: 0 auto var(--kendo-spacing-4); border-radius: var(--kendo-border-radius-full); background: var(--kendo-color-primary-subtle); }
+.workspace-primary-link { display: inline-flex; margin-top: var(--kendo-spacing-6); color: var(--kendo-color-info-on-surface); font-weight: 500; }
+
+.appbar-more-btn.k-button { white-space: nowrap; }
+
+@media (max-width: 991px) {
+    .workspace-provider-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767px) {
+    .workspace-page { width: min(100% - 24px, 1440px); padding-top: var(--kendo-spacing-6); }
+    .workspace-header,
+    .workspace-alert,
+    .workspace-settings-row,
+    .workspace-settings-select { align-items: stretch; flex-direction: column; }
+    .workspace-actions { width: 100%; }
+    .workspace-two-column,
+    .workspace-provider-list { grid-template-columns: 1fr; }
+    .workspace-toolbar { align-items: stretch; flex-direction: column; }
+    .workspace-toolbar .k-textbox,
+    .workspace-toolbar .k-input { min-width: 0; }
+    .workspace-alert button { margin-left: 0; }
+}
+
 /* ═══════════════════════════════════════════════════════
    APP BAR
 ═══════════════════════════════════════════════════════ */
@@ -4919,9 +5150,13 @@ a { text-decoration: none; color: inherit; }
     }
 
     .app-appbar .appbar-nav {
-        flex: 1;
-        justify-content: center;
+        display: none;
     }
+
+    .hamburger-btn,
+    .hamburger-btn.k-dropdown-button { display: flex; margin-right: auto; }
+    .hamburger-sep { display: block; }
+    .appbar-more-btn { display: none; }
 
     .appbar-nav .k-segmented-control-button{
         padding: 12px;
