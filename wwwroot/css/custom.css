@@ -239,6 +239,8 @@ body:has(.workspace-auth-card) .app-appbar { display: none; }
 
 @media (max-width: 767px) {
     .workspace-page { width: min(100% - 24px, 1440px); padding-top: var(--kendo-spacing-6); }
+    #page-headers,
+    #page-content { width: calc(100% - (2 * var(--kendo-spacing-4))); }
     .workspace-header,
     .workspace-alert,
     .workspace-settings-row,
@@ -269,10 +271,14 @@ body:has(.workspace-auth-card) .app-appbar { display: none; }
     position: relative;
     z-index: 100;
     flex-shrink: 0;
-    max-width: 1648px;
+    max-width: 1440px;
     width: calc(100% - 32px);
     margin: 0 auto;
     box-sizing: border-box;
+}
+
+@media (min-width: 1441px) {
+    .app-appbar { max-width: 1440px !important; }
 }
 
 .appbar-logo {
@@ -579,6 +585,8 @@ body:has(.workspace-auth-card) .app-appbar { display: none; }
     z-index: 1;
     margin-top: -40px;
     padding-top: 40px;
+    width: min(calc(100% - (2 * var(--kendo-spacing-8))), 1440px);
+    margin-inline: auto;
 }
 
 #page-headers .page-header {
@@ -602,6 +610,8 @@ body:has(.workspace-auth-card) .app-appbar { display: none; }
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+    width: min(calc(100% - (2 * var(--kendo-spacing-8))), 1440px);
+    margin-inline: auto;
 }
 
 #page-content::before {

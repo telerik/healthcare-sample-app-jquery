@@ -56,7 +56,7 @@ builder.Services.AddSession(o =>
 
 var app = builder.Build();
 
-app.UsePathBase("/kendo-ui-healthcare/");
+app.UsePathBase("/kendo-ui-healthcare");
 
 // Eagerly warm up the seed singleton so the first request is never slow
 _ = app.Services.GetRequiredService<HealthcareSeedStore>();
@@ -88,14 +88,12 @@ app.UseRouting();
 app.UseSession();           // must be before MapControllerRoute
 app.UseAuthorization();
 
-app.MapStaticAssets();
+app.UseStaticFiles();
 
 app.MapControllers();   // attribute-routed API controllers ([ApiController])
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-

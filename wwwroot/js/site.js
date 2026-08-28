@@ -35,11 +35,13 @@ $(document).ready(function () {
         $(".appbar-logo").toggleClass("show-dark", dimmed);
     }
 
-    if (sessionStorage.getItem("pageDimmed") === "true") {
+    if (sessionStorage.getItem("pageDimmed") !== "false") {
         $("#page-content").addClass("page-dimmed");
         $("#appbar").addClass("page-dimmed");
+        $("body").addClass("translucent-surfaces");
         updateLogo(true);
     } else {
+        $("body").removeClass("translucent-surfaces");
         updateLogo(false);
     }
 
@@ -49,6 +51,7 @@ $(document).ready(function () {
             var dimmed = !$("#page-content").hasClass("page-dimmed");
             $("#page-content").toggleClass("page-dimmed", dimmed);
             $("#appbar").toggleClass("page-dimmed", dimmed);
+            $("body").toggleClass("translucent-surfaces", dimmed);
             updateLogo(dimmed);
             sessionStorage.setItem("pageDimmed", dimmed ? "true" : "false");
         }
