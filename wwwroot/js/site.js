@@ -109,23 +109,6 @@ $(document).ready(function () {
         }
     });  
 
-    $("#nav-more").kendoDropDownButton({
-        icon: "more-horizontal",
-        fillMode: "flat",
-        items: moreNavItems.map(function (item) {
-            return {
-                text: item.text,
-                icon: item.icon,
-                click: function () {
-                    window.location.href = item.url;
-                }
-            };
-        })
-    });
-    $("#nav-more").toggleClass("k-selected", moreNavItems.some(function (item) {
-        return item.value === activePage;
-    }));
-
     /* Inject custom SVG icons into each button using kendo.ui.icon */
     $("#appbar-nav .k-button").each(function (i) {
         if (navIconDefs[i]) {

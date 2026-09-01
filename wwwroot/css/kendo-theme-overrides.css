@@ -81,8 +81,8 @@
     /* ─── SPACING ────────────────────────────────────────── */
     /* Meridian's spacing scale already matches the app's 4px rhythm. */
 
-    /* Activate the theme's frosted elevated surfaces without reducing text contrast. */
-    --kendo-translucency-base: 30%;
+    /* Keep jQuery surfaces opaque by default for predictable dense layouts. */
+    --kendo-translucency-base: 0%;
 }
 
 
