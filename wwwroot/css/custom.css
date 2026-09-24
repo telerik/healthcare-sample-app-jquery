@@ -773,27 +773,23 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* Keep badge text consistent across Kendo size variants. */
-.k-badge,
-.k-badge.k-badge-sm,
-.k-badge.k-badge-md,
-.k-badge.k-badge-lg,
-.k-badge.k-badge-xl {
+.k-badge {
     font-size: 12px;
 }
 
-.k-badge.k-badge-inline.k-badge-tertiary {   
+.k-badge.k-badge-outline.k-badge-tertiary {
     background: #FDF6FF;
     border: 1px solid #DDB5FB;
     color: #37164B;
 }
 
-.k-badge.k-badge-inline.k-badge-info {    
+.k-badge.k-badge-outline.k-badge-info {
     background: #D2E2FB;
     border: 1px solid #6098F2;
     color: #002259;
 }
 
-.k-badge.k-badge-inline.k-badge-secondary {    
+.k-badge.k-badge-solid.k-badge-secondary {
     background: #EBECFF;
     border: 1px solid #D4D6FF;
     color: #383BA8;
@@ -2345,12 +2341,12 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* Green "Mark as Resolved" button */
-.ar-resolve-btn.k-button-solid-primary {
+.ar-resolve-btn.k-button {
     background-color: #16a34a;
     border-color: #16a34a;
     color: #fff;
 }
-.ar-resolve-btn.k-button-solid-primary:hover {
+.ar-resolve-btn.k-button:hover {
     background-color: #15803d;
 }
 
@@ -3087,10 +3083,6 @@ a { text-decoration: none; color: inherit; }
     border-radius: 16px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.038);
     background: #ffffff;
-}
-
-#list-ai-chat .k-message-box .k-button-solid-base {
-    border-radius: 999px;
 }
 
 #list-ai-chat .k-message-box .k-send-button,

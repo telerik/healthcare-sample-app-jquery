@@ -1,5 +1,13 @@
 import { Browser } from '@progress/kendo-e2e';
 import BASE_URL from './config';
+import {
+    isCompactSchedulerToolbar,
+    navigateSchedulerDate,
+    openSchedulerViewsMenu,
+    returnSchedulerToToday,
+    schedulerView,
+    selectSchedulerView,
+} from './scheduler-toolbar';
 
 describe('Schedule Page', () => {
     let browser: Browser;
@@ -32,38 +40,98 @@ describe('Schedule Page', () => {
             await browser.expect('#scheduler[data-role="scheduler"]').toBeVisible();
         });
 
-        it('should show scheduler toolbar with Today button', async () => {
+        it('should provide Today or calendar date navigation for the toolbar layout', async () => {
             await browser.expect('.k-scheduler-toolbar').toBeVisible();
-            await browser.expect('.k-scheduler-navigation .k-button-text').toContainText('Today');
+            if (await isCompactSchedulerToolbar(browser)) {
+                await navigateSchedulerDate(browser, 'next');
+                await returnSchedulerToToday(browser);
+            } else {
+                await browser.expect('.k-scheduler-toolbar [aria-label="Today"]').toBeVisible();
+                await browser.expect('.k-scheduler-toolbar [aria-label="Today"] .k-button-text').toHaveText('Today');
+            }
         });
 
-        it('should show Previous and Next navigation buttons', async () => {
-            await browser.expect('.k-scheduler-navigation [aria-label="Previous"]').toBeVisible();
-            await browser.expect('.k-scheduler-navigation [aria-label="Next"]').toBeVisible();
+        it('should provide Previous/Next or calendar navigation for the toolbar layout', async () => {
+            if (await isCompactSchedulerToolbar(browser)) {
+                await navigateSchedulerDate(browser, 'next');
+                await navigateSchedulerDate(browser, 'previous');
+                await returnSchedulerToToday(browser);
+            } else {
+                await browser.expect('.k-scheduler-toolbar [aria-label="Previous"]').toBeVisible();
+                await browser.expect('.k-scheduler-toolbar [aria-label="Next"]').toBeVisible();
+            }
         });
 
         it('should display the current date', async () => {
             await browser.expect('.k-nav-current').toBeVisible();
         });
 
-        it('should show Day/Week/Month/Agenda view buttons', async () => {
-            await browser.expect('.k-scheduler-views.k-segmented-control').toBeVisible();
-            const viewButtons = await browser.findAll('.k-scheduler-views .k-segmented-control-button');
-            expect(viewButtons.length).toBe(4);
+        it('should show Day/Week/Month/Agenda through the visible view switcher', async () => {
+            if (await isCompactSchedulerToolbar(browser)) {
+                const menu = await openSchedulerViewsMenu(browser);
+                await browser.click(`${menu} [role="menuitem"]:first-child`);
+                await browser.expect(`${menu} [role="menuitem"]`).not.toBeVisible();
+                await browser.expect('.k-toolbar-views-dropdown .k-menu-button').toHaveAttribute('aria-expanded', 'false');
+                expect(await schedulerView(browser)).toBe('day');
+            } else {
+                await browser.expect('.k-scheduler-views.k-segmented-control').toBeVisible();
+                for (const view of ['day', 'week', 'month', 'agenda']) {
+                    await browser.expect(`.k-scheduler-views .k-segmented-control-button[data-value="${view}"]`).toBeVisible();
+                }
+                await browser.expect('.k-scheduler-views .k-segmented-control-button').toHaveCount(4);
+            }
         });
 
         it('should have Day view selected by default', async () => {
-            await browser.expect(".k-segmented-control-button[data-value='day']").toHaveAttribute('aria-pressed', 'true');
+            if (await isCompactSchedulerToolbar(browser)) {
+                await browser.expect('.k-toolbar-views-dropdown .k-menu-button .k-button-text').toHaveText('Day');
+            } else {
+                await browser.expect(".k-scheduler-views .k-segmented-control-button[data-value='day']").toBeVisible();
+                await browser.expect(".k-scheduler-views .k-segmented-control-button[data-value='day']").toHaveAttribute('aria-pressed', 'true');
+            }
+            expect(await schedulerView(browser)).toBe('day');
         });
 
         it('should switch to Week view when clicked', async () => {
-            await browser.click(".k-segmented-control-button[data-value='week']");
-            await browser.expect(".k-segmented-control-button[data-value='week']").toHaveAttribute('aria-pressed', 'true');
+            await selectSchedulerView(browser, 'week');
         });
 
         it('should switch back to Day view', async () => {
-            await browser.click(".k-segmented-control-button[data-value='day']");
-            await browser.expect(".k-segmented-control-button[data-value='day']").toHaveAttribute('aria-pressed', 'true');
+            await selectSchedulerView(browser, 'day');
+        });
+    });
+
+    describe('Scheduler compact toolbar at 600px', () => {
+        let compactBrowser: Browser;
+
+        beforeAll(async () => {
+            compactBrowser = new Browser();
+            await compactBrowser.resizeWindow(600, 900);
+            await compactBrowser.navigateTo(`${BASE_URL}Schedule`);
+        });
+
+        afterAll(async () => {
+            await compactBrowser.close();
+        });
+
+        it('should display the compact view MenuButton at the narrow viewport', async () => {
+            expect(await compactBrowser.executeScript('return window.innerWidth;')).toBe(600);
+            expect(await isCompactSchedulerToolbar(compactBrowser)).toBe(true);
+            const menu = await openSchedulerViewsMenu(compactBrowser);
+            await compactBrowser.click(`${menu} [role="menuitem"]:first-child`);
+            await compactBrowser.expect(`${menu} [role="menuitem"]`).not.toBeVisible();
+            await compactBrowser.expect('.k-toolbar-views-dropdown .k-menu-button').toHaveAttribute('aria-expanded', 'false');
+            expect(await schedulerView(compactBrowser)).toBe('day');
+        });
+
+        it('should switch to Week and back through the compact MenuButton', async () => {
+            await selectSchedulerView(compactBrowser, 'week');
+            await selectSchedulerView(compactBrowser, 'day');
+        });
+
+        it('should navigate to another date and back through the compact calendar', async () => {
+            await navigateSchedulerDate(compactBrowser, 'next');
+            await returnSchedulerToToday(compactBrowser);
         });
     });
 

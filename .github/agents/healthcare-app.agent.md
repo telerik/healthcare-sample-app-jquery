@@ -20,7 +20,7 @@ You are a specialist for the Healthcare Sample App — an ASP.NET Core (.NET 10)
 | Layer | Technology |
 |---|---|
 | Backend | ASP.NET Core .NET 10, EF Core SQLite |
-| Frontend | Kendo UI jQuery v2026.1.325, jQuery 3.7.1 |
+| Frontend | Kendo UI jQuery v2026.3.811, Meridian theme v14.5.0, jQuery 3.7.1 |
 | Tests | vitest + TypeScript, `@progress/kendo-e2e` Browser class |
 | Server URL | `http://localhost:5263` (path base: `/kendo-ui-healthcare/`) |
 

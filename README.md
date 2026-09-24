@@ -11,11 +11,13 @@ A clinical dashboard single-page application built with **ASP.NET Core (.NET 10)
 | Backend | ASP.NET Core MVC, .NET 10 |
 | ORM / Database | Entity Framework Core 9 + SQLite |
 | Frontend | jQuery 3.7.1 |
-| UI Components | Kendo UI for jQuery v2026.1.325 |
-| Theme | Kendo UI Default Theme v13.1.1 |
+| UI Components | Kendo UI for jQuery v2026.3.811 |
+| Theme | Kendo UI Meridian Theme v14.5.0 |
 | Fonts | Google Fonts — Poppins |
 
 The app uses a **PJAX-style navigation model**: page content swaps in-place without full reloads. Each page's JavaScript is loaded once and state is preserved in memory across navigation events.
+
+Kendo UI and Meridian are loaded together from Telerik's CDN in `Views/Shared/_Layout.cshtml`. Keep their versions paired per [Telerik's theme compatibility table](https://www.telerik.com/kendo-jquery-ui/documentation/styles-and-layout/sass-themes/compatibility); jQuery 3.7.1 is included before the Kendo script.
 
 Session isolation is handled server-side — each browser session gets a deep-copied dataset, so actions (adding notes, resolving alerts) don't affect other users.
 

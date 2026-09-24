@@ -307,7 +307,7 @@ function renderNotifPanel() {
     $.each(items, function (_, n) {
         html +=
             '<div class="k-card k-card-horizontal np-card' + (n.read ? ' np-card-read' : '') + '" data-id="' + n.id + '">' +
-                '<div class="k-card-image np-card-icon">' +
+                '<div class="k-card-media np-card-icon">' +
                     '<img src="./content/notification-bell.png" alt="" class="np-bell-img" />' +
                 '</div>' +
                 '<div class="k-card-body np-card-body">' +

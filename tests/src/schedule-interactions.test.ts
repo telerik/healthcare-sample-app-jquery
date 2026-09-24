@@ -1,5 +1,10 @@
 import { Browser, Key } from '@progress/kendo-e2e';
 import BASE_URL from './config';
+import {
+    navigateSchedulerDate,
+    returnSchedulerToToday,
+    selectSchedulerView,
+} from './scheduler-toolbar';
 
 describe('Schedule Page — Scheduler Interactions', () => {
     let browser: Browser;
@@ -99,8 +104,7 @@ describe('Schedule Page — Scheduler Interactions', () => {
 
     describe('Scheduler View Switching', () => {
         it('should switch to Week view', async () => {
-            await browser.click(".k-segmented-control-button[data-value='week']");
-            await browser.expect(".k-segmented-control-button[data-value='week']").toHaveAttribute('aria-pressed', 'true');
+            await selectSchedulerView(browser, 'week');
         });
 
         it('should display week layout with multiple day columns', async () => {
@@ -108,36 +112,30 @@ describe('Schedule Page — Scheduler Interactions', () => {
         });
 
         it('should switch to Month view', async () => {
-            await browser.click(".k-segmented-control-button[data-value='month']");
-            await browser.expect(".k-segmented-control-button[data-value='month']").toHaveAttribute('aria-pressed', 'true');
+            await selectSchedulerView(browser, 'month');
         });
 
         it('should switch to Agenda view', async () => {
-            await browser.click(".k-segmented-control-button[data-value='agenda']");
-            await browser.expect(".k-segmented-control-button[data-value='agenda']").toHaveAttribute('aria-pressed', 'true');
+            await selectSchedulerView(browser, 'agenda');
         });
 
         it('should switch back to Day view', async () => {
-            await browser.click(".k-segmented-control-button[data-value='day']");
-            await browser.expect(".k-segmented-control-button[data-value='day']").toHaveAttribute('aria-pressed', 'true');
+            await selectSchedulerView(browser, 'day');
         });
     });
 
     describe('Scheduler Navigation', () => {
-        it('should navigate to the next day', async () => {
-            await browser.click('.k-scheduler-navigation [aria-label="Next"]');
-            await browser.expect('.k-nav-current').toBeVisible();
+        it('should navigate forward through the visible toolbar controls', async () => {
+            await navigateSchedulerDate(browser, 'next');
         });
 
-        it('should navigate to the previous day', async () => {
-            await browser.click('.k-scheduler-navigation [aria-label="Previous"]');
-            await browser.expect('.k-nav-current').toBeVisible();
+        it('should navigate backward through the visible toolbar controls', async () => {
+            await navigateSchedulerDate(browser, 'previous');
         });
 
         it('should return to Today', async () => {
-            await browser.click('.k-scheduler-navigation [aria-label="Next"]');
-            await browser.click('.k-scheduler-navigation .k-button:first-child');
-            await browser.expect('.k-nav-current').toBeVisible();
+            await navigateSchedulerDate(browser, 'next');
+            await returnSchedulerToToday(browser);
         });
     });
 

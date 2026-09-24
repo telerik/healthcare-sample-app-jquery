@@ -68,7 +68,7 @@ npm run test:watch
 |------|------|-------|
 | `src/home.test.ts` | Home — static structure | 42 |
 | `src/home-interactions.test.ts` | Home — interactions & dialogs | 83 |
-| `src/schedule.test.ts` | Scheduler — static structure | 24 |
+| `src/schedule.test.ts` | Scheduler — static structure and adaptive toolbar | 27 |
 | `src/schedule-interactions.test.ts` | Scheduler — interactions | 35 |
 | `src/patients.test.ts` | Patients list | 34 |
 | `src/patient-detail.test.ts` | Patient detail drilldown | 36 |
@@ -112,6 +112,8 @@ Example — run headless:
 ```bash
 HEADLESS=true npm test
 ```
+
+The Scheduler tests exercise both toolbar layouts: visible Today/Previous/Next buttons and segmented views when expanded, and the view MenuButton plus calendar date navigation when compact. In an unlicensed local preview, Kendo's watermark can force the compact layout even at desktop widths; use a licensed preview to verify the expanded layout.
 
 ---
 
