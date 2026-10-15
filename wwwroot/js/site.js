@@ -35,11 +35,13 @@ $(document).ready(function () {
         $(".appbar-logo").toggleClass("show-dark", dimmed);
     }
 
-    if (sessionStorage.getItem("pageDimmed") === "true") {
+    if (sessionStorage.getItem("pageDimmed") !== "false") {
         $("#page-content").addClass("page-dimmed");
         $("#appbar").addClass("page-dimmed");
+        $("body").addClass("translucent-surfaces");
         updateLogo(true);
     } else {
+        $("body").removeClass("translucent-surfaces");
         updateLogo(false);
     }
 
@@ -49,6 +51,7 @@ $(document).ready(function () {
             var dimmed = !$("#page-content").hasClass("page-dimmed");
             $("#page-content").toggleClass("page-dimmed", dimmed);
             $("#appbar").toggleClass("page-dimmed", dimmed);
+            $("body").toggleClass("translucent-surfaces", dimmed);
             updateLogo(dimmed);
             sessionStorage.setItem("pageDimmed", dimmed ? "true" : "false");
         }
@@ -62,7 +65,16 @@ $(document).ready(function () {
         { text: "Home", value: "Home", icon: "home", url: "./" },
         { text: "Schedule", value: "Schedule", icon: "calendar", url: "./schedule" },
         { text: "Patients", value: "Patients", icon: "user", url: "./patients" },
+        { text: "Labs", value: "Labs", icon: "flask", url: "./labs" },
+        { text: "Messages", value: "Messages", icon: "comment", url: "./messages" },
         { text: "Clinical Analytics", value: "Analytics", icon: "chart-bar-stacked", url: "./analytics" }
+    ];
+    var moreNavItems = [
+        { text: "Providers", value: "Providers", icon: "user", url: "./providers" },
+        { text: "Settings & Preferences", value: "Settings", icon: "gear", url: "./settings" },
+        { text: "Notifications", value: "Notifications", icon: "bell", url: "./notifications" },
+        { text: "Help & Support", value: "Help", icon: "question", url: "./help" },
+        { text: "New Patient Intake", value: "Intake", icon: "plus", url: "./intake" }
     ];
     var navRoutes = {};
     var navIconDefs = [];
@@ -114,7 +126,7 @@ $(document).ready(function () {
         popup: {
             appendTo: "#appbar"
         },
-        items: navItems.map(function (item) {
+        items: navItems.concat(moreNavItems).map(function (item) {
             return {
                 text: item.text,
                 icon: item.icon,
