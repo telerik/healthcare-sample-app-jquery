@@ -11,7 +11,7 @@ A clinical dashboard single-page application built with **ASP.NET Core (.NET 10)
 | Backend | ASP.NET Core MVC, .NET 10 |
 | ORM / Database | Entity Framework Core 9 + SQLite |
 | Frontend | jQuery 3.7.1 |
-| UI Components | Kendo UI for jQuery v2026.1.325 |
+| UI Components | Kendo UI for jQuery v2026.3.811 |
 | Theme | Kendo UI Default Theme v13.1.1 |
 | Fonts | Google Fonts — Poppins |
 
